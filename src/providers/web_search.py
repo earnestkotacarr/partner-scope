@@ -94,6 +94,7 @@ class WebSearchProvider(BaseProvider):
         # TODO: Extract description from about page or meta description
         # TODO: Handle various website structures
 
+        _ = url  # Parameter will be used in implementation
         raise NotImplementedError("Website extraction not yet implemented")
 
     def normalize_company_data(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
