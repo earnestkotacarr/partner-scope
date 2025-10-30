@@ -1,0 +1,48 @@
+# Partner Scope Configuration Template
+# Copy this file to config.yaml and fill in your API keys
+
+# Data Providers
+crunchbase:
+  enabled: true
+  api_key: YOUR_CRUNCHBASE_API_KEY_HERE
+  # Get API key from: https://www.crunchbase.com/
+
+cbinsights:
+  enabled: true
+  # CB Insights uses web scraping (no API key needed)
+  # Optional: Add credentials for authenticated access
+  # username: your_username
+  # password: your_password
+
+linkedin:
+  enabled: false  # Requires special setup due to LinkedIn's restrictions
+  # api_key: YOUR_LINKEDIN_API_KEY
+  # Note: LinkedIn heavily restricts scraping. Use official API if available.
+
+web_search:
+  enabled: true
+  search_engine: google  # Options: google, bing
+  api_key: YOUR_GOOGLE_CUSTOM_SEARCH_API_KEY
+  search_engine_id: YOUR_SEARCH_ENGINE_ID
+  # Get Google Custom Search API: https://developers.google.com/custom-search
+
+# LLM Configuration
+llm:
+  provider: openai  # Options: openai, anthropic
+  model: gpt-4  # Options: gpt-4, gpt-3.5-turbo, claude-3-opus, etc.
+  api_key: YOUR_OPENAI_API_KEY_HERE
+  # Get OpenAI API key from: https://platform.openai.com/api-keys
+  # For Claude: https://console.anthropic.com/
+
+# Pipeline Settings
+pipeline:
+  work_dir: work
+  results_dir: results
+  similarity_threshold: 0.8  # Threshold for company deduplication (0-1)
+  max_results_per_provider: 100  # Max companies to fetch from each provider
+  max_final_results: 50  # Max partners to return in final ranking
+
+# Logging
+logging:
+  level: INFO  # Options: DEBUG, INFO, WARNING, ERROR
+  file: logs/partner_scope.log
