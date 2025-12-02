@@ -1,6 +1,66 @@
 # Partner Scope
 
+**Team 3 - Corundum Corp** | UTokyo GMSI Innovation Workshop
+
 A VC partner-matching pipeline that helps find and rank potential partners for startups.
+
+## Current Status (Dec 2024)
+
+### ✅ What's Working
+
+**Stage 1 - Search & Identification:**
+
+| Component | Status | Description |
+|-----------|--------|-------------|
+| MockCrunchbaseProvider | ✅ Working | Reads from pre-curated CrunchBase CSV exports with keyword-based query matching |
+| OpenAI Web Search | ✅ Working | GPT-4o with web search for real-time partner discovery |
+| React Frontend | ✅ Working | Vite + Tailwind CSS form with color-coded match scores |
+| FastAPI Backend | ✅ Working | Web server with mock data endpoints |
+
+**Configured Test Startups:**
+
+1. **CoVital Node** - doorway co-regulation robot for loneliness
+   - Pilot partners (100 companies): dorm operators, co-living, employers
+   - Validation partners (150 companies): research labs, hospitals for IRB/ethics
+
+2. **StellarCore Mining** - asteroid resource-mapping AI
+   - Data-source partners (300 companies): smallsat, spacecraft, sensors
+   - Validation partners (300 companies): planetary science labs
+
+### 🚧 What Needs To Be Done
+
+**Immediate Admin:**
+- [ ] Activate Crunchbase Pro subscription
+- [ ] Add $100 credits to OpenAI
+- [ ] Send receipts to GMSI Office
+
+**Stage 1 - Search & Identification:**
+- [ ] Chatbot to help startups define partner requirements (Earnest & Claude)
+- [ ] Generate Scenario Template from conversation (Earnest & Claude)
+- [ ] Integrate real Crunchbase API when available (Shreejan)
+- [ ] Look into both Companies and Investors (Shreejan)
+
+**Stage 2 - Evaluation & Analysis:**
+- [ ] Criteria Assessment (geographic match, past collaborations, needs)
+- [ ] Business Viability Check
+- [ ] "E" Score summarization
+
+**Stage 3 - Recommendation & Output:**
+- [ ] Generate recommendation reports (CSV/Interface)
+- [ ] Include: potential targets, partner candidates, detailed info, growth potential
+- [ ] Transparency: links/sources
+
+**Backend (Wentao):**
+- [ ] Web Search provider improvements
+- [ ] Pipeline integration
+
+**Scenarios for Midterm (Dec 18):**
+- [ ] Space - Wentao/Natsuki
+- [ ] AI/ALife - Earnest
+- [ ] Health - Shreejan
+- [ ] Environment - Amalie
+
+---
 
 ## Overview
 
@@ -16,22 +76,29 @@ Partner Scope automates the process of finding suitable corporate partners for s
 ```
 partner-scope/
 ├── src/
-│   ├── providers/          # Data source integrations
-│   │   ├── base.py         # Base provider interface
-│   │   ├── crunchbase.py   # Crunchbase API integration
-│   │   ├── cbinsights.py   # CB Insights web scraping
-│   │   ├── linkedin.py     # LinkedIn integration
-│   │   └── web_search.py   # Generic web search
-│   ├── core/               # Core functionality
-│   │   ├── aggregator.py   # Company deduplication and merging
-│   │   └── ranker.py       # LLM-based partner ranking
-│   └── pipeline.py         # Main pipeline orchestrator
-├── work/                   # Working directory (debug files)
-├── results/                # Final output reports
-├── tests/                  # Test suite
-├── config.yaml             # Configuration file
-├── .env                    # Environment variables (API keys)
-└── requirements.txt        # Python dependencies
+│   ├── providers/              # Data source integrations
+│   │   ├── base.py             # Base provider interface
+│   │   ├── crunchbase.py       # Crunchbase API integration
+│   │   ├── mock_crunchbase.py  # Mock provider using CSV exports
+│   │   ├── openai_web_search.py# OpenAI GPT-4o web search
+│   │   ├── cbinsights.py       # CB Insights web scraping
+│   │   ├── linkedin.py         # LinkedIn integration
+│   │   └── web_search.py       # Generic web search
+│   ├── core/                   # Core functionality
+│   │   ├── aggregator.py       # Company deduplication and merging
+│   │   └── ranker.py           # LLM-based partner ranking
+│   └── pipeline.py             # Main pipeline orchestrator
+├── csv/                        # Pre-curated CrunchBase exports
+│   ├── covital-pilot-partners.csv
+│   ├── covital-validation-partners.csv
+│   ├── partner1_space.csv
+│   └── partner2_space.csv
+├── frontend/                   # React + Vite frontend
+├── web/                        # FastAPI backend
+├── work/                       # Working directory (debug files)
+├── results/                    # Final output reports
+├── tests/                      # Test suite
+└── requirements.txt            # Python dependencies
 ```
 
 ## Setup
@@ -106,70 +173,31 @@ The pipeline generates:
 
 ## Next Steps
 
-This is a scaffolded project with TODO comments throughout. Key implementation tasks:
+See the **What Needs To Be Done** section at the top for current development tasks.
 
-### Data Providers
-- [ ] Implement Crunchbase API integration
-- [ ] Implement CB Insights web scraping
-- [ ] Implement LinkedIn data extraction
-- [ ] Implement web search and scraping
-
-### Core Functionality
-- [ ] Implement company deduplication logic
-- [ ] Implement LLM-based ranking
-- [ ] Add prompt engineering for better matching
-
-### Pipeline
-- [ ] Wire up all components in pipeline.py
-- [ ] Add error handling and retry logic
-- [ ] Implement output generation
-- [ ] Add progress tracking and logging
-
-### Testing
-- [ ] Add unit tests for core modules
-- [ ] Add integration tests for providers
-- [ ] Add end-to-end pipeline tests
-
-### Enhancements
-- [ ] Add CLI interface
-- [ ] Add database storage option
-- [ ] Add caching for API responses
-- [ ] Add rate limiting and quota management
-- [ ] Add support for additional data sources
+Key milestones:
+- **Dec 18, 2024** - Midterm Presentation (4 scenarios required)
 
 ## Example Scenarios
 
-### Scenario 1: Food Safety Startup
+### Scenario 1: CoVital Node (AI/Robotics)
 ```python
-pipeline.run(
-    startup_name="TempTrack",
-    investment_stage="Seed",
-    product_stage="MVP",
-    partner_needs="Large logistics company for pilot testing temperature tracking stickers",
-    industry="Food Safety / Supply Chain"
-)
+# Doorway co-regulation robot for loneliness
+# Partner 1: Pilot population (housing/employers)
+provider.search_companies("dorm university co-living employer student housing wellness")
+
+# Partner 2: Validation (research institutions)
+provider.search_companies("research IRB ethics clinical psych HCI hospital lab")
 ```
 
-### Scenario 2: Fintech Startup
+### Scenario 2: StellarCore Mining (Space)
 ```python
-pipeline.run(
-    startup_name="PayFlow",
-    investment_stage="Series A",
-    product_stage="Beta",
-    partner_needs="Regional banks for payment processing pilot program",
-    industry="Fintech"
-)
-```
+# Asteroid resource-mapping AI
+# Partner 1: Data-source partners
+provider.search_companies("satellite spacecraft smallsat cubesat radar sensor aerospace")
 
-### Scenario 3: Healthcare SaaS
-```python
-pipeline.run(
-    startup_name="HealthTrack",
-    investment_stage="Series B",
-    product_stage="Launched",
-    partner_needs="Hospital networks for EHR integration and deployment",
-    industry="Healthcare IT"
-)
+# Partner 2: Scientific validation
+provider.search_companies("planetary science research lab mineralogy geology asteroid")
 ```
 
 ## Notes

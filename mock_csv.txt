@@ -1,0 +1,37 @@
+CoVital Node — doorway co-regulation robot for loneliness (needs two partners)What they have:
+
+Partner 1 (pilot population – housing / employer):
+ A university dorm operator, co-living provider, or large employer with staff or students living in company/dorm housing and an interest in wellbeing / mental health.
+
+csvpath1: csv/pilot-company.csv
+csvpath2: csv/pilot-school.csv
+combined: csv/covital-pilot-partners.csv
+
+Partner 2 (validation partner – institution):
+ A mental health or HCI research lab / hospital that can oversee ethics and help design outcome measures (e.g., UCLA Loneliness Scale, simple stress scales, sleep quality).
+
+csvpath3: csv/validation-company.csv
+csvpath4: csv/validation-school.csv
+combined: csv/covital-validation-partners.csv
+
+# Keywords for matching queries to CSV files:
+# Partner 1 keywords: dorm, housing, university, co-living, wellness, wellbeing, mental health, student-life, pilot, apartment, employer, student, employee, residence, living
+# Partner 2 keywords: research, IRB, ethics, clinical, psych, HCI, hospital, lab, validation, study, academic, institution, psychology, loneliness, outcome
+
+================================================================================
+
+StellarCore Mining — asteroid resource-mapping AI (needs two partners)
+
+Partner 1 (Data-source partner):
+ Smallsat manufacturers, spacecraft builders, or spectroscopy/radar sensor companies.
+
+csvpath: csv/partner1_space.csv
+
+Partner 2 (Scientific validation partner):
+ Planetary science labs or mineralogy/spectroscopy research institutes.
+
+csvpath: csv/partner2_space.csv
+
+# Keywords for matching queries to CSV files:
+# Partner 1 keywords: satellite, spacecraft, smallsat, cubesat, radar, sensor, spectroscopy, aerospace, rocket, space
+# Partner 2 keywords: planetary, science, research, lab, mineralogy, spectroscopy, institute, geology, asteroid, validation

@@ -14,6 +14,7 @@ from datetime import datetime
 
 from .providers import (
     CrunchbaseProvider,
+    MockCrunchbaseProvider,
     CBInsightsProvider,
     LinkedInProvider,
     WebSearchProvider,
@@ -45,7 +46,12 @@ class PartnerPipeline:
         # TODO: Make provider initialization configurable (enable/disable specific providers)
         self.providers = {}
 
-        if self.config.get('crunchbase', {}).get('enabled', True):
+        # Use MockCrunchbaseProvider if enabled, otherwise use real CrunchbaseProvider
+        if self.config.get('mock_crunchbase', {}).get('enabled', False):
+            self.providers['crunchbase'] = MockCrunchbaseProvider(
+                self.config.get('mock_crunchbase', {})
+            )
+        elif self.config.get('crunchbase', {}).get('enabled', True):
             self.providers['crunchbase'] = CrunchbaseProvider(
                 self.config.get('crunchbase', {})
             )
@@ -286,18 +292,23 @@ def main():
 
     # Example configuration
     config = {
+        # Use mock_crunchbase for testing with pre-curated CSV files
+        'mock_crunchbase': {
+            'enabled': True,  # Set to True to use mock CSV data
+            # 'base_path': '/path/to/project',  # Optional: override base path
+        },
         'crunchbase': {
-            'enabled': True,
+            'enabled': False,  # Disabled when using mock
             'api_key': 'YOUR_API_KEY_HERE',
         },
         'cbinsights': {
-            'enabled': True,
+            'enabled': False,
         },
         'linkedin': {
             'enabled': False,  # Requires special setup
         },
         'web_search': {
-            'enabled': True,
+            'enabled': False,
             'search_engine': 'google',
             'api_key': 'YOUR_GOOGLE_API_KEY',
             'search_engine_id': 'YOUR_SEARCH_ENGINE_ID',

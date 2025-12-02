@@ -13,10 +13,12 @@ from .crunchbase import CrunchbaseProvider
 from .cbinsights import CBInsightsProvider
 from .linkedin import LinkedInProvider
 from .web_search import WebSearchProvider
+from .mock_crunchbase import MockCrunchbaseProvider
 
 __all__ = [
     'BaseProvider',
     'CrunchbaseProvider',
+    'MockCrunchbaseProvider',
     'CBInsightsProvider',
     'LinkedInProvider',
     'WebSearchProvider',
