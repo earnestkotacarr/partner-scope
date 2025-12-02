@@ -1,0 +1,57 @@
+Request Number: NG_2022_0001_N_2025_009
+Status: Need is Open
+Due Date: Dec 18
+Point of Contact: Oliver Worsfold
+
+NEEDS TITLE: Smart Aircraft Inspection
+
+DESCRIPTION:
+Qatar Airways and QRDI Council invite innovators worldwide to modernize aircraft exterior inspections at hangar entrances. This challenge seeks groundbreaking solutions that can dramatically reduce inspection times while maintaining or exceeding current safety standards. Qatar Airways are seeking an innovative smart inspection approach to be performed during the Dock-In Phase of the aircraft.
+
+BACKGROUND:
+The primary challenge lies in the lengthy and resource-intensive process required for manual visual aircraft inspections, especially for areas that are difficult to access. Currently, aircraft inspections are performed manually at the start of each C-CHECK, taking approximately 24 hours total (12 hours for scaffolding setup + 12 hours for assessment).
+
+OPPORTUNITY:
+Proof of concept leading to scale-up, joint development, supplier agreement, licensing.
+
+TIMELINE:
+- Phase 1: Evaluation and shortlisting (Feb/March 2026)
+- Phase 2: Proof of concept / Pilot Implementation (Q4 2026)
+  - Trial agreement Signing and POV development (May 2026)
+  - Developing the required technology (Sept 2026)
+  - Proof of Value/Pilot Implementation (Oct 2026)
+  - Reporting and Finalization (Nov 2026)
+- Phase 3: Collaboration agreement for full scale installations (within 2 years)
+
+FINANCIALS:
+- QRDI will provide financial rewards up to $100,000 for piloting technology within Qatar
+- All contractual terms to be negotiated between Solution Provider(s), QRDI and Qatar Airways
+
+KEY SUCCESS CRITERIA:
+1. Inspection solution capability: detect damages once fleet enters the Hangar
+2. Materials: identify aluminum, composites, HSS, fiberglass and carbon fiber
+3. Reliability: identify >99% of existing and new dents/buckles with 0.1mm resolution
+4. Data integration: integrate with existing maintenance management systems (AMOS) and shopfloor iPads
+5. Real-time reporting: provide immediate feedback and instant reports
+6. Customizability: compatible with different aircraft types (trial aircraft: B777)
+7. Goal: reduce inspection time by at least 70%
+
+TECHNOLOGIES UNDER CONSIDERATION:
+- Optical 3D Scanners
+- Artificial Intelligence-Powered Tools
+- Drone-Based Inspection Systems
+- Time-of-Flight (ToF) Cameras
+- Image processing cameras
+- Multispectral imaging
+- X-ray / Ultrasound
+- Infrared
+- Eddy currents
+- Radiographic
+
+APPROACHES NOT OF INTEREST:
+- Early-stage ideation
+- University-only led projects
+- Technologies where TRL < 3
+
+PREFERRED COLLABORATION TYPES:
+Joint Development, Supply Agreement, Technology Acquisition, Technology Licensing
