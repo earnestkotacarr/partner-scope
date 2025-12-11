@@ -55,8 +55,8 @@ const Results = ({ results, loading, error }) => {
               className="border border-slate-200 rounded-lg p-6 hover:shadow-md transition"
             >
               {/* Company Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="flex-1 min-w-0">
                   <h3 className="text-xl font-bold text-slate-900 mb-1">
                     {match.company_name}
                   </h3>
@@ -65,14 +65,16 @@ const Results = ({ results, loading, error }) => {
                       href={match.company_info.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-sm text-blue-600 hover:underline block truncate"
+                      title={match.company_info.website}
                     >
-                      {match.company_info.website}
+                      {match.company_info.website.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40)}
+                      {match.company_info.website.replace(/^https?:\/\/(www\.)?/, '').length > 40 ? '...' : ''}
                     </a>
                   )}
                 </div>
-                <div className="flex-shrink-0 ml-4">
-                  <div className={`text-2xl font-bold px-4 py-2 rounded-lg ${
+                <div className="flex-shrink-0">
+                  <div className={`text-2xl font-bold px-3 py-1 rounded-lg ${
                     match.match_score >= 80 ? 'bg-green-100 text-green-700' :
                     match.match_score >= 60 ? 'bg-yellow-100 text-yellow-700' :
                     'bg-red-100 text-red-700'
