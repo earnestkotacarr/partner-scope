@@ -14,6 +14,7 @@ from .cbinsights import CBInsightsProvider
 from .linkedin import LinkedInProvider
 from .web_search import WebSearchProvider
 from .mock_crunchbase import MockCrunchbaseProvider
+from .openai_web_search import OpenAIWebSearchProvider
 
 __all__ = [
     'BaseProvider',
@@ -22,4 +23,5 @@ __all__ = [
     'CBInsightsProvider',
     'LinkedInProvider',
     'WebSearchProvider',
+    'OpenAIWebSearchProvider',
 ]

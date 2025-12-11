@@ -84,18 +84,27 @@ const Results = ({ results, loading, error }) => {
               </div>
 
               {/* Company Info */}
-              {match.company_info?.industry && (
-                <div className="mb-3">
+              <div className="mb-3 flex flex-wrap gap-2">
+                {match.company_info?.source && (
+                  <span className={`inline-block text-xs px-2 py-1 rounded-full font-medium ${
+                    match.company_info.source === 'AI Web Search'
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {match.company_info.source}
+                  </span>
+                )}
+                {match.company_info?.industry && (
                   <span className="inline-block bg-slate-100 text-slate-700 text-sm px-3 py-1 rounded-full">
                     {match.company_info.industry}
                   </span>
-                  {match.company_info?.location && (
-                    <span className="inline-block bg-slate-100 text-slate-700 text-sm px-3 py-1 rounded-full ml-2">
-                      📍 {match.company_info.location}
-                    </span>
-                  )}
-                </div>
-              )}
+                )}
+                {match.company_info?.location && (
+                  <span className="inline-block bg-slate-100 text-slate-700 text-sm px-3 py-1 rounded-full">
+                    📍 {match.company_info.location}
+                  </span>
+                )}
+              </div>
 
               {/* Rationale */}
               <div className="mb-4">

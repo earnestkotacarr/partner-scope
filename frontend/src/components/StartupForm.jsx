@@ -9,7 +9,10 @@ const StartupForm = ({ onSubmit, loading }) => {
     industry: '',
     description: '',
     max_results: 20,
+    use_csv: true,
+    use_web_search: false,
   })
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -28,10 +31,10 @@ const StartupForm = ({ onSubmit, loading }) => {
     <div className="bg-white rounded-xl shadow-lg p-8">
       <h2 className="text-2xl font-bold text-slate-900 mb-6">Startup Information</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Startup Name */}
         <div>
-          <label htmlFor="startup_name" className="block text-sm font-medium text-slate-700 mb-2">
+          <label htmlFor="startup_name" className="block text-sm font-medium text-slate-700 mb-1">
             Startup Name *
           </label>
           <input
@@ -41,90 +44,14 @@ const StartupForm = ({ onSubmit, loading }) => {
             required
             value={formData.startup_name}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-            placeholder="e.g., TempTrack"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+            placeholder="e.g., CoVital Node"
           />
         </div>
 
-        {/* Investment Stage */}
+        {/* Partner Needs - moved up as primary field */}
         <div>
-          <label htmlFor="investment_stage" className="block text-sm font-medium text-slate-700 mb-2">
-            Investment Stage *
-          </label>
-          <select
-            id="investment_stage"
-            name="investment_stage"
-            required
-            value={formData.investment_stage}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-          >
-            <option value="Pre-Seed">Pre-Seed</option>
-            <option value="Seed">Seed</option>
-            <option value="Series A">Series A</option>
-            <option value="Series B">Series B</option>
-            <option value="Series C">Series C</option>
-            <option value="Series D+">Series D+</option>
-          </select>
-        </div>
-
-        {/* Product Stage */}
-        <div>
-          <label htmlFor="product_stage" className="block text-sm font-medium text-slate-700 mb-2">
-            Product Stage *
-          </label>
-          <select
-            id="product_stage"
-            name="product_stage"
-            required
-            value={formData.product_stage}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-          >
-            <option value="Concept">Concept</option>
-            <option value="MVP">MVP</option>
-            <option value="Beta">Beta</option>
-            <option value="Public Testing">Public Testing</option>
-            <option value="Launched">Launched</option>
-            <option value="Scaling">Scaling</option>
-          </select>
-        </div>
-
-        {/* Industry */}
-        <div>
-          <label htmlFor="industry" className="block text-sm font-medium text-slate-700 mb-2">
-            Industry
-          </label>
-          <input
-            type="text"
-            id="industry"
-            name="industry"
-            value={formData.industry}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-            placeholder="e.g., Food Safety, Fintech, Healthcare IT"
-          />
-        </div>
-
-        {/* Description */}
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-slate-700 mb-2">
-            Startup Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            rows={3}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"
-            placeholder="Brief description of your startup..."
-          />
-        </div>
-
-        {/* Partner Needs */}
-        <div>
-          <label htmlFor="partner_needs" className="block text-sm font-medium text-slate-700 mb-2">
+          <label htmlFor="partner_needs" className="block text-sm font-medium text-slate-700 mb-1">
             Partner Needs *
           </label>
           <textarea
@@ -133,28 +60,161 @@ const StartupForm = ({ onSubmit, loading }) => {
             required
             value={formData.partner_needs}
             onChange={handleChange}
-            rows={4}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"
-            placeholder="Describe what you're looking for in a partner (e.g., Large logistics company for pilot testing temperature tracking stickers)"
+            rows={2}
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"
+            placeholder="e.g., dorm housing university student wellness"
           />
         </div>
 
-        {/* Max Results */}
+        {/* Data Sources - Multi-select */}
         <div>
-          <label htmlFor="max_results" className="block text-sm font-medium text-slate-700 mb-2">
-            Maximum Results
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Data Sources (select one or both)
           </label>
-          <input
-            type="number"
-            id="max_results"
-            name="max_results"
-            min="1"
-            max="100"
-            value={formData.max_results}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setFormData(prev => ({ ...prev, use_csv: !prev.use_csv }))}
+              className={`flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition ${
+                formData.use_csv
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+              }`}
+            >
+              {formData.use_csv ? '✓ ' : ''}CrunchBase CSV
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData(prev => ({ ...prev, use_web_search: !prev.use_web_search }))}
+              className={`flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition ${
+                formData.use_web_search
+                  ? 'bg-green-600 text-white border-green-600'
+                  : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+              }`}
+            >
+              {formData.use_web_search ? '✓ ' : ''}AI Web Search
+            </button>
+          </div>
+          <p className="text-xs text-slate-500 mt-1">
+            {formData.use_csv && formData.use_web_search
+              ? 'Combined: CSV data + real-time AI web search'
+              : formData.use_csv
+              ? 'Pre-curated CrunchBase data (fast)'
+              : formData.use_web_search
+              ? 'Real-time web search via GPT-4o-mini'
+              : 'Select at least one data source'}
+          </p>
         </div>
+
+        {/* Stages in a row */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="investment_stage" className="block text-sm font-medium text-slate-700 mb-1">
+              Investment Stage
+            </label>
+            <select
+              id="investment_stage"
+              name="investment_stage"
+              value={formData.investment_stage}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+            >
+              <option value="Pre-Seed">Pre-Seed</option>
+              <option value="Seed">Seed</option>
+              <option value="Series A">Series A</option>
+              <option value="Series B">Series B</option>
+              <option value="Series C+">Series C+</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="product_stage" className="block text-sm font-medium text-slate-700 mb-1">
+              Product Stage
+            </label>
+            <select
+              id="product_stage"
+              name="product_stage"
+              value={formData.product_stage}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+            >
+              <option value="Concept">Concept</option>
+              <option value="MVP">MVP</option>
+              <option value="Beta">Beta</option>
+              <option value="Launched">Launched</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Advanced Options Toggle */}
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+        >
+          <svg
+            className={`w-4 h-4 transition-transform ${showAdvanced ? 'rotate-90' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          {showAdvanced ? 'Hide' : 'Show'} Advanced Options
+        </button>
+
+        {/* Collapsible Advanced Options */}
+        {showAdvanced && (
+          <div className="space-y-4 pt-2 border-t border-slate-200">
+            {/* Industry */}
+            <div>
+              <label htmlFor="industry" className="block text-sm font-medium text-slate-700 mb-1">
+                Industry
+              </label>
+              <input
+                type="text"
+                id="industry"
+                name="industry"
+                value={formData.industry}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                placeholder="e.g., Robotics, Space Tech, Healthcare"
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-slate-700 mb-1">
+                Startup Description
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={2}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"
+                placeholder="Brief description of your startup..."
+              />
+            </div>
+
+            {/* Max Results */}
+            <div>
+              <label htmlFor="max_results" className="block text-sm font-medium text-slate-700 mb-1">
+                Maximum Results
+              </label>
+              <input
+                type="number"
+                id="max_results"
+                name="max_results"
+                min="1"
+                max="100"
+                value={formData.max_results}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Submit Button */}
         <button

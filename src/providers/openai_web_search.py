@@ -24,7 +24,8 @@ class OpenAIWebSearchProvider(BaseProvider):
             raise ValueError("OpenAI API key must be provided in config or OPENAI_API_KEY environment variable")
 
         self.client = OpenAI(api_key=api_key)
-        self.model = self.config.get('model', 'gpt-4o')
+        # gpt-4o-mini is cheaper and supports web search
+        self.model = self.config.get('model', 'gpt-4o-mini')
 
     def _search_companies_list(self, user_requirements: str, max_companies: int = 10) -> List[str]:
         """

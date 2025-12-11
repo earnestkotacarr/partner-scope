@@ -16,7 +16,7 @@ from pathlib import Path
 
 from src.pipeline import PartnerPipeline
 from src.core import StartupProfile
-from src.providers import MockCrunchbaseProvider
+from src.providers import MockCrunchbaseProvider, OpenAIWebSearchProvider
 
 # Initialize FastAPI app
 app = FastAPI(title="Partner Scope API", version="1.0.0")
@@ -51,6 +51,8 @@ class SearchRequest(BaseModel):
     industry: Optional[str] = ""
     description: Optional[str] = ""
     max_results: Optional[int] = 20
+    use_csv: Optional[bool] = True
+    use_web_search: Optional[bool] = False
 
 
 class PartnerMatchResponse(BaseModel):
@@ -102,9 +104,26 @@ async def search_partners(request: SearchRequest):
                 max_results=request.max_results,
             )
 
-        # Query MockCrunchbaseProvider for CSV-based results
-        # TODO: Replace with full pipeline execution once Stage 2 & 3 are implemented
-        matches = await _get_csv_results(request)
+        # Aggregate results from selected data sources
+        all_matches = []
+
+        if request.use_csv:
+            csv_matches = await _get_csv_results(request)
+            # Tag source for display
+            for m in csv_matches:
+                m.company_info["source"] = "CrunchBase CSV"
+            all_matches.extend(csv_matches)
+
+        if request.use_web_search:
+            web_matches = await _get_web_search_results(request)
+            # Tag source for display
+            for m in web_matches:
+                m.company_info["source"] = "AI Web Search"
+            all_matches.extend(web_matches)
+
+        # Sort by score descending and limit results
+        all_matches.sort(key=lambda x: x.match_score, reverse=True)
+        matches = all_matches[:request.max_results or 20]
 
         return SearchResponse(
             startup_name=request.startup_name,
@@ -162,6 +181,72 @@ async def _get_csv_results(request: SearchRequest) -> list[PartnerMatchResponse]
                 "Requires further evaluation (Stage 2 not yet implemented)",
             ],
             recommended_action="Review company details and assess fit manually",
+        )
+        matches.append(match)
+
+    return matches
+
+
+async def _get_web_search_results(request: SearchRequest) -> list[PartnerMatchResponse]:
+    """
+    Query OpenAI Web Search for real-time partner discovery.
+
+    Uses GPT-4o with web search to find companies matching the partner needs.
+    """
+    import asyncio
+
+    # Check for API key
+    if not os.getenv('OPENAI_API_KEY'):
+        raise HTTPException(
+            status_code=400,
+            detail="OpenAI API key not configured. Set OPENAI_API_KEY environment variable."
+        )
+
+    # Initialize the web search provider
+    provider = OpenAIWebSearchProvider({})
+
+    # Run the synchronous search in a thread pool to avoid blocking
+    loop = asyncio.get_event_loop()
+    companies = await loop.run_in_executor(
+        None,
+        lambda: provider.search_companies(
+            query=request.partner_needs,
+            filters={'max_results': request.max_results or 10}
+        )
+    )
+
+    # Transform company dictionaries to PartnerMatchResponse format
+    matches = []
+    for i, company in enumerate(companies):
+        # Calculate a simple relevance score based on position
+        base_score = 95 - (i * 3)
+        score = max(50, min(99, base_score))
+
+        description = company.get('description', '') or ''
+        industry = company.get('industry', '') or ''
+        location = company.get('location', '') or ''
+        size = company.get('size', '') or ''
+
+        match = PartnerMatchResponse(
+            company_name=company.get('name', 'Unknown'),
+            company_info={
+                "website": company.get('website', ''),
+                "industry": industry,
+                "location": location,
+                "description": description,
+                "size": size,
+            },
+            match_score=score,
+            rationale=f"Found via AI web search. {description[:200] + '...' if len(description) > 200 else description or 'No description available.'}",
+            key_strengths=[
+                f"Industry: {industry}" if industry and industry != 'Not available' else "Industry match pending",
+                f"Location: {location}" if location and location != 'Not available' else "Location data pending",
+                f"Size: {size}" if size and size != 'Not available' else "Size data pending",
+            ],
+            potential_concerns=[
+                "Web search results - verify company details independently",
+            ],
+            recommended_action="Review company website and validate fit",
         )
         matches.append(match)
 
