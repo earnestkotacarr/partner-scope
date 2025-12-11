@@ -511,5 +511,30 @@ Preferred partners:
 
 
 if __name__ == "__main__":
-    # Run test when file is executed directly
-    test_smart_aircraft_inspection()
+    # Usage example: search for CoVital pilot partners using covital_pilot.md
+    import csv
+    from pathlib import Path
+
+    provider = OpenAIWebSearchProvider()
+
+    # Load query from covital_pilot.md
+    query_file = Path(__file__).parent.parent.parent / 'test_data' / 'md' / 'covital_pilot.md'
+    with open(query_file, 'r', encoding='utf-8') as f:
+        query = f.read()
+
+    results = provider.search_companies(query, {'max_results': 10})
+    print(f"Found {len(results)} pilot partners")
+
+    # Save results to CSV
+    output_dir = Path(__file__).parent.parent.parent / 'test_results' / 'openai_web_search'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / 'pilot_partners.csv'
+
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        if results:
+            fieldnames = ['name', 'description', 'industry', 'location', 'website', 'source']
+            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+            writer.writeheader()
+            writer.writerows(results)
+
+    print(f"Results saved to: {output_path}")

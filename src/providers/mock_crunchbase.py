@@ -273,3 +273,26 @@ class MockCrunchbaseProvider(BaseProvider):
             all_companies.extend(normalized)
 
         return all_companies
+
+
+if __name__ == '__main__':
+    # Usage example: search for pilot partners and save results to CSV
+    provider = MockCrunchbaseProvider()
+
+    # Search for pilot partners
+    results = provider.search_companies("wellness student housing", {'partner_type': 'pilot', 'max_results': 10})
+    print(f"Found {len(results)} pilot partners")
+
+    # Save results to CSV
+    output_dir = Path(__file__).parent.parent.parent / 'test_results' / 'mock_crunchbase'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / 'pilot_partners.csv'
+
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        if results:
+            fieldnames = ['name', 'description', 'industry', 'location', 'website', 'source']
+            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+            writer.writeheader()
+            writer.writerows(results)
+
+    print(f"Results saved to: {output_path}")
