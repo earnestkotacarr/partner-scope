@@ -16,6 +16,7 @@ from pathlib import Path
 
 from src.pipeline import PartnerPipeline
 from src.core import StartupProfile
+from src.providers import MockCrunchbaseProvider
 
 # Initialize FastAPI app
 app = FastAPI(title="Partner Scope API", version="1.0.0")
@@ -23,7 +24,8 @@ app = FastAPI(title="Partner Scope API", version="1.0.0")
 # Configuration
 # TODO: Load from config file or environment variables
 CONFIG = {
-    'crunchbase': {'enabled': False},  # Disabled by default until API keys are configured
+    'mock_crunchbase': {'enabled': True},  # Use CSV-based mock provider
+    'crunchbase': {'enabled': False},
     'cbinsights': {'enabled': False},
     'linkedin': {'enabled': False},
     'web_search': {'enabled': False},
@@ -100,9 +102,9 @@ async def search_partners(request: SearchRequest):
                 max_results=request.max_results,
             )
 
-        # For now, we'll return mock data until the pipeline is fully implemented
-        # TODO: Replace with actual pipeline execution once implemented
-        matches = await _get_mock_results(request)
+        # Query MockCrunchbaseProvider for CSV-based results
+        # TODO: Replace with full pipeline execution once Stage 2 & 3 are implemented
+        matches = await _get_csv_results(request)
 
         return SearchResponse(
             startup_name=request.startup_name,
@@ -114,84 +116,56 @@ async def search_partners(request: SearchRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-async def _get_mock_results(request: SearchRequest) -> list[PartnerMatchResponse]:
+async def _get_csv_results(request: SearchRequest) -> list[PartnerMatchResponse]:
     """
-    Generate mock results for testing the UI.
+    Query the MockCrunchbaseProvider CSV data and return results.
 
-    TODO: Remove this once the pipeline is fully implemented.
+    Uses keyword matching to find relevant companies from pre-curated CSV files.
     """
-    # Simulate some processing time
-    await asyncio.sleep(2)
+    # Initialize the mock provider
+    provider = MockCrunchbaseProvider({})
 
-    # Return mock data based on the request
-    mock_matches = [
-        {
-            "company_name": "GlobalLogistics Corp",
-            "company_info": {
-                "website": "https://globallogistics.example.com",
-                "industry": "Logistics & Supply Chain",
-                "location": "Chicago, IL",
-                "linkedin_url": "https://linkedin.com/company/globallogistics",
-            },
-            "match_score": 92,
-            "rationale": f"Excellent match for {request.startup_name}. GlobalLogistics operates a large fleet and has expressed interest in food safety innovations. Their distribution network spans 40 states, making them ideal for a pilot program.",
-            "key_strengths": [
-                "Extensive distribution network across North America",
-                "Strong focus on food safety and compliance",
-                "Budget allocated for innovation pilots",
-                "Existing temperature monitoring infrastructure",
-            ],
-            "potential_concerns": [
-                "May require lengthy procurement process",
-                "Corporate decision-making can be slow",
-            ],
-            "recommended_action": "High priority - reach out to VP of Operations",
-        },
-        {
-            "company_name": "FreshChain Solutions",
-            "company_info": {
-                "website": "https://freshchain.example.com",
-                "industry": "Cold Chain Logistics",
-                "location": "Dallas, TX",
-                "linkedin_url": "https://linkedin.com/company/freshchain",
-                "twitter_url": "https://twitter.com/freshchain",
-            },
-            "match_score": 85,
-            "rationale": "Strong alignment with partner needs. FreshChain specializes in temperature-sensitive logistics and has been actively seeking innovation partners.",
-            "key_strengths": [
-                "Specialized in perishable goods transport",
-                "Recent funding round for innovation",
-                "Expressed pain points align with solution",
-            ],
-            "potential_concerns": [
-                "Smaller scale than GlobalLogistics",
-                "May have budget constraints",
-            ],
-            "recommended_action": "Reach out to innovation team",
-        },
-        {
-            "company_name": "RegionalFreight Inc",
-            "company_info": {
-                "website": "https://regionalfreight.example.com",
-                "industry": "Transportation",
-                "location": "Atlanta, GA",
-            },
-            "match_score": 72,
-            "rationale": "Moderate fit. RegionalFreight handles some food logistics but it's not their core focus. Could be a good secondary partner.",
-            "key_strengths": [
-                "Regional presence in Southeast",
-                "Flexible partnership approach",
-            ],
-            "potential_concerns": [
-                "Food logistics is only 20% of their business",
-                "Limited resources for pilots",
-                "May not have right expertise",
-            ],
-            "recommended_action": "Research more before reaching out",
-        },
-    ]
+    # Search using the partner_needs as the query
+    companies = provider.search_companies(
+        query=request.partner_needs,
+        filters={'max_results': request.max_results or 20}
+    )
 
-    return [PartnerMatchResponse(**match) for match in mock_matches]
+    # Transform company dictionaries to PartnerMatchResponse format
+    matches = []
+    for i, company in enumerate(companies):
+        # Calculate a simple relevance score based on position (will be replaced by LLM ranking later)
+        base_score = 95 - (i * 2)  # Decreasing score by position
+        score = max(50, min(99, base_score))  # Clamp between 50-99
+
+        description = company.get('description', '') or ''
+        industry = company.get('industry', '') or ''
+        location = company.get('location', '') or ''
+        raw_data = company.get('raw_data', {}) or {}
+
+        match = PartnerMatchResponse(
+            company_name=company.get('name', 'Unknown'),
+            company_info={
+                "website": company.get('website', ''),
+                "industry": industry,
+                "location": location,
+                "description": description,
+                "crunchbase_url": raw_data.get('crunchbase_url', ''),
+            },
+            match_score=score,
+            rationale=f"Found via CrunchBase search. {description[:200] + '...' if len(description) > 200 else description or 'No description available.'}",
+            key_strengths=[
+                f"Industry: {industry}" if industry else "Industry data available",
+                f"Location: {location}" if location else "Location data available",
+            ],
+            potential_concerns=[
+                "Requires further evaluation (Stage 2 not yet implemented)",
+            ],
+            recommended_action="Review company details and assess fit manually",
+        )
+        matches.append(match)
+
+    return matches
 
 
 # Serve static files from the React build
