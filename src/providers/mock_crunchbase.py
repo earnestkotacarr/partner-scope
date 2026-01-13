@@ -22,7 +22,7 @@ class MockCrunchbaseProvider(BaseProvider):
                 'wellbeing', 'mental health', 'student-life', 'pilot',
                 'apartment', 'employer', 'student', 'employee', 'residence', 'living'
             ],
-            'csv_path': 'csv/covital-pilot-partners.csv'
+            'csv_path': 'test_data/csv/covital-pilot-partners.csv'
         },
         'validation': {
             'keywords': [
@@ -30,7 +30,7 @@ class MockCrunchbaseProvider(BaseProvider):
                 'hospital', 'lab', 'validation', 'study', 'academic',
                 'institution', 'psychology', 'loneliness', 'outcome'
             ],
-            'csv_path': 'csv/covital-validation-partners.csv'
+            'csv_path': 'test_data/csv/covital-validation-partners.csv'
         },
         # StellarCore Mining - asteroid resource-mapping AI
         'stellar_datasource': {
@@ -38,14 +38,14 @@ class MockCrunchbaseProvider(BaseProvider):
                 'satellite', 'spacecraft', 'smallsat', 'cubesat', 'radar',
                 'sensor', 'spectroscopy', 'aerospace', 'rocket', 'space'
             ],
-            'csv_path': 'csv/partner1_space.csv'
+            'csv_path': 'test_data/csv/partner1_space.csv'
         },
         'stellar_validation': {
             'keywords': [
                 'planetary', 'science', 'research', 'lab', 'mineralogy',
                 'spectroscopy', 'institute', 'geology', 'asteroid', 'validation'
             ],
-            'csv_path': 'csv/partner2_space.csv'
+            'csv_path': 'test_data/csv/partner2_space.csv'
         }
     }
 

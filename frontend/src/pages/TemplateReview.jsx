@@ -1,0 +1,359 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useScenario } from '../context/ScenarioContext'
+import { useStreamingSearch } from '../hooks/useStreamingSearch'
+import CostBadge from '../components/CostBadge'
+
+function TemplateReview() {
+  const navigate = useNavigate()
+  const {
+    scenario,
+    setScenario,
+    setResults,
+    setCurrentCost,
+    setIsSearching,
+    addCost,
+    getCostSummary,
+  } = useScenario()
+  const [formData, setFormData] = useState({
+    startup_name: '',
+    description: '',
+    industry: '',
+    investment_stage: 'Seed',
+    product_stage: 'MVP',
+    partner_needs: '',
+    keywords: [],
+    use_csv: true,
+    use_web_search: true
+  })
+  const [progressMessage, setProgressMessage] = useState(null)
+
+  // Streaming search hook for real-time cost updates
+  const { startSearch, cancelSearch, isSearching, progress, error } = useStreamingSearch({
+    onProgress: (data) => {
+      // Update current cost from progress events
+      if (data.cost) {
+        setCurrentCost(data.cost)
+      }
+      // Update progress message
+      if (data.phase === 'company_list') {
+        setProgressMessage(`Finding companies... (${data.companies_found || 0} found)`)
+      } else if (data.phase === 'company_details') {
+        setProgressMessage(`Fetching details: ${data.company || 'company'} (${data.index}/${data.total})`)
+      } else if (data.phase === 'ranking') {
+        setProgressMessage('Ranking results...')
+      } else if (data.message) {
+        setProgressMessage(data.message)
+      }
+    },
+    onComplete: (data) => {
+      // Add final cost to session
+      if (data.cost) {
+        addCost(data.cost, 'search')
+      }
+      setResults(data)
+      setScenario(formData)
+      setIsSearching(false)
+      setCurrentCost(null)
+      setProgressMessage(null)
+      navigate('/results')
+    },
+    onError: (err) => {
+      console.error('Search error:', err)
+      setIsSearching(false)
+      setCurrentCost(null)
+      setProgressMessage(null)
+    }
+  })
+
+  // Populate form from scenario
+  useEffect(() => {
+    if (scenario) {
+      setFormData({
+        startup_name: scenario.startup_name || '',
+        description: scenario.description || '',
+        industry: scenario.industry || '',
+        investment_stage: scenario.investment_stage || 'Seed',
+        product_stage: scenario.product_stage || 'MVP',
+        partner_needs: scenario.partner_needs || '',
+        keywords: scenario.keywords || [],
+        use_csv: scenario.use_csv !== undefined ? scenario.use_csv : true,
+        use_web_search: scenario.use_web_search !== undefined ? scenario.use_web_search : true
+      })
+    }
+  }, [scenario])
+
+  // Redirect if no scenario
+  useEffect(() => {
+    if (!scenario) {
+      navigate('/chat')
+    }
+  }, [scenario, navigate])
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSearch = () => {
+    setIsSearching(true)
+    setProgressMessage('Initializing search...')
+    startSearch({
+      startup_name: formData.startup_name,
+      investment_stage: formData.investment_stage,
+      product_stage: formData.product_stage,
+      partner_needs: formData.partner_needs,
+      industry: formData.industry,
+      description: formData.description,
+      max_results: 20,
+      use_csv: formData.use_csv,
+      use_web_search: formData.use_web_search
+    })
+  }
+
+  const handleCancel = () => {
+    cancelSearch()
+    setIsSearching(false)
+    setCurrentCost(null)
+    setProgressMessage(null)
+  }
+
+  if (!scenario) {
+    return null
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">
+            Review Your Partner Profile
+          </h1>
+          <p className="text-slate-600">
+            Edit any fields before searching for partners
+          </p>
+        </div>
+
+        {/* Form */}
+        <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
+          {/* Startup Name */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Startup Name
+            </label>
+            <input
+              type="text"
+              name="startup_name"
+              value={formData.startup_name}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Description
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows={3}
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Industry */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Industry
+            </label>
+            <input
+              type="text"
+              name="industry"
+              value={formData.industry}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Stages */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Investment Stage
+              </label>
+              <select
+                name="investment_stage"
+                value={formData.investment_stage}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="Pre-Seed">Pre-Seed</option>
+                <option value="Seed">Seed</option>
+                <option value="Series A">Series A</option>
+                <option value="Series B">Series B</option>
+                <option value="Series C+">Series C+</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Product Stage
+              </label>
+              <select
+                name="product_stage"
+                value={formData.product_stage}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="Concept">Concept</option>
+                <option value="MVP">MVP</option>
+                <option value="Beta">Beta</option>
+                <option value="Launched">Launched</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Partner Needs */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Partner Needs
+            </label>
+            <textarea
+              name="partner_needs"
+              value={formData.partner_needs}
+              onChange={handleChange}
+              rows={4}
+              placeholder="Describe the types of partners you're looking for..."
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Data Sources */}
+          <div className="border-t border-slate-200 pt-4">
+            <label className="block text-sm font-medium text-slate-700 mb-3">
+              Data Sources
+            </label>
+            <div className="space-y-3">
+              <label className="flex items-center justify-between p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
+                <div>
+                  <span className="font-medium text-slate-800">CrunchBase CSV</span>
+                  <p className="text-sm text-slate-500">Search pre-curated partner database</p>
+                </div>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    name="use_csv"
+                    checked={formData.use_csv}
+                    onChange={(e) => setFormData(prev => ({ ...prev, use_csv: e.target.checked }))}
+                    className="sr-only"
+                  />
+                  <div className={`w-11 h-6 rounded-full transition-colors ${formData.use_csv ? 'bg-blue-600' : 'bg-slate-300'}`}>
+                    <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${formData.use_csv ? 'translate-x-5' : ''}`}></div>
+                  </div>
+                </div>
+              </label>
+              <label className="flex items-center justify-between p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
+                <div>
+                  <span className="font-medium text-slate-800">AI Web Search</span>
+                  <p className="text-sm text-slate-500">Search the web with AI for real-time results</p>
+                </div>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    name="use_web_search"
+                    checked={formData.use_web_search}
+                    onChange={(e) => setFormData(prev => ({ ...prev, use_web_search: e.target.checked }))}
+                    className="sr-only"
+                  />
+                  <div className={`w-11 h-6 rounded-full transition-colors ${formData.use_web_search ? 'bg-blue-600' : 'bg-slate-300'}`}>
+                    <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${formData.use_web_search ? 'translate-x-5' : ''}`}></div>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Progress indicator */}
+          {isSearching && progressMessage && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span className="text-blue-800 font-medium">{progressMessage}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Error message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <span className="text-red-800">{error}</span>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex justify-between pt-4">
+            <button
+              onClick={() => navigate('/chat')}
+              disabled={isSearching}
+              className="text-slate-600 hover:text-slate-800 font-medium disabled:opacity-50"
+            >
+              ← Back to Chat
+            </button>
+            <div className="flex gap-3">
+              {isSearching && (
+                <button
+                  onClick={handleCancel}
+                  className="text-red-600 hover:text-red-800 font-medium px-4 py-3"
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                onClick={handleSearch}
+                disabled={isSearching}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
+              >
+                {isSearching ? (
+                  <>
+                    <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>Searching...</span>
+                  </>
+                ) : (
+                  'Search for Partners'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Floating Cost Badge - shows cumulative session cost + current search progress */}
+      <CostBadge
+        cost={(() => {
+          const sessionCost = getCostSummary()
+          const progressCost = progress?.cost
+          if (!progressCost) return sessionCost
+          // Combine session cost with current progress
+          return {
+            total_cost: (sessionCost?.total_cost || 0) + (progressCost?.total_cost || 0),
+            input_tokens: (sessionCost?.input_tokens || 0) + (progressCost?.input_tokens || 0),
+            output_tokens: (sessionCost?.output_tokens || 0) + (progressCost?.output_tokens || 0),
+            web_search_calls: (sessionCost?.web_search_calls || 0) + (progressCost?.web_search_calls || 0),
+          }
+        })()}
+        isSearching={isSearching}
+      />
+    </div>
+  )
+}
+
+export default TemplateReview

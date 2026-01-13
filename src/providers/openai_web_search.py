@@ -4,8 +4,145 @@ Uses OpenAI's web search capability to find and extract company details.
 """
 import os
 from typing import List, Dict, Any
+from dataclasses import dataclass, field
 from openai import OpenAI
 from .base import BaseProvider
+
+
+# OpenAI Pricing (per 1M tokens) - Standard tier as of Jan 2025
+OPENAI_PRICING = {
+    'gpt-4o-mini': {'input': 0.15, 'output': 0.60},
+    'gpt-4o': {'input': 2.50, 'output': 10.00},
+    'gpt-4.1': {'input': 2.00, 'output': 8.00},
+    'gpt-4.1-mini': {'input': 0.40, 'output': 1.60},
+    'gpt-4': {'input': 30.00, 'output': 60.00},  # Legacy
+}
+WEB_SEARCH_COST_PER_CALL = 0.01  # $0.01 per web search tool call
+
+
+@dataclass
+class TokenUsage:
+    """Track token usage for a single API call."""
+    input_tokens: int = 0
+    output_tokens: int = 0
+    total_tokens: int = 0
+    web_search_calls: int = 0
+    model: str = ""
+    operation: str = ""
+
+    @property
+    def input_cost(self) -> float:
+        """Calculate input token cost."""
+        pricing = OPENAI_PRICING.get(self.model, {'input': 0.15, 'output': 0.60})
+        return (self.input_tokens / 1_000_000) * pricing['input']
+
+    @property
+    def output_cost(self) -> float:
+        """Calculate output token cost."""
+        pricing = OPENAI_PRICING.get(self.model, {'input': 0.15, 'output': 0.60})
+        return (self.output_tokens / 1_000_000) * pricing['output']
+
+    @property
+    def web_search_cost(self) -> float:
+        """Calculate web search tool cost."""
+        return self.web_search_calls * WEB_SEARCH_COST_PER_CALL
+
+    @property
+    def total_cost(self) -> float:
+        """Calculate total cost for this call."""
+        return self.input_cost + self.output_cost + self.web_search_cost
+
+
+@dataclass
+class SearchUsageSummary:
+    """Aggregate token usage for an entire search operation."""
+    model: str = ""
+    calls: List[TokenUsage] = field(default_factory=list)
+
+    @property
+    def total_input_tokens(self) -> int:
+        return sum(c.input_tokens for c in self.calls)
+
+    @property
+    def total_output_tokens(self) -> int:
+        return sum(c.output_tokens for c in self.calls)
+
+    @property
+    def total_tokens(self) -> int:
+        return self.total_input_tokens + self.total_output_tokens
+
+    @property
+    def total_web_search_calls(self) -> int:
+        return sum(c.web_search_calls for c in self.calls)
+
+    @property
+    def total_input_cost(self) -> float:
+        return sum(c.input_cost for c in self.calls)
+
+    @property
+    def total_output_cost(self) -> float:
+        return sum(c.output_cost for c in self.calls)
+
+    @property
+    def total_web_search_cost(self) -> float:
+        return sum(c.web_search_cost for c in self.calls)
+
+    @property
+    def total_cost(self) -> float:
+        return sum(c.total_cost for c in self.calls)
+
+    def print_summary(self):
+        """Print a formatted summary of token usage and costs."""
+        print("\n" + "="*70)
+        print("TOKEN USAGE & COST SUMMARY")
+        print("="*70)
+        print(f"Model: {self.model}")
+        print(f"Total API calls: {len(self.calls)}")
+        print("-"*70)
+        print(f"{'Category':<25} {'Tokens':>12} {'Cost':>12}")
+        print("-"*70)
+        print(f"{'Input tokens':<25} {self.total_input_tokens:>12,} ${self.total_input_cost:>10.6f}")
+        print(f"{'Output tokens':<25} {self.total_output_tokens:>12,} ${self.total_output_cost:>10.6f}")
+        print(f"{'Web search calls':<25} {self.total_web_search_calls:>12} ${self.total_web_search_cost:>10.6f}")
+        print("-"*70)
+        print(f"{'TOTAL':<25} {self.total_tokens:>12,} ${self.total_cost:>10.6f}")
+        print("="*70)
+
+        # Breakdown by operation
+        print("\nBreakdown by operation:")
+        print("-"*70)
+        for i, call in enumerate(self.calls, 1):
+            print(f"  {i}. {call.operation:<30} "
+                  f"in:{call.input_tokens:>6,} out:{call.output_tokens:>5,} "
+                  f"${call.total_cost:.6f}")
+        print("="*70 + "\n")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return usage data as a dictionary for programmatic access."""
+        return {
+            'model': self.model,
+            'total_api_calls': len(self.calls),
+            'total_input_tokens': self.total_input_tokens,
+            'total_output_tokens': self.total_output_tokens,
+            'total_tokens': self.total_tokens,
+            'total_web_search_calls': self.total_web_search_calls,
+            'costs': {
+                'input_tokens': self.total_input_cost,
+                'output_tokens': self.total_output_cost,
+                'web_search': self.total_web_search_cost,
+                'total': self.total_cost,
+            },
+            'calls': [
+                {
+                    'operation': c.operation,
+                    'input_tokens': c.input_tokens,
+                    'output_tokens': c.output_tokens,
+                    'web_search_calls': c.web_search_calls,
+                    'cost': c.total_cost,
+                }
+                for c in self.calls
+            ]
+        }
 
 
 class OpenAIWebSearchProvider(BaseProvider):
@@ -26,6 +163,37 @@ class OpenAIWebSearchProvider(BaseProvider):
         self.client = OpenAI(api_key=api_key)
         # gpt-4o-mini is cheaper and supports web search
         self.model = self.config.get('model', 'gpt-4o-mini')
+
+        # Token usage tracking
+        self._current_search_usage: SearchUsageSummary = None
+        self._last_search_usage: SearchUsageSummary = None
+
+    def _extract_usage(self, response, operation: str) -> TokenUsage:
+        """
+        Extract token usage from an OpenAI Responses API response.
+
+        Args:
+            response: The response object from OpenAI
+            operation: Description of the operation (for logging)
+
+        Returns:
+            TokenUsage object with extracted data
+        """
+        usage = TokenUsage(
+            model=self.model,
+            operation=operation,
+            web_search_calls=1,  # Each call uses web search once
+        )
+
+        # Extract usage from response
+        # The Responses API returns usage in response.usage
+        if hasattr(response, 'usage') and response.usage:
+            usage.input_tokens = getattr(response.usage, 'input_tokens', 0)
+            usage.output_tokens = getattr(response.usage, 'output_tokens', 0)
+            usage.total_tokens = getattr(response.usage, 'total_tokens',
+                                         usage.input_tokens + usage.output_tokens)
+
+        return usage
 
     def _search_companies_list(self, user_requirements: str, max_companies: int = 10) -> List[str]:
         """
@@ -57,6 +225,12 @@ Do NOT include any introductory text, explanations, or descriptions. Just the nu
             tools=[{"type": "web_search"}],
             input=prompt
         )
+
+        # Track token usage
+        usage = self._extract_usage(response, f"Company list search (max {max_companies})")
+        if self._current_search_usage:
+            self._current_search_usage.calls.append(usage)
+        print(f"  [Tokens] in:{usage.input_tokens:,} out:{usage.output_tokens:,} cost:${usage.total_cost:.6f}")
 
         # Parse company names from response
         content = response.output_text.strip()
@@ -119,6 +293,11 @@ Provide only factual, verified information from reliable sources."""
             tools=[{"type": "web_search"}],
             input=prompt
         )
+
+        # Track token usage
+        usage = self._extract_usage(response, f"Company details: {company_name[:25]}")
+        if self._current_search_usage:
+            self._current_search_usage.calls.append(usage)
 
         # Parse the response into structured data
         content = response.output_text.strip()
@@ -311,7 +490,7 @@ Provide only factual, verified information from reliable sources."""
 
         Args:
             query: User requirements text describing the partner company needs
-            filters: Additional filters (e.g., {'max_results': 10})
+            filters: Additional filters (e.g., {'max_results': 10, 'track_usage': True})
 
         Returns:
             List of company dictionaries with schema:
@@ -325,21 +504,37 @@ Provide only factual, verified information from reliable sources."""
                 'source': str,
                 'raw_data': dict
             }
+
+        Note:
+            After calling this method, access token usage via:
+            - provider.get_last_usage() -> SearchUsageSummary object
+            - provider.get_last_usage().to_dict() -> dict for JSON serialization
+            - provider.get_last_usage().print_summary() -> prints formatted summary
         """
+        # Initialize usage tracking for this search
+        self._current_search_usage = SearchUsageSummary(model=self.model)
+
         # Step 1: Get list of company names based on user requirements
         max_companies = filters.get('max_results', 10) if filters else 10
+        print(f"\n[Token Tracking] Starting search for up to {max_companies} companies...")
         company_names = self._search_companies_list(query, max_companies)
         print(f"Found {len(company_names)} companies")
 
         # Step 2: Get detailed information for each company
         companies = []
-        for company_name in company_names:
+        for i, company_name in enumerate(company_names, 1):
             try:
+                print(f"  [{i}/{len(company_names)}] Retrieving: {company_name}...", end=" ")
                 company_info = self._get_company_info(company_name)
                 companies.append(company_info)
-                print(f"Retrieved info for: {company_name}")
+                # Print inline token info
+                if self._current_search_usage.calls:
+                    last_call = self._current_search_usage.calls[-1]
+                    print(f"in:{last_call.input_tokens:,} out:{last_call.output_tokens:,}")
+                else:
+                    print("done")
             except Exception as e:
-                print(f"Error getting info for {company_name}: {str(e)}")
+                print(f"ERROR: {str(e)}")
                 # Add basic info even if detailed search fails
                 companies.append({
                     'name': company_name,
@@ -352,7 +547,31 @@ Provide only factual, verified information from reliable sources."""
                     'raw_data': {'error': str(e)}
                 })
 
+        # Store usage for retrieval and print summary
+        self._last_search_usage = self._current_search_usage
+        self._current_search_usage = None
+
+        # Print summary
+        self._last_search_usage.print_summary()
+
         return companies
+
+    def get_last_usage(self) -> SearchUsageSummary:
+        """
+        Get the token usage summary from the last search operation.
+
+        Returns:
+            SearchUsageSummary object with detailed token usage and costs.
+            Returns None if no search has been performed yet.
+
+        Example:
+            >>> provider = OpenAIWebSearchProvider()
+            >>> results = provider.search_companies("AI startups", {'max_results': 5})
+            >>> usage = provider.get_last_usage()
+            >>> print(f"Total cost: ${usage.total_cost:.4f}")
+            >>> print(f"Total tokens: {usage.total_tokens:,}")
+        """
+        return self._last_search_usage
 
     def get_company_details(self, company_identifier: str) -> Dict[str, Any]:
         """

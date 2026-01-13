@@ -1,7 +1,11 @@
-const Results = ({ results, loading, error }) => {
+const Results = ({ results, loading, error, compact = false }) => {
+  const Wrapper = ({ children }) => compact ? <>{children}</> : (
+    <div className="bg-white rounded-xl shadow-lg p-8">{children}</div>
+  )
+
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-8">
+      <Wrapper>
         <div className="flex flex-col items-center justify-center py-12">
           <svg className="animate-spin h-12 w-12 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -10,26 +14,26 @@ const Results = ({ results, loading, error }) => {
           <p className="text-lg text-slate-600">Searching for partners...</p>
           <p className="text-sm text-slate-500 mt-2">This may take a few moments</p>
         </div>
-      </div>
+      </Wrapper>
     )
   }
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-8">
+      <Wrapper>
         <div className="flex flex-col items-center justify-center py-12">
           <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-4">
             <p className="font-medium">Error</p>
             <p className="text-sm">{error}</p>
           </div>
         </div>
-      </div>
+      </Wrapper>
     )
   }
 
   if (!results) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-8">
+      <Wrapper>
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <svg className="h-16 w-16 text-slate-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -37,18 +41,20 @@ const Results = ({ results, loading, error }) => {
           <h3 className="text-lg font-medium text-slate-900 mb-2">No results yet</h3>
           <p className="text-slate-600">Fill out the form and click "Find Partners" to start searching</p>
         </div>
-      </div>
+      </Wrapper>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-8">
-      <h2 className="text-2xl font-bold text-slate-900 mb-6">
-        Partner Matches ({results.matches?.length || 0})
-      </h2>
+    <Wrapper>
+      {!compact && (
+        <h2 className="text-2xl font-bold text-slate-900 mb-6">
+          Partner Matches ({results.matches?.length || 0})
+        </h2>
+      )}
 
       {results.matches && results.matches.length > 0 ? (
-        <div className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto pr-2">
+        <div className={`space-y-4 ${compact ? '' : 'max-h-[calc(100vh-300px)] overflow-y-auto pr-2'}`}>
           {results.matches.map((match, index) => (
             <div
               key={index}
@@ -194,7 +200,7 @@ const Results = ({ results, loading, error }) => {
           <p className="text-slate-600">No matches found</p>
         </div>
       )}
-    </div>
+    </Wrapper>
   )
 }
 
