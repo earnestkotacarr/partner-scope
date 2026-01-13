@@ -1,8 +1,13 @@
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { isDebugMode, debugSettings } from '../debug/config'
+import { generateFakeData } from '../debug/fakeData'
 
 const ScenarioContext = createContext(null)
 
 export function ScenarioProvider({ children }) {
+  // Debug mode state
+  const [debugInitialized, setDebugInitialized] = useState(false)
+
   // Scenario template generated from discovery chat
   const [scenario, setScenario] = useState(null)
 
@@ -54,6 +59,32 @@ export function ScenarioProvider({ children }) {
     setIsSearching(false)
   }
 
+  // Initialize with fake data in debug mode
+  useEffect(() => {
+    if (debugInitialized || !isDebugMode()) return
+
+    console.log('[Debug Mode] Initializing context with fake data...')
+    const fakeData = generateFakeData(
+      debugSettings.fakeCandidatesCount,
+      debugSettings.seed
+    )
+
+    setScenario(fakeData.scenario)
+    setResults(fakeData.results)
+    setChatHistory(fakeData.chatHistory)
+    setSessionCosts([{
+      total_cost: 0.05,
+      input_tokens: 1500,
+      output_tokens: 2000,
+      web_search_calls: 3,
+      operation: 'debug_init',
+      timestamp: new Date().toISOString(),
+    }])
+
+    setDebugInitialized(true)
+    console.log('[Debug Mode] Context initialized successfully')
+  }, [debugInitialized])
+
   return (
     <ScenarioContext.Provider value={{
       // Existing
@@ -74,6 +105,9 @@ export function ScenarioProvider({ children }) {
       addCost,
       getTotalCost,
       getCostSummary,
+      // Debug mode
+      debugInitialized,
+      isDebugMode: isDebugMode(),
     }}>
       {children}
     </ScenarioContext.Provider>

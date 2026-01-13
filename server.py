@@ -29,8 +29,17 @@ from src.providers import MockCrunchbaseProvider, OpenAIWebSearchProvider
 from src.chat import StartupDiscoveryAssistant, RefinementAssistant
 from src.chat.prompts import STARTUP_DISCOVERY_PROMPT, REFINEMENT_PROMPT
 
+# Import evaluation framework router
+from src.evaluation.api import router as evaluation_router
+
+# Import debug mode utilities
+from src.debug import DebugConfig, FakeDataGenerator
+
 # Initialize FastAPI app
 app = FastAPI(title="Partner Scope API", version="1.0.0")
+
+# Include evaluation framework router
+app.include_router(evaluation_router)
 
 # Configuration
 # TODO: Load from config file or environment variables
@@ -144,16 +153,213 @@ class ExportRequest(BaseModel):
     format: str = "pdf"  # "pdf" or "csv"
 
 
+# Evaluation Chat Request/Response Models
+class EvaluationChatRequest(BaseModel):
+    """Request model for evaluation chat."""
+    messages: list[dict]
+    current_message: str
+    session_id: Optional[str] = None
+    phase: str = "init"
+    candidates: list[dict] = []
+    startup_profile: Optional[dict] = None
+    strategy: Optional[dict] = None
+    evaluation_result: Optional[dict] = None
+    action_hint: Optional[str] = None  # Explicit action from frontend buttons
+
+
+class EvaluationChatResponse(BaseModel):
+    """Response model for evaluation chat."""
+    response: str
+    session_id: Optional[str] = None
+    phase: str = "init"
+    strategy: Optional[dict] = None
+    evaluation_result: Optional[dict] = None
+    cost: Optional[dict] = None
+
+
 # Initialize chat assistants
 discovery_assistant = StartupDiscoveryAssistant()
 refinement_assistant = RefinementAssistant()
 
 
-# API Routes
+# ============================================================================
+# Debug Mode API Routes
+# ============================================================================
+
+class DebugModeRequest(BaseModel):
+    """Request model for enabling/disabling debug mode."""
+    enabled: bool
+    skip_planner_llm: Optional[bool] = True
+    skip_specialized_llm: Optional[bool] = True
+    skip_supervisor_llm: Optional[bool] = True
+    skip_web_search: Optional[bool] = True
+    simulate_delay: Optional[bool] = False
+    verbose: Optional[bool] = True
+
+
+class DebugEvaluationRequest(BaseModel):
+    """Request model for debug evaluation."""
+    num_candidates: Optional[int] = 10
+    startup_name: Optional[str] = None
+    industry: Optional[str] = None
+
+
+@app.get("/api/debug/status")
+async def get_debug_status():
+    """
+    Get the current debug mode status.
+
+    Returns the debug configuration settings.
+    """
+    settings = DebugConfig.get_settings()
+    return {
+        "debug_mode": DebugConfig.is_enabled(),
+        "settings": {
+            "skip_planner_llm": settings.skip_planner_llm,
+            "skip_specialized_llm": settings.skip_specialized_llm,
+            "skip_supervisor_llm": settings.skip_supervisor_llm,
+            "skip_web_search": settings.skip_web_search,
+            "skip_ranking_llm": settings.skip_ranking_llm,
+            "simulate_delay": settings.simulate_delay,
+            "verbose": settings.verbose,
+            "fake_candidates_count": settings.fake_candidates_count,
+        }
+    }
+
+
+@app.post("/api/debug/enable")
+async def enable_debug_mode(request: DebugModeRequest):
+    """
+    Enable or disable debug mode.
+
+    When debug mode is enabled, the system will use fake data
+    instead of making actual API calls.
+    """
+    if request.enabled:
+        DebugConfig.enable(
+            skip_planner_llm=request.skip_planner_llm,
+            skip_specialized_llm=request.skip_specialized_llm,
+            skip_supervisor_llm=request.skip_supervisor_llm,
+            skip_web_search=request.skip_web_search,
+            simulate_delay=request.simulate_delay,
+            verbose=request.verbose,
+        )
+        return {
+            "success": True,
+            "message": "Debug mode enabled",
+            "debug_mode": True,
+        }
+    else:
+        DebugConfig.disable()
+        return {
+            "success": True,
+            "message": "Debug mode disabled",
+            "debug_mode": False,
+        }
+
+
+@app.post("/api/debug/evaluation")
+async def run_debug_evaluation(request: DebugEvaluationRequest):
+    """
+    Run a complete evaluation cycle with fake data.
+
+    This endpoint bypasses all API calls and returns realistic fake data
+    for testing the UI and workflow.
+    """
+    from src.evaluation.orchestrator import EvaluationOrchestrator
+    from src.evaluation.models import StartupProfile as EvalStartupProfile
+
+    # Enable debug mode if not already enabled
+    if not DebugConfig.is_enabled():
+        DebugConfig.enable()
+
+    generator = FakeDataGenerator()
+
+    # Generate startup profile
+    startup_profile = generator.generate_startup_profile(
+        name=request.startup_name,
+        industry=request.industry,
+    )
+
+    # Run debug evaluation
+    orchestrator = EvaluationOrchestrator(debug_mode=True)
+    result = await orchestrator.run_debug_evaluation(
+        num_candidates=request.num_candidates,
+        startup_profile=startup_profile,
+    )
+
+    return result
+
+
+@app.get("/api/debug/candidates")
+async def get_debug_candidates(count: int = 10, industry: Optional[str] = None):
+    """
+    Generate fake candidate data for testing.
+
+    Args:
+        count: Number of candidates to generate
+        industry: Optional industry filter
+    """
+    generator = FakeDataGenerator()
+    candidates = generator.generate_candidates(count=count, industry=industry)
+    return {
+        "success": True,
+        "debug_mode": True,
+        "count": len(candidates),
+        "candidates": candidates,
+    }
+
+
+@app.get("/api/debug/strategy")
+async def get_debug_strategy(num_candidates: int = 10):
+    """
+    Generate a fake evaluation strategy for testing.
+
+    Args:
+        num_candidates: Number of candidates the strategy is for
+    """
+    generator = FakeDataGenerator()
+    strategy = generator.generate_strategy(num_candidates=num_candidates)
+    return {
+        "success": True,
+        "debug_mode": True,
+        "strategy": strategy.to_dict(),
+    }
+
+
+@app.get("/api/debug/result")
+async def get_debug_result(num_candidates: int = 10):
+    """
+    Generate a complete fake evaluation result for testing.
+
+    Args:
+        num_candidates: Number of candidates to evaluate
+    """
+    generator = FakeDataGenerator()
+    candidates = generator.generate_candidates(count=num_candidates)
+    strategy = generator.generate_strategy(num_candidates=num_candidates)
+    result = generator.generate_evaluation_result(candidates, strategy)
+
+    return {
+        "success": True,
+        "debug_mode": True,
+        "candidates_count": len(candidates),
+        "result": result.to_dict(),
+    }
+
+
+# ============================================================================
+# Standard API Routes
+# ============================================================================
+
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "message": "Partner Scope API is running"}
+    return {
+        "status": "healthy",
+        "message": "Partner Scope API is running",
+        "debug_mode": DebugConfig.is_enabled(),
+    }
 
 
 @app.post("/api/search", response_model=SearchResponse)
@@ -522,6 +728,68 @@ async def refine_results(request: RefinementRequest):
             applied_filters=result["applied_filters"],
             action_taken=result["action_taken"],
             cost=result.get("cost")
+        )
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Evaluation Chat Endpoint
+@app.post("/api/evaluation/chat", response_model=EvaluationChatResponse)
+async def evaluation_chat(request: EvaluationChatRequest):
+    """
+    Process a message in the evaluation chat.
+
+    This endpoint handles the conversational evaluation workflow:
+    - Phase 1 (planning): Strategy proposal and modification
+    - Phase 2 (evaluating): Running multi-dimensional evaluation
+    - Phase 3 (complete): Presenting results and handling refinements
+    """
+    try:
+        # Check for API key
+        if not os.getenv('OPENAI_API_KEY'):
+            raise HTTPException(
+                status_code=400,
+                detail="OpenAI API key not configured. Set OPENAI_API_KEY environment variable."
+            )
+
+        print(f"\n[EvaluationChat] Message: '{request.current_message}'")
+        print(f"[EvaluationChat] Phase: {request.phase}, Session: {request.session_id}")
+        print(f"[EvaluationChat] Candidates: {len(request.candidates)}")
+
+        # Import here to avoid circular imports
+        from src.chat.evaluation_assistant import EvaluationChatAssistant
+
+        # Run evaluation chat in thread pool
+        loop = asyncio.get_event_loop()
+        assistant = EvaluationChatAssistant()
+
+        result = await loop.run_in_executor(
+            None,
+            lambda: assistant.chat(
+                messages=request.messages,
+                current_message=request.current_message,
+                session_id=request.session_id,
+                phase=request.phase,
+                candidates=request.candidates,
+                startup_profile=request.startup_profile,
+                strategy=request.strategy,
+                evaluation_result=request.evaluation_result,
+                action_hint=request.action_hint,
+            )
+        )
+
+        print(f"[EvaluationChat] Response phase: {result.get('phase')}")
+
+        return EvaluationChatResponse(
+            response=result["response"],
+            session_id=result.get("session_id"),
+            phase=result.get("phase", request.phase),
+            strategy=result.get("strategy"),
+            evaluation_result=result.get("evaluation_result"),
+            cost=result.get("cost"),
         )
 
     except Exception as e:
@@ -946,6 +1214,14 @@ if __name__ == "__main__":
     print("="*80)
     print("\nStarting server at http://localhost:8000")
     print("\nAPI Documentation available at http://localhost:8000/docs")
+
+    # Check for debug mode
+    if DebugConfig.is_enabled():
+        print("\n🔧 DEBUG MODE ENABLED")
+        print("   - Using fake data instead of API calls")
+        print("   - Set DEBUG_MODE=0 to disable")
+    else:
+        print("\n💡 Tip: Set DEBUG_MODE=1 to enable debug mode with fake data")
 
     if not FRONTEND_DIST.exists():
         print("\n⚠️  Frontend not built. Run the following to build it:")

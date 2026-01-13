@@ -4,6 +4,9 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 
+// Initialize debug utilities (exposes window.debug in console)
+import './debug/init'
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
