@@ -4,6 +4,8 @@
  * Full-screen chat-based evaluation interface.
  * All evaluation data (Strategy, Rankings, Scores) displayed inline in chat.
  * Phase transitions via explicit buttons instead of string matching.
+ *
+ * Design: OpenAI-style clean white background with avatar-based layout
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -17,12 +19,12 @@ import ChatRankingDisplay from '../components/evaluation/ChatRankingDisplay';
 import CandidateDetailModal from '../components/evaluation/CandidateDetailModal';
 import PhaseTransitionButtons from '../components/evaluation/PhaseTransitionButtons';
 
-
 export default function EvaluationPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { scenario, results, addCost, getCostSummary, applyEvaluationToResults } = useScenario();
   const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
 
   // Chat state - messages now include embedded data
   const [messages, setMessages] = useState([]);
@@ -224,7 +226,12 @@ Click **"Propose Strategy"** below to begin, or ask me any questions first.`,
   };
 
   // Handle sending chat messages
-  const handleSendMessage = async (content) => {
+  const handleSendMessage = async (e) => {
+    e?.preventDefault();
+    if (!inputValue.trim() || loading) return;
+
+    const content = inputValue.trim();
+    setInputValue('');
     await sendApiRequest(content);
   };
 
@@ -233,139 +240,132 @@ Click **"Propose Strategy"** below to begin, or ask me any questions first.`,
     setSelectedCandidate(candidate);
   };
 
+  // Handle textarea keydown
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  // Get placeholder text based on phase
+  const getPlaceholder = () => {
+    switch (phase) {
+      case 'init':
+        return "Ask questions or click 'Propose Strategy' to begin...";
+      case 'planning':
+        return "Describe any changes to the strategy, or confirm to run...";
+      case 'complete':
+        return "Ask about results, request refinements, or compare candidates...";
+      default:
+        return "Type your message...";
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <header className="border-b border-gray-100">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <button
-            onClick={() => navigate('/results')}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </button>
-          <div className="flex items-center gap-3">
-            <h1 className="text-base font-medium text-gray-900">Partner Evaluation</h1>
+    <div className="h-screen bg-white flex flex-col overflow-hidden">
+      {/* Header - Minimal with subtle border */}
+      <div className="bg-white border-b border-gray-100 px-4 py-4 flex-shrink-0">
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-semibold text-gray-900">Partner Evaluation</h1>
             <PhaseIndicator phase={phase} />
           </div>
-          <span className="text-sm text-gray-400">{candidates.length} candidates</span>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-500">
+              {candidates.length} candidates
+            </span>
+            <button
+              onClick={() => navigate('/results')}
+              className="text-gray-600 hover:text-gray-900 font-medium text-sm"
+            >
+              Back to Results
+            </button>
+          </div>
         </div>
-      </header>
+      </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-4 py-8">
-          {messages.map((msg, index) => (
-            <ChatMessage
-              key={index}
-              message={msg}
-              onCandidateClick={handleCandidateClick}
-            />
-          ))}
+      {/* Main Chat Area - Flex container */}
+      <div className="flex-1 container mx-auto px-4 flex flex-col max-w-3xl min-h-0">
+        {/* Messages - Scrollable area */}
+        <div className="flex-1 overflow-y-auto py-6">
+          <div className="space-y-6">
+            {messages.map((msg, index) => (
+              <ChatMessage
+                key={index}
+                message={msg}
+                onCandidateClick={handleCandidateClick}
+              />
+            ))}
 
-          {/* Typing Indicator */}
-          {loading && (
-            <div className="mb-8">
+            {/* Typing Indicator */}
+            {loading && (
               <div className="flex gap-4">
                 <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
-                <div className="flex-1 pt-2">
-                  <div className="flex gap-1.5">
-                    <div className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" />
-                    <div className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
-                  </div>
+                <div className="flex items-center gap-1 text-gray-400 pt-2">
+                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                 </div>
               </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+        </div>
+
+        {/* Bottom Fixed Area - Buttons and Input */}
+        <div className="flex-shrink-0 pb-6">
+          {/* Phase Transition Buttons */}
+          {!loading && phase !== 'evaluating' && (
+            <div className="mb-4">
+              <PhaseTransitionButtons
+                phase={phase}
+                onAction={handlePhaseAction}
+                disabled={loading}
+              />
             </div>
           )}
 
           {/* Evaluating Progress */}
           {phase === 'evaluating' && loading && (
-            <div className="mb-8 flex gap-4">
-              <div className="w-8 flex-shrink-0" />
-              <div className="flex-1">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-600 text-sm rounded-full border border-gray-200">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-gray-600"></div>
-                  Running multi-dimensional evaluation...
-                </div>
+            <div className="mb-4 bg-gray-50 rounded-2xl p-4 border border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-gray-900"></div>
+                <span className="text-gray-700 font-medium">Running multi-dimensional evaluation...</span>
               </div>
             </div>
           )}
 
-          {/* Phase Transition Buttons */}
-          {!loading && phase !== 'evaluating' && (
-            <div className="mb-8 flex gap-4">
-              <div className="w-8 flex-shrink-0" />
-              <div className="flex-1">
-                <PhaseTransitionButtons
-                  phase={phase}
-                  onAction={handlePhaseAction}
-                  disabled={loading}
-                />
-              </div>
+          {/* Chat Input - Inline textarea */}
+          <form onSubmit={handleSendMessage} className="relative">
+            <div className="bg-gray-50 rounded-2xl border border-gray-200 focus-within:border-gray-400 focus-within:bg-white transition-colors">
+              <textarea
+                ref={textareaRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={loading}
+                placeholder={getPlaceholder()}
+                rows={1}
+                className="w-full bg-transparent px-4 py-3 pr-12 resize-none focus:outline-none text-gray-900 placeholder-gray-500"
+                style={{ minHeight: '48px', maxHeight: '200px' }}
+              />
+              <button
+                type="submit"
+                disabled={loading || !inputValue.trim()}
+                className="absolute right-2 bottom-2 p-2 rounded-xl bg-black text-white disabled:bg-gray-300 disabled:text-gray-500 hover:bg-gray-800 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+              </button>
             </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-      </div>
-
-      {/* Input Area */}
-      <div className="border-t border-gray-100 bg-white">
-        <div className="max-w-3xl mx-auto px-4 py-4">
-          <div className="relative">
-            <textarea
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  if (inputValue.trim() && !loading) {
-                    handleSendMessage(inputValue.trim());
-                    setInputValue('');
-                  }
-                }
-              }}
-              placeholder={
-                phase === 'init' ? "Ask questions or click 'Propose Strategy' to begin..." :
-                phase === 'planning' ? "Describe any changes to the strategy, or confirm to run..." :
-                phase === 'complete' ? "Ask about results, request refinements, or compare candidates..." :
-                "Type your message..."
-              }
-              disabled={loading}
-              rows={1}
-              className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:border-gray-300 focus:ring-0 disabled:bg-gray-50 disabled:text-gray-400 text-gray-800 placeholder-gray-400"
-              style={{ minHeight: '48px', maxHeight: '200px' }}
-              onInput={(e) => {
-                e.target.style.height = 'auto';
-                e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => {
-                if (inputValue.trim() && !loading) {
-                  handleSendMessage(inputValue.trim());
-                  setInputValue('');
-                }
-              }}
-              disabled={loading || !inputValue.trim()}
-              className="absolute right-2 bottom-2 p-2 text-gray-400 hover:text-gray-600 disabled:text-gray-300 disabled:hover:text-gray-300 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </button>
-          </div>
-          <p className="text-xs text-gray-400 text-center mt-3">
-            Press Enter to send, Shift+Enter for new line
-          </p>
+          </form>
         </div>
       </div>
 
@@ -390,7 +390,7 @@ Click **"Propose Strategy"** below to begin, or ask me any questions first.`,
   );
 }
 
-// Chat Message Component with embedded data support - OpenAI style
+// Chat Message Component with avatar-based layout
 function ChatMessage({ message, onCandidateClick }) {
   const isUser = message.role === 'user';
   const embeddedData = message.embeddedData || {};
@@ -406,7 +406,7 @@ function ChatMessage({ message, onCandidateClick }) {
       if (!text) return null;
       const boldParts = text.split(/\*\*([^*]+)\*\*/g);
       return boldParts.map((part, j) =>
-        j % 2 === 1 ? <strong key={j} className="font-semibold">{part}</strong> : part
+        j % 2 === 1 ? <strong key={j}>{part}</strong> : part
       );
     };
 
@@ -414,14 +414,14 @@ function ChatMessage({ message, onCandidateClick }) {
       // Handle headers (## and ###)
       if (line.startsWith('### ')) {
         return (
-          <h4 key={i} className="font-semibold text-sm mt-3 mb-1">
+          <h4 key={i} className="font-semibold text-sm mt-3 mb-1 text-gray-900">
             {renderInline(line.slice(4))}
           </h4>
         );
       }
       if (line.startsWith('## ')) {
         return (
-          <h3 key={i} className="font-bold text-base mt-4 mb-2">
+          <h3 key={i} className="font-bold text-base mt-4 mb-2 text-gray-900">
             {renderInline(line.slice(3))}
           </h3>
         );
@@ -442,7 +442,7 @@ function ChatMessage({ message, onCandidateClick }) {
       if (numberedMatch) {
         return (
           <div key={i} className="flex items-start gap-2 ml-2">
-            <span className="text-gray-500 font-medium min-w-[1.25rem]">{numberedMatch[1]}.</span>
+            <span className="text-gray-600 font-medium min-w-[1.25rem]">{numberedMatch[1]}.</span>
             <span>{renderInline(numberedMatch[2])}</span>
           </div>
         );
@@ -460,84 +460,110 @@ function ChatMessage({ message, onCandidateClick }) {
 
       // Empty line
       if (line.trim() === '') {
-        return <div key={i} className="h-3" />;
+        return <div key={i} className="h-2" />;
       }
 
       // Regular text
       return (
-        <p key={i} className={i > 0 ? 'mt-3' : ''}>
+        <span key={i}>
           {renderInline(line)}
-        </p>
+          {i < lines.length - 1 && <br />}
+        </span>
       );
     });
   };
 
   return (
-    <div className="mb-8">
-      <div className="flex gap-4">
+    <div className="flex gap-4">
+      {/* Avatar */}
+      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+        isUser ? 'bg-gray-200' : 'bg-black'
+      }`}>
         {isUser ? (
-          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
+          <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
         ) : (
-          <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center flex-shrink-0">
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
+          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
         )}
-        <div className="flex-1 pt-1">
-          <div className="text-gray-800 leading-relaxed">
-            {renderContent(message.content)}
-          </div>
+      </div>
 
-          {/* Embedded Strategy Display */}
-          {embeddedData.showStrategy && embeddedData.strategy && (
-            <ChatStrategyDisplay strategy={embeddedData.strategy} />
-          )}
-
-          {/* Embedded Results Display */}
-          {embeddedData.showResults && embeddedData.evaluationResult && (
-            <>
-              <ChatRankingDisplay
-                candidates={embeddedData.evaluationResult.top_candidates}
-                onCandidateClick={onCandidateClick}
-              />
-              {embeddedData.evaluationResult.insights && embeddedData.evaluationResult.insights.length > 0 && (
-                <div className="mt-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3">Key Insights</h4>
-                  <ul className="space-y-2">
-                    {embeddedData.evaluationResult.insights.slice(0, 3).map((insight, i) => (
-                      <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                        <span className="text-gray-400 mt-0.5">•</span>
-                        {insight}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </>
-          )}
+      {/* Message Content */}
+      <div className="flex-1 min-w-0">
+        <div className="text-sm leading-relaxed text-gray-800">
+          {renderContent(message.content)}
         </div>
+
+        {/* Embedded Strategy Display */}
+        {embeddedData.showStrategy && embeddedData.strategy && (
+          <ChatStrategyDisplay strategy={embeddedData.strategy} />
+        )}
+
+        {/* Embedded Results Display */}
+        {embeddedData.showResults && embeddedData.evaluationResult && (
+          <>
+            <ChatRankingDisplay
+              candidates={embeddedData.evaluationResult.top_candidates}
+              onCandidateClick={onCandidateClick}
+            />
+            {embeddedData.evaluationResult.insights && embeddedData.evaluationResult.insights.length > 0 && (
+              <div className="mt-3 bg-gray-50 rounded-lg p-3 border border-gray-100">
+                <h4 className="text-xs font-semibold text-gray-600 mb-2">Key Insights</h4>
+                <ul className="space-y-1">
+                  {embeddedData.evaluationResult.insights.slice(0, 3).map((insight, i) => (
+                    <li key={i} className="text-xs text-gray-600 flex items-start gap-2">
+                      <span className="text-gray-400 mt-0.5">•</span>
+                      {insight}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
 }
 
-// Phase indicator component - OpenAI style
+// Phase indicator component - grayscale
 function PhaseIndicator({ phase }) {
-  const phaseLabels = {
-    init: 'Ready',
-    planning: 'Planning',
-    evaluating: 'Evaluating',
-    complete: 'Complete',
-  };
+  const phases = [
+    { id: 'init', label: 'Init' },
+    { id: 'planning', label: 'Strategy' },
+    { id: 'evaluating', label: 'Evaluating' },
+    { id: 'complete', label: 'Complete' },
+  ];
+
+  const currentIndex = phases.findIndex(p => p.id === phase);
 
   return (
-    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
-      {phaseLabels[phase] || phase}
-    </span>
+    <div className="flex items-center gap-1">
+      {phases.map((p, index) => {
+        const isActive = p.id === phase;
+        const isComplete = index < currentIndex;
+
+        return (
+          <div key={p.id} className="flex items-center">
+            {index > 0 && (
+              <div className={`w-4 h-0.5 ${isComplete ? 'bg-gray-800' : 'bg-gray-200'}`} />
+            )}
+            <div
+              className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                isActive
+                  ? 'bg-gray-900 text-white'
+                  : isComplete
+                  ? 'bg-gray-200 text-gray-700'
+                  : 'bg-gray-100 text-gray-400'
+              }`}
+            >
+              {isComplete ? '✓' : ''} {p.label}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }

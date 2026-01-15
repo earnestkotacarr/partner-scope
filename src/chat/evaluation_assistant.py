@@ -302,8 +302,9 @@ Respond in JSON format:
             total_cost["total_cost"] += summary_cost.get("total_cost", 0)
 
         evaluation_result = {
-            "top_candidates": all_evaluations[:top_k],
+            "top_candidates": all_evaluations,  # Return ALL evaluations, not just top_k
             "total_evaluated": len(all_evaluations),
+            "top_k": top_k,  # Keep track of intended top_k for display purposes
             "summary": summary,
             "insights": insights,
             "conflicts_resolved": [],

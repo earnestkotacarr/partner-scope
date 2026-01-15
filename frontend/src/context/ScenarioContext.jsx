@@ -108,8 +108,8 @@ export function ScenarioProvider({ children }) {
 
       return {
         ...match,
-        // Update the display score to use evaluation score
-        match_score: evalData.final_score,
+        // Set fit_score from evaluation (keep info_score and match_score unchanged)
+        fit_score: evalData.final_score,
         // Add evaluation enrichment object
         evaluation: {
           final_score: evalData.final_score,
@@ -124,10 +124,10 @@ export function ScenarioProvider({ children }) {
       }
     })
 
-    // Sort by evaluation score (evaluated results first, then by score)
+    // Sort by fit_score (from evaluation) when available, otherwise by info_score
     enrichedMatches.sort((a, b) => {
-      const scoreA = a.evaluation?.final_score ?? a.match_score
-      const scoreB = b.evaluation?.final_score ?? b.match_score
+      const scoreA = a.fit_score ?? a.info_score ?? a.match_score
+      const scoreB = b.fit_score ?? b.info_score ?? b.match_score
       return scoreB - scoreA
     })
 

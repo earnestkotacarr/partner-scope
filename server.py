@@ -851,6 +851,8 @@ async def refine_results(request: RefinementRequest):
                     'company_name': company.get('name', 'Unknown'),
                     'company_info': company_info,
                     'match_score': score,
+                    'info_score': score,  # Explicit info completeness score
+                    'fit_score': None,    # Will be set after AI evaluation
                     'rationale': f"Found via refinement search for: {search_focus}. {description_text[:150]}..." if description_text else f"Found via refinement search for: {search_focus}"
                 }
                 new_matches.append(match)
@@ -1088,6 +1090,8 @@ async def stream_search(
                         'company_name': company.get('name', 'Unknown'),
                         'company_info': company_info,
                         'match_score': score,
+                        'info_score': score,  # Explicit info completeness score
+                        'fit_score': None,    # Will be set after AI evaluation
                         'rationale': f"Found via CrunchBase search. {description_text[:200]}..." if len(description_text) > 200 else description_text or 'No description available.',
                         'key_strengths': [f"Industry: {company.get('industry', 'N/A')}"],
                         'potential_concerns': ["Requires further evaluation"],
@@ -1095,7 +1099,8 @@ async def stream_search(
                     }
                     all_matches.append(match)
 
-                yield f"event: progress\ndata: {json.dumps({'phase': 'csv_complete', 'message': f'{get_loading_message(\"csv_complete\")} Found {len(companies)} matches.', 'count': len(companies), 'cost': total_cost})}\n\n"
+                csv_complete_msg = get_loading_message('csv_complete')
+                yield f"event: progress\ndata: {json.dumps({'phase': 'csv_complete', 'message': f'{csv_complete_msg} Found {len(companies)} matches.', 'count': len(companies), 'cost': total_cost})}\n\n"
 
             # Web Search
             if use_web_search:
@@ -1106,19 +1111,30 @@ async def stream_search(
                 else:
                     provider = OpenAIWebSearchProvider({})
 
-                    # Run synchronous search in thread pool
+                    # Run synchronous search in thread pool with timeout protection
                     loop = asyncio.get_event_loop()
 
                     # Search for company list
                     yield f"event: progress\ndata: {json.dumps({'phase': 'web_search_list', 'message': get_loading_message('web_searching'), 'cost': total_cost})}\n\n"
 
-                    companies = await loop.run_in_executor(
-                        None,
-                        lambda: provider.search_companies(
-                            query=partner_needs,
-                            filters={'max_results': max_results or 10}
+                    try:
+                        # Wrap in asyncio.wait_for with 120 second timeout
+                        companies = await asyncio.wait_for(
+                            loop.run_in_executor(
+                                None,
+                                lambda: provider.search_companies(
+                                    query=partner_needs,
+                                    filters={'max_results': max_results or 10}
+                                )
+                            ),
+                            timeout=120.0  # 2 minute timeout for full web search
                         )
-                    )
+                    except asyncio.TimeoutError:
+                        yield f"event: error\ndata: {json.dumps({'error': 'Web search timed out. Please try again or use CSV search only.'})}\n\n"
+                        companies = []
+                    except Exception as e:
+                        yield f"event: error\ndata: {json.dumps({'error': f'Web search failed: {str(e)}'})}\n\n"
+                        companies = []
 
                     # Get usage from provider
                     usage = provider.get_last_usage()
@@ -1153,6 +1169,8 @@ async def stream_search(
                             'company_name': company.get('name', 'Unknown'),
                             'company_info': company_info,
                             'match_score': score,
+                            'info_score': score,  # Explicit info completeness score
+                            'fit_score': None,    # Will be set after AI evaluation
                             'rationale': f"Found via AI web search. {description_text[:200]}..." if len(description_text) > 200 else description_text or 'No description available.',
                             'key_strengths': [f"Industry: {company.get('industry', 'N/A')}"],
                             'potential_concerns': ["Web search results - verify independently"],
@@ -1197,6 +1215,7 @@ async def export_csv(request: ExportRequest):
     """
     Export search results as a CSV file.
     Includes evaluation data when available.
+    Results are sorted by fit_score (if available) to match the display order.
     """
     try:
         output = io.StringIO()
@@ -1204,6 +1223,13 @@ async def export_csv(request: ExportRequest):
 
         # Check if any results have evaluation data
         has_evaluation = any(r.get('evaluation') for r in request.results)
+
+        # Sort results by fit_score (descending) to match display order
+        sorted_results = sorted(
+            request.results,
+            key=lambda r: (r.get('fit_score') if r.get('fit_score') is not None else r.get('info_score') or r.get('match_score') or 0),
+            reverse=True
+        )
 
         # Header row - add evaluation columns if present
         headers = [
@@ -1216,8 +1242,8 @@ async def export_csv(request: ExportRequest):
 
         writer.writerow(headers)
 
-        # Data rows
-        for result in request.results:
+        # Data rows (using sorted results)
+        for result in sorted_results:
             company_info = result.get('company_info', {})
             evaluation = result.get('evaluation', {})
 
@@ -1392,7 +1418,14 @@ def _generate_pdf_reportlab(request: ExportRequest) -> bytes:
     results_title = f"AI Evaluated Results ({len(results)} matches)" if has_evaluation else f"Search Results ({len(results)} matches)"
     story.append(Paragraph(results_title, heading_style))
 
-    for i, result in enumerate(results[:20], 1):  # Limit to 20 for PDF
+    # Sort results by fit_score (descending) to match display order
+    sorted_results = sorted(
+        results,
+        key=lambda r: (r.get('fit_score') if r.get('fit_score') is not None else r.get('info_score') or r.get('match_score') or 0),
+        reverse=True
+    )
+
+    for i, result in enumerate(sorted_results[:20], 1):  # Limit to 20 for PDF
         company_info = result.get('company_info', {})
         evaluation = result.get('evaluation', {})
         score = result.get('match_score', 0)

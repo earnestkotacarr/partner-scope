@@ -1,8 +1,10 @@
 /**
  * PhaseTransitionButtons Component
  *
- * Displays action buttons for transitioning between evaluation phases - OpenAI style.
- * Clean, minimal design with rounded pill buttons.
+ * Displays action buttons for transitioning between evaluation phases.
+ * Replaces string-matching based phase detection.
+ *
+ * Design: Black primary buttons, white secondary with rounded-full pills
  */
 
 export default function PhaseTransitionButtons({ phase, onAction, disabled }) {
@@ -97,24 +99,24 @@ export default function PhaseTransitionButtons({ phase, onAction, disabled }) {
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 justify-center">
       {actions.map((action) => (
         <button
           key={action.key}
           onClick={() => onAction?.(action.key)}
           disabled={disabled}
           className={`
-            inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-full transition-colors
-            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+            flex items-center gap-2 px-4 py-2.5 rounded-full font-medium transition-all
+            ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md active:scale-95'}
             ${
               action.primary
                 ? 'bg-black text-white hover:bg-gray-800'
-                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
             }
           `}
         >
           {action.icon}
-          {action.label}
+          <span>{action.label}</span>
         </button>
       ))}
     </div>

@@ -160,9 +160,12 @@ class OpenAIWebSearchProvider(BaseProvider):
         if not api_key:
             raise ValueError("OpenAI API key must be provided in config or OPENAI_API_KEY environment variable")
 
-        self.client = OpenAI(api_key=api_key)
+        # Set reasonable timeout to prevent hanging (60 seconds per request)
+        self.client = OpenAI(api_key=api_key, timeout=60.0)
         # gpt-4o-mini is cheaper and supports web search
         self.model = self.config.get('model', 'gpt-4o-mini')
+        # Default timeout for API calls (can be overridden per-call)
+        self.api_timeout = self.config.get('timeout', 60.0)
 
         # Token usage tracking
         self._current_search_usage: SearchUsageSummary = None
