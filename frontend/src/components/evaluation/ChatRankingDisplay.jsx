@@ -1,8 +1,8 @@
 /**
  * ChatRankingDisplay Component
  *
- * Inline ranking display for chat - shows top 3 with expandable full list.
- * Clicking a company opens the detail modal.
+ * Inline ranking display for chat - OpenAI style.
+ * Shows top 3 with expandable full list.
  */
 
 import { useState } from 'react';
@@ -15,29 +15,21 @@ export default function ChatRankingDisplay({ candidates, onCandidateClick }) {
   const displayCount = expanded ? candidates.length : 3;
   const hasMore = candidates.length > 3;
 
-  // Rank badge colors
-  const getRankColor = (rank) => {
-    if (rank === 1) return 'bg-amber-400 text-white';
-    if (rank === 2) return 'bg-slate-400 text-white';
-    if (rank === 3) return 'bg-amber-600 text-white';
-    return 'bg-slate-200 text-slate-600';
-  };
-
   // Score color
-  const getScoreColor = (score) => {
-    if (score >= 80) return 'text-green-600 bg-green-50';
-    if (score >= 60) return 'text-yellow-600 bg-yellow-50';
-    return 'text-red-600 bg-red-50';
+  const getScoreStyle = (score) => {
+    if (score >= 80) return 'text-gray-900 bg-gray-100';
+    if (score >= 60) return 'text-gray-700 bg-gray-100';
+    return 'text-gray-500 bg-gray-50';
   };
 
   return (
-    <div className="mt-3 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-100 overflow-hidden">
-      <div className="px-4 py-3 border-b border-amber-100">
-        <h4 className="font-semibold text-slate-800 text-sm">Candidate Rankings</h4>
-        <p className="text-xs text-slate-500">{candidates.length} partners evaluated</p>
+    <div className="mt-4 bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
+      <div className="px-4 py-3 border-b border-gray-100">
+        <h4 className="font-medium text-gray-900 text-sm">Candidate Rankings</h4>
+        <p className="text-xs text-gray-400 mt-0.5">{candidates.length} partners evaluated</p>
       </div>
 
-      <div className="divide-y divide-amber-100">
+      <div className="divide-y divide-gray-100">
         {candidates.slice(0, displayCount).map((candidate, index) => {
           const rank = candidate.rank || index + 1;
           const score = Math.round(candidate.final_score || 0);
@@ -46,32 +38,37 @@ export default function ChatRankingDisplay({ candidates, onCandidateClick }) {
             <button
               key={candidate.candidate_id || index}
               onClick={() => onCandidateClick?.(candidate)}
-              className="w-full px-4 py-3 flex items-center gap-3 hover:bg-amber-50/50 transition-colors text-left"
+              className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left"
             >
               {/* Rank Badge */}
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${getRankColor(rank)}`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 ${
+                rank === 1 ? 'bg-gray-900 text-white' :
+                rank === 2 ? 'bg-gray-600 text-white' :
+                rank === 3 ? 'bg-gray-400 text-white' :
+                'bg-gray-200 text-gray-600'
+              }`}>
                 {rank}
               </div>
 
               {/* Candidate Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-800 truncate">
+                <p className="text-sm font-medium text-gray-900 truncate">
                   {candidate.candidate_name}
                 </p>
                 {candidate.candidate_info && (
-                  <p className="text-xs text-slate-500 truncate">
+                  <p className="text-xs text-gray-500 truncate">
                     {candidate.candidate_info.industry || 'N/A'} • {candidate.candidate_info.location || 'N/A'}
                   </p>
                 )}
               </div>
 
               {/* Score */}
-              <div className={`px-2 py-1 rounded text-xs font-bold flex-shrink-0 ${getScoreColor(score)}`}>
+              <div className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${getScoreStyle(score)}`}>
                 {score}
               </div>
 
               {/* Arrow */}
-              <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -83,7 +80,7 @@ export default function ChatRankingDisplay({ candidates, onCandidateClick }) {
       {hasMore && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="w-full px-4 py-2 text-sm text-amber-700 hover:bg-amber-100/50 transition-colors border-t border-amber-100 flex items-center justify-center gap-1"
+          className="w-full px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors border-t border-gray-100 flex items-center justify-center gap-1"
         >
           {expanded ? (
             <>

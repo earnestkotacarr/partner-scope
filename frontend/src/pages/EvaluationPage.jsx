@@ -17,9 +17,6 @@ import ChatRankingDisplay from '../components/evaluation/ChatRankingDisplay';
 import CandidateDetailModal from '../components/evaluation/CandidateDetailModal';
 import PhaseTransitionButtons from '../components/evaluation/PhaseTransitionButtons';
 
-// Chat components
-import ChatInput from '../components/chat/ChatInput';
-import TypingIndicator from '../components/chat/TypingIndicator';
 
 export default function EvaluationPage() {
   const location = useLocation();
@@ -30,6 +27,7 @@ export default function EvaluationPage() {
   // Chat state - messages now include embedded data
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [inputValue, setInputValue] = useState('');
 
   // Evaluation state
   const [sessionId, setSessionId] = useState(null);
@@ -236,35 +234,29 @@ Click **"Propose Strategy"** below to begin, or ask me any questions first.`,
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col overflow-hidden">
-      {/* Header - Fixed at top */}
-      <div className="bg-white border-b border-slate-200 px-4 py-4 flex-shrink-0">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold text-slate-900">Partner Scope</h1>
-            <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">
-              Step 2: Evaluate
-            </span>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Header */}
+      <header className="border-b border-gray-100">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button
+            onClick={() => navigate('/results')}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-3">
+            <h1 className="text-base font-medium text-gray-900">Partner Evaluation</h1>
             <PhaseIndicator phase={phase} />
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-500">
-              {candidates.length} candidates
-            </span>
-            <button
-              onClick={() => navigate('/results')}
-              className="text-slate-600 hover:text-slate-800 font-medium"
-            >
-              ← Back to Results
-            </button>
-          </div>
+          <span className="text-sm text-gray-400">{candidates.length} candidates</span>
         </div>
-      </div>
+      </header>
 
-      {/* Main Chat Area - Flex container */}
-      <div className="flex-1 container mx-auto px-4 flex flex-col max-w-4xl min-h-0">
-        {/* Messages - Scrollable area */}
-        <div className="flex-1 overflow-y-auto space-y-4 py-4">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-3xl mx-auto px-4 py-8">
           {messages.map((msg, index) => (
             <ChatMessage
               key={index}
@@ -275,52 +267,105 @@ Click **"Propose Strategy"** below to begin, or ask me any questions first.`,
 
           {/* Typing Indicator */}
           {loading && (
-            <div className="flex justify-start">
-              <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-slate-200">
-                <TypingIndicator />
+            <div className="mb-8">
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div className="flex-1 pt-2">
+                  <div className="flex gap-1.5">
+                    <div className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" />
+                    <div className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Evaluating Progress */}
+          {phase === 'evaluating' && loading && (
+            <div className="mb-8 flex gap-4">
+              <div className="w-8 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-600 text-sm rounded-full border border-gray-200">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-gray-600"></div>
+                  Running multi-dimensional evaluation...
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Phase Transition Buttons */}
+          {!loading && phase !== 'evaluating' && (
+            <div className="mb-8 flex gap-4">
+              <div className="w-8 flex-shrink-0" />
+              <div className="flex-1">
+                <PhaseTransitionButtons
+                  phase={phase}
+                  onAction={handlePhaseAction}
+                  disabled={loading}
+                />
               </div>
             </div>
           )}
 
           <div ref={messagesEndRef} />
         </div>
+      </div>
 
-        {/* Bottom Fixed Area - Buttons and Input */}
-        <div className="flex-shrink-0 pb-4">
-          {/* Phase Transition Buttons */}
-          {!loading && phase !== 'evaluating' && (
-            <div className="mb-4">
-              <PhaseTransitionButtons
-                phase={phase}
-                onAction={handlePhaseAction}
-                disabled={loading}
-              />
-            </div>
-          )}
-
-          {/* Evaluating Progress */}
-          {phase === 'evaluating' && loading && (
-            <div className="mb-4 bg-indigo-50 rounded-lg p-4 border border-indigo-200">
-              <div className="flex items-center gap-3">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
-                <span className="text-indigo-700 font-medium">Running multi-dimensional evaluation...</span>
-              </div>
-            </div>
-          )}
-
-          {/* Chat Input */}
-          <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-            <ChatInput
-              onSendMessage={handleSendMessage}
-              disabled={loading}
+      {/* Input Area */}
+      <div className="border-t border-gray-100 bg-white">
+        <div className="max-w-3xl mx-auto px-4 py-4">
+          <div className="relative">
+            <textarea
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (inputValue.trim() && !loading) {
+                    handleSendMessage(inputValue.trim());
+                    setInputValue('');
+                  }
+                }
+              }}
               placeholder={
                 phase === 'init' ? "Ask questions or click 'Propose Strategy' to begin..." :
                 phase === 'planning' ? "Describe any changes to the strategy, or confirm to run..." :
                 phase === 'complete' ? "Ask about results, request refinements, or compare candidates..." :
                 "Type your message..."
               }
+              disabled={loading}
+              rows={1}
+              className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:border-gray-300 focus:ring-0 disabled:bg-gray-50 disabled:text-gray-400 text-gray-800 placeholder-gray-400"
+              style={{ minHeight: '48px', maxHeight: '200px' }}
+              onInput={(e) => {
+                e.target.style.height = 'auto';
+                e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
+              }}
             />
+            <button
+              type="button"
+              onClick={() => {
+                if (inputValue.trim() && !loading) {
+                  handleSendMessage(inputValue.trim());
+                  setInputValue('');
+                }
+              }}
+              disabled={loading || !inputValue.trim()}
+              className="absolute right-2 bottom-2 p-2 text-gray-400 hover:text-gray-600 disabled:text-gray-300 disabled:hover:text-gray-300 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
           </div>
+          <p className="text-xs text-gray-400 text-center mt-3">
+            Press Enter to send, Shift+Enter for new line
+          </p>
         </div>
       </div>
 
@@ -345,7 +390,7 @@ Click **"Propose Strategy"** below to begin, or ask me any questions first.`,
   );
 }
 
-// Chat Message Component with embedded data support
+// Chat Message Component with embedded data support - OpenAI style
 function ChatMessage({ message, onCandidateClick }) {
   const isUser = message.role === 'user';
   const embeddedData = message.embeddedData || {};
@@ -361,7 +406,7 @@ function ChatMessage({ message, onCandidateClick }) {
       if (!text) return null;
       const boldParts = text.split(/\*\*([^*]+)\*\*/g);
       return boldParts.map((part, j) =>
-        j % 2 === 1 ? <strong key={j}>{part}</strong> : part
+        j % 2 === 1 ? <strong key={j} className="font-semibold">{part}</strong> : part
       );
     };
 
@@ -386,7 +431,7 @@ function ChatMessage({ message, onCandidateClick }) {
       if (/^[-*]\s/.test(line)) {
         return (
           <div key={i} className="flex items-start gap-2 ml-2">
-            <span className="text-indigo-500 mt-0.5">•</span>
+            <span className="text-gray-400 mt-0.5">•</span>
             <span>{renderInline(line.slice(2))}</span>
           </div>
         );
@@ -397,7 +442,7 @@ function ChatMessage({ message, onCandidateClick }) {
       if (numberedMatch) {
         return (
           <div key={i} className="flex items-start gap-2 ml-2">
-            <span className="text-indigo-600 font-medium min-w-[1.25rem]">{numberedMatch[1]}.</span>
+            <span className="text-gray-500 font-medium min-w-[1.25rem]">{numberedMatch[1]}.</span>
             <span>{renderInline(numberedMatch[2])}</span>
           </div>
         );
@@ -406,8 +451,8 @@ function ChatMessage({ message, onCandidateClick }) {
       // Handle + list items (sub-items)
       if (/^\+\s/.test(line)) {
         return (
-          <div key={i} className="flex items-start gap-2 ml-6 text-slate-600">
-            <span className="text-green-500 mt-0.5">+</span>
+          <div key={i} className="flex items-start gap-2 ml-6 text-gray-600">
+            <span className="text-gray-400 mt-0.5">+</span>
             <span>{renderInline(line.slice(2))}</span>
           </div>
         );
@@ -415,100 +460,84 @@ function ChatMessage({ message, onCandidateClick }) {
 
       // Empty line
       if (line.trim() === '') {
-        return <div key={i} className="h-2" />;
+        return <div key={i} className="h-3" />;
       }
 
       // Regular text
       return (
-        <span key={i}>
+        <p key={i} className={i > 0 ? 'mt-3' : ''}>
           {renderInline(line)}
-          {i < lines.length - 1 && <br />}
-        </span>
+        </p>
       );
     });
   };
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-      <div
-        className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-          isUser
-            ? 'bg-indigo-600 text-white'
-            : 'bg-white shadow-sm border border-slate-200 text-slate-800'
-        }`}
-      >
-        <div className="text-sm leading-relaxed">
-          {renderContent(message.content)}
+    <div className="mb-8">
+      <div className="flex gap-4">
+        {isUser ? (
+          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center flex-shrink-0">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+        )}
+        <div className="flex-1 pt-1">
+          <div className="text-gray-800 leading-relaxed">
+            {renderContent(message.content)}
+          </div>
+
+          {/* Embedded Strategy Display */}
+          {embeddedData.showStrategy && embeddedData.strategy && (
+            <ChatStrategyDisplay strategy={embeddedData.strategy} />
+          )}
+
+          {/* Embedded Results Display */}
+          {embeddedData.showResults && embeddedData.evaluationResult && (
+            <>
+              <ChatRankingDisplay
+                candidates={embeddedData.evaluationResult.top_candidates}
+                onCandidateClick={onCandidateClick}
+              />
+              {embeddedData.evaluationResult.insights && embeddedData.evaluationResult.insights.length > 0 && (
+                <div className="mt-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Key Insights</h4>
+                  <ul className="space-y-2">
+                    {embeddedData.evaluationResult.insights.slice(0, 3).map((insight, i) => (
+                      <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                        <span className="text-gray-400 mt-0.5">•</span>
+                        {insight}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          )}
         </div>
-
-        {/* Embedded Strategy Display */}
-        {embeddedData.showStrategy && embeddedData.strategy && (
-          <ChatStrategyDisplay strategy={embeddedData.strategy} />
-        )}
-
-        {/* Embedded Results Display */}
-        {embeddedData.showResults && embeddedData.evaluationResult && (
-          <>
-            <ChatRankingDisplay
-              candidates={embeddedData.evaluationResult.top_candidates}
-              onCandidateClick={onCandidateClick}
-            />
-            {embeddedData.evaluationResult.insights && embeddedData.evaluationResult.insights.length > 0 && (
-              <div className="mt-3 bg-slate-50 rounded-lg p-3 border border-slate-200">
-                <h4 className="text-xs font-semibold text-slate-600 mb-2">Key Insights</h4>
-                <ul className="space-y-1">
-                  {embeddedData.evaluationResult.insights.slice(0, 3).map((insight, i) => (
-                    <li key={i} className="text-xs text-slate-600 flex items-start gap-2">
-                      <span className="text-indigo-500 mt-0.5">•</span>
-                      {insight}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </>
-        )}
       </div>
     </div>
   );
 }
 
-// Phase indicator component
+// Phase indicator component - OpenAI style
 function PhaseIndicator({ phase }) {
-  const phases = [
-    { id: 'init', label: 'Init' },
-    { id: 'planning', label: 'Strategy' },
-    { id: 'evaluating', label: 'Evaluating' },
-    { id: 'complete', label: 'Complete' },
-  ];
-
-  const currentIndex = phases.findIndex(p => p.id === phase);
+  const phaseLabels = {
+    init: 'Ready',
+    planning: 'Planning',
+    evaluating: 'Evaluating',
+    complete: 'Complete',
+  };
 
   return (
-    <div className="flex items-center gap-1">
-      {phases.map((p, index) => {
-        const isActive = p.id === phase;
-        const isComplete = index < currentIndex;
-
-        return (
-          <div key={p.id} className="flex items-center">
-            {index > 0 && (
-              <div className={`w-4 h-0.5 ${isComplete ? 'bg-indigo-500' : 'bg-slate-200'}`} />
-            )}
-            <div
-              className={`px-2 py-0.5 text-xs rounded-full font-medium ${
-                isActive
-                  ? 'bg-indigo-100 text-indigo-700'
-                  : isComplete
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-slate-100 text-slate-400'
-              }`}
-            >
-              {isComplete ? '✓' : ''} {p.label}
-            </div>
-          </div>
-        );
-      })}
-    </div>
+    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+      {phaseLabels[phase] || phase}
+    </span>
   );
 }

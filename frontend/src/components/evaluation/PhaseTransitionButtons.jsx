@@ -1,8 +1,8 @@
 /**
  * PhaseTransitionButtons Component
  *
- * Displays action buttons for transitioning between evaluation phases.
- * Replaces string-matching based phase detection.
+ * Displays action buttons for transitioning between evaluation phases - OpenAI style.
+ * Clean, minimal design with rounded pill buttons.
  */
 
 export default function PhaseTransitionButtons({ phase, onAction, disabled }) {
@@ -14,7 +14,6 @@ export default function PhaseTransitionButtons({ phase, onAction, disabled }) {
           {
             key: 'propose_strategy',
             label: 'Propose Strategy',
-            description: 'Let AI suggest evaluation dimensions',
             primary: true,
             icon: (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,7 +28,6 @@ export default function PhaseTransitionButtons({ phase, onAction, disabled }) {
           {
             key: 'confirm_and_run',
             label: 'Confirm & Run Evaluation',
-            description: 'Start multi-dimensional assessment',
             primary: true,
             icon: (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,7 +39,6 @@ export default function PhaseTransitionButtons({ phase, onAction, disabled }) {
           {
             key: 'modify_strategy',
             label: 'Modify Strategy',
-            description: 'Adjust dimensions or weights',
             primary: false,
             icon: (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +56,6 @@ export default function PhaseTransitionButtons({ phase, onAction, disabled }) {
           {
             key: 'view_results',
             label: 'View Enriched Results',
-            description: 'See results with evaluation scores',
             primary: true,
             icon: (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,7 +66,6 @@ export default function PhaseTransitionButtons({ phase, onAction, disabled }) {
           {
             key: 'refine_results',
             label: 'Refine Results',
-            description: 'Adjust weights or exclude candidates',
             primary: false,
             icon: (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +76,6 @@ export default function PhaseTransitionButtons({ phase, onAction, disabled }) {
           {
             key: 'new_evaluation',
             label: 'New Evaluation',
-            description: 'Start fresh with different criteria',
             primary: false,
             icon: (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,30 +97,26 @@ export default function PhaseTransitionButtons({ phase, onAction, disabled }) {
   }
 
   return (
-    <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg p-4 border border-slate-200">
-      <p className="text-xs text-slate-500 mb-3 text-center">Next Step</p>
-      <div className="flex flex-wrap gap-2 justify-center">
-        {actions.map((action) => (
-          <button
-            key={action.key}
-            onClick={() => onAction?.(action.key)}
-            disabled={disabled}
-            className={`
-              flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all
-              ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md active:scale-95'}
-              ${
-                action.primary
-                  ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                  : 'bg-white text-slate-700 border border-slate-300 hover:border-slate-400'
-              }
-            `}
-            title={action.description}
-          >
-            {action.icon}
-            <span>{action.label}</span>
-          </button>
-        ))}
-      </div>
+    <div className="flex flex-wrap gap-2">
+      {actions.map((action) => (
+        <button
+          key={action.key}
+          onClick={() => onAction?.(action.key)}
+          disabled={disabled}
+          className={`
+            inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-full transition-colors
+            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+            ${
+              action.primary
+                ? 'bg-black text-white hover:bg-gray-800'
+                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+            }
+          `}
+        >
+          {action.icon}
+          {action.label}
+        </button>
+      ))}
     </div>
   );
 }
