@@ -47,8 +47,9 @@ class RefinementAssistant:
         """
         # Build detailed results list for the LLM
         results_detail = self._format_results_for_llm(current_results)
+        results_stats = self._get_result_statistics(current_results)
 
-        # Build refinement prompt that handles both filtering AND search expansion
+        # Build refinement prompt that handles filtering, search expansion, AND undo
         system_prompt = f"""{REFINEMENT_PROMPT}
 
 ## Current Context
@@ -57,40 +58,92 @@ Original search was for: {scenario.get('startup_name', 'a startup')}
 Industry: {scenario.get('industry', 'Unknown')}
 Looking for: {scenario.get('partner_needs', 'partners')}
 
+## Result Statistics (USE THIS TO DECIDE!)
+{results_stats}
+
 ## Current Results (indexed 0-{len(current_results)-1}):
 {results_detail}
 
 ## Your Task
-Analyze the user's request and decide the best action:
+Analyze the user's request and decide the best action.
+
+**CRITICAL: Before choosing, CHECK THE STATISTICS ABOVE!**
+- If user wants "only in Japan" but Japan: 0 in statistics → use refine_search (NOT filter!)
+- If user wants "only healthcare" but Healthcare: 0 → use refine_search (NOT filter!)
+- Only use filter if the constraint ALREADY EXISTS in current results!
 
 **Option A - FILTER/REORDER existing results:**
-Use this when the user wants to narrow down, prioritize, or remove items from current results.
-Examples: "top 5", "remove consulting firms", "prioritize universities", "only show US companies"
-
-**Option B - NEW SEARCH:**
-Use this when the user wants to find NEW/DIFFERENT partners not in the current results.
-Examples: "find more hospitals", "search for manufacturing companies", "look for partners in Japan", "add biotech companies"
-
-Respond in this exact JSON format:
-
-For FILTER/REORDER:
+Use ONLY when filtering will keep at least 2 results. Check statistics first!
+Examples: "top 5", "remove consulting firms" (if consulting exists), "only US companies" (if US exists)
 {{
     "action_type": "filter",
     "keep_indices": [0, 2, 5],
-    "response": "Brief explanation of what was done"
+    "response": "Filtered to X results matching your criteria"
 }}
 
-For NEW SEARCH:
+**Option B - NEW SEARCH (different partner types):**
+Use when user wants completely DIFFERENT types of partners.
+Examples: "find hospitals instead", "search for manufacturing companies"
 {{
     "action_type": "search",
-    "search_query": "specific search query for finding new partners",
-    "search_focus": "brief description of what kind of partners to find",
+    "search_query": "specific search query",
+    "search_focus": "what kind of partners",
     "merge_mode": "add" | "replace",
-    "response": "I'll search for more [type] partners..."
+    "response": "I'll search for [type] partners..."
 }}
 
-Choose wisely based on user intent. If they say "find", "search", "look for", "add more", or mention specific NEW types not in results, use search.
-If they say "show", "keep", "remove", "top", "only", use filter."""
+**Option C - REFINE SEARCH (MOST COMMON - re-run with constraints):**
+Use when user wants to CONSTRAIN the original search to a location, industry, size, etc.
+This RE-RUNS the original search WITH the constraint added.
+Examples: "only in Japan", "need partners in Europe", "must be enterprise", "I need them in California"
+{{
+    "action_type": "refine_search",
+    "constraint": "in Japan" | "healthcare sector" | "enterprise companies" | etc.,
+    "response": "I'll search for partners matching your original criteria but [constraint]..."
+}}
+
+**Option D - UNDO/RESET:**
+Use when user wants to revert or start over.
+Examples: "undo", "go back", "revert", "start over", "reset"
+{{
+    "action_type": "undo",
+    "response": "Reverting to previous results..."
+}}
+
+**Option E - CLARIFY:**
+Use when the request is too vague to act on.
+Examples: "make it better", "improve results", unclear commands
+{{
+    "action_type": "clarify",
+    "response": "Could you be more specific? For example, you could say 'only in Japan' or 'remove consulting firms'..."
+}}
+
+## DECISION CHECKLIST:
+1. Does user mention a LOCATION (Japan, Europe, USA, etc.)?
+   → Check statistics: Is that location in current results?
+   → If NO or very few: use refine_search
+   → If YES with many results: use filter
+
+2. Does user say "only X" or "must be X"?
+   → Check statistics: Does X exist in current results?
+   → If NO: use refine_search
+   → If YES: use filter
+
+3. Does user want different TYPE of partner (hospitals, lawyers, etc.)?
+   → Use search
+
+4. Does user say "undo", "go back", "revert"?
+   → Use undo
+
+5. Is request vague or unclear?
+   → Use clarify
+
+## IMPORTANT: OUTPUT FORMAT
+You MUST respond with ONLY a JSON object. No explanations, no text before or after.
+Just output the JSON object matching one of the formats above.
+
+Example for "only in Japan" with no Japan results in statistics:
+{{"action_type": "refine_search", "constraint": "in Japan", "response": "I'll search for partners in Japan..."}}"""
 
         # Build messages for OpenAI
         openai_messages = [{"role": "system", "content": system_prompt}]
@@ -106,12 +159,13 @@ If they say "show", "keep", "remove", "top", "only", use filter."""
             "content": current_message
         })
 
-        # Get the LLM's refinement decision
+        # Get the LLM's refinement decision (force JSON output)
         response = self.client.chat.completions.create(
             model=self.model,
             messages=openai_messages,
             temperature=0.3,
-            max_tokens=500
+            max_tokens=500,
+            response_format={"type": "json_object"}
         )
 
         llm_response = response.choices[0].message.content
@@ -149,8 +203,61 @@ If they say "show", "keep", "remove", "top", "only", use filter."""
                         "cost": cost_data
                     }
 
-                # Handle FILTER action
+                # Handle REFINE SEARCH action (re-run original search with constraints)
+                if action_type == 'refine_search':
+                    constraint = decision.get('constraint', '')
+                    original_needs = scenario.get('partner_needs', '')
+                    # Combine original search with constraint
+                    combined_query = f"{original_needs} {constraint}".strip()
+                    return {
+                        "response": assistant_response,
+                        "refined_results": current_results,  # Keep current for now
+                        "applied_filters": [],
+                        "action_taken": "refine_search",
+                        "search_query": combined_query,
+                        "search_focus": constraint,
+                        "merge_mode": "replace",  # Replace results since this is a refined search
+                        "cost": cost_data
+                    }
+
+                # Handle UNDO action
+                if action_type == 'undo':
+                    return {
+                        "response": assistant_response,
+                        "refined_results": current_results,  # Frontend will handle undo
+                        "applied_filters": [],
+                        "action_taken": "undo",
+                        "cost": cost_data
+                    }
+
+                # Handle CLARIFY action (request is too vague)
+                if action_type == 'clarify':
+                    return {
+                        "response": assistant_response,
+                        "refined_results": current_results,  # Keep current results
+                        "applied_filters": [],
+                        "action_taken": "clarify",
+                        "cost": cost_data
+                    }
+
+                # Handle FILTER action - with validation
                 keep_indices = decision.get('keep_indices', list(range(len(current_results))))
+
+                # VALIDATION: If filter would return 0 or too few results, convert to refine_search
+                if len(keep_indices) == 0 and len(current_results) > 0:
+                    # LLM said filter but would return nothing - try refine_search instead
+                    print(f"[Refinement] Filter would return 0 results, converting to refine_search")
+                    # Extract constraint from the original message
+                    return {
+                        "response": "I'll search for partners matching that constraint instead of filtering.",
+                        "refined_results": current_results,
+                        "applied_filters": [],
+                        "action_taken": "refine_search",
+                        "search_query": f"{scenario.get('partner_needs', '')} {current_message}",
+                        "search_focus": current_message,
+                        "merge_mode": "replace",
+                        "cost": cost_data
+                    }
 
                 # Apply the refinement by selecting only kept indices
                 refined_results = []
@@ -203,6 +310,64 @@ If they say "show", "keep", "remove", "top", "only", use filter."""
             rationale = r.get('rationale', '')[:100]
             lines.append(f"[{i}] {name} | Industry: {industry} | Location: {location} | Score: {score} | {rationale}...")
         return "\n".join(lines)
+
+    def _get_result_statistics(self, results: list) -> str:
+        """Generate statistics about current results to help LLM make informed decisions."""
+        if not results:
+            return "No results currently."
+
+        # Extract and count countries/regions from locations
+        countries = {}
+        industries = {}
+
+        country_keywords = {
+            'japan': 'Japan', 'tokyo': 'Japan', 'osaka': 'Japan', 'kyoto': 'Japan',
+            'usa': 'USA', 'united states': 'USA', 'california': 'USA', 'new york': 'USA',
+            'texas': 'USA', 'boston': 'USA', 'san francisco': 'USA', 'seattle': 'USA',
+            'china': 'China', 'beijing': 'China', 'shanghai': 'China', 'shenzhen': 'China',
+            'germany': 'Germany', 'berlin': 'Germany', 'munich': 'Germany',
+            'uk': 'UK', 'united kingdom': 'UK', 'london': 'UK', 'england': 'UK',
+            'france': 'France', 'paris': 'France',
+            'india': 'India', 'bangalore': 'India', 'mumbai': 'India',
+            'canada': 'Canada', 'toronto': 'Canada', 'vancouver': 'Canada',
+            'australia': 'Australia', 'sydney': 'Australia', 'melbourne': 'Australia',
+            'singapore': 'Singapore',
+            'korea': 'South Korea', 'south korea': 'South Korea', 'seoul': 'South Korea',
+            'europe': 'Europe', 'asia': 'Asia',
+        }
+
+        for r in results:
+            info = r.get('company_info', {})
+            location = (info.get('location', '') or '').lower()
+            industry = info.get('industry', 'Unknown')
+
+            # Detect country from location string
+            detected_country = 'Unknown'
+            for keyword, country in country_keywords.items():
+                if keyword in location:
+                    detected_country = country
+                    break
+
+            countries[detected_country] = countries.get(detected_country, 0) + 1
+
+            # Simplify industry (take first part if comma-separated)
+            simple_industry = industry.split(',')[0].strip()[:30] if industry else 'Unknown'
+            industries[simple_industry] = industries.get(simple_industry, 0) + 1
+
+        # Format statistics
+        stats_parts = [f"Total: {len(results)} results"]
+
+        # Countries breakdown
+        country_list = sorted(countries.items(), key=lambda x: x[1], reverse=True)
+        country_str = ", ".join([f"{c}: {n}" for c, n in country_list])
+        stats_parts.append(f"Countries: {country_str}")
+
+        # Industries breakdown
+        industry_list = sorted(industries.items(), key=lambda x: x[1], reverse=True)[:5]
+        industry_str = ", ".join([f"{i}: {n}" for i, n in industry_list])
+        stats_parts.append(f"Industries: {industry_str}")
+
+        return "\n".join(stats_parts)
 
     def _summarize_results(self, results: list) -> str:
         """Create a summary of current results for context."""

@@ -125,8 +125,14 @@ class EvaluationChatAssistant:
                 session_id, candidates, startup_profile, strategy
             )
 
-        # Handle result queries (in complete phase)
+        # Handle result queries and refinements (in complete phase)
         if phase == 'complete' and evaluation_result:
+            # Check if this is a refinement request
+            if self._is_refinement_request(current_message):
+                return self._handle_result_refinement(
+                    session_id, current_message, evaluation_result, strategy
+                )
+            # Otherwise handle as a query
             return self._handle_result_query(
                 session_id, current_message, evaluation_result, strategy
             )
@@ -484,6 +490,138 @@ Provide a helpful, concise answer. Use markdown formatting.
             "evaluation_result": evaluation_result,
             "cost": cost,
         }
+
+    def _is_refinement_request(self, message: str) -> bool:
+        """Detect if a message is a refinement request vs a simple query."""
+        message_lower = message.lower()
+
+        refinement_keywords = [
+            'exclude', 'remove', 'drop', 'filter out', 'without',
+            'reweight', 're-weight', 'change weight', 'adjust weight',
+            'focus more', 'focus less', 'prioritize', 'deprioritize',
+            'recalculate', 're-rank', 'rerank', 'sort by',
+            'only show', 'just the', 'top 3', 'top 5', 'best 3',
+        ]
+
+        return any(kw in message_lower for kw in refinement_keywords)
+
+    def _handle_result_refinement(
+        self, session_id: str, request: str, evaluation_result: dict, strategy: dict
+    ) -> dict:
+        """Handle post-evaluation refinement requests."""
+
+        top_candidates = evaluation_result.get('top_candidates', [])
+        dimensions = strategy.get('dimensions', []) if strategy else []
+
+        prompt = f"""The user wants to refine evaluation results. Determine and apply the refinement.
+
+CURRENT RESULTS ({len(top_candidates)} candidates):
+{json.dumps([{"name": c.get("candidate_name"), "rank": c.get("rank"), "score": c.get("final_score")} for c in top_candidates], indent=2)}
+
+CURRENT DIMENSIONS:
+{json.dumps([{"dimension": d.get("dimension"), "weight": d.get("weight")} for d in dimensions], indent=2)}
+
+USER REQUEST: "{request}"
+
+Determine what refinement is needed:
+1. EXCLUDE - Remove specific candidates and re-rank remaining
+2. REWEIGHT - Adjust dimension weights and recalculate scores
+3. FOCUS - Provide deeper analysis on specific aspect
+4. FILTER - Show subset (e.g., "top 3")
+
+Respond in JSON:
+{{
+    "action": "exclude|reweight|focus|filter",
+    "details": {{
+        "exclude_names": ["names to exclude"] OR
+        "new_weights": {{"dimension": weight}} OR
+        "focus_aspect": "aspect" OR
+        "filter_count": 3
+    }},
+    "response": "Explanation of what was done",
+    "modified_candidates": [] // If action requires modification, return the updated candidate list
+}}
+"""
+
+        response, cost = self._call_llm(prompt, max_tokens=2000)
+
+        try:
+            parsed = self._parse_json_response(response)
+            action = parsed.get('action', 'focus')
+            details = parsed.get('details', {})
+            text_response = parsed.get('response', 'Refinement applied.')
+
+            modified_result = evaluation_result.copy()
+
+            if action == 'exclude':
+                # Remove excluded candidates and re-rank
+                exclude_names = [n.lower() for n in details.get('exclude_names', [])]
+                filtered = [
+                    c for c in top_candidates
+                    if c.get('candidate_name', '').lower() not in exclude_names
+                ]
+                # Re-rank
+                for i, c in enumerate(filtered, 1):
+                    c['rank'] = i
+                modified_result['top_candidates'] = filtered
+
+            elif action == 'reweight':
+                # Recalculate scores with new weights
+                new_weights = details.get('new_weights', {})
+                if new_weights:
+                    # Update strategy weights
+                    updated_dims = []
+                    for d in dimensions:
+                        dim_name = d['dimension']
+                        new_weight = new_weights.get(dim_name, d.get('weight', 0.2))
+                        updated_dims.append({**d, 'weight': new_weight})
+
+                    # Normalize weights to sum to 1.0
+                    total = sum(d['weight'] for d in updated_dims)
+                    if total > 0:
+                        for d in updated_dims:
+                            d['weight'] = d['weight'] / total
+
+                    # Recalculate final scores
+                    for c in top_candidates:
+                        c['final_score'] = self._calculate_final_score(
+                            c.get('dimension_scores', []), updated_dims
+                        )
+
+                    # Re-sort and re-rank
+                    top_candidates.sort(key=lambda x: x.get('final_score', 0), reverse=True)
+                    for i, c in enumerate(top_candidates, 1):
+                        c['rank'] = i
+
+                    modified_result['top_candidates'] = top_candidates
+                    strategy['dimensions'] = updated_dims
+
+            elif action == 'filter':
+                # Show subset
+                filter_count = details.get('filter_count', 5)
+                modified_result['top_candidates'] = top_candidates[:filter_count]
+
+            # For 'focus', just return the text response without modifying results
+
+            return {
+                "response": text_response,
+                "session_id": session_id,
+                "phase": "complete",
+                "strategy": strategy,
+                "evaluation_result": modified_result,
+                "cost": cost,
+            }
+
+        except Exception as e:
+            print(f"[EvaluationChat] Refinement parse error: {e}")
+            return {
+                "response": f"I understood you want to refine the results, but I had trouble processing that. Could you be more specific? For example:\n- \"Exclude [company name]\"\n- \"Focus more on technical synergy\"\n- \"Show only the top 3\"",
+                "session_id": session_id,
+                "phase": "complete",
+                "strategy": strategy,
+                "evaluation_result": evaluation_result,
+                "cost": cost,
+            }
 
     def _handle_general_conversation(
         self, session_id: str, phase: str, message: str, history: list,

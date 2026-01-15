@@ -123,14 +123,14 @@ function TemplateReview() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
+          <h1 className="text-3xl font-bold text-black mb-2">
             Review Your Partner Profile
           </h1>
-          <p className="text-slate-600">
+          <p className="text-gray-600">
             Edit any fields before searching for partners
           </p>
         </div>
@@ -147,7 +147,7 @@ function TemplateReview() {
               name="startup_name"
               value={formData.startup_name}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
             />
           </div>
 
@@ -161,7 +161,7 @@ function TemplateReview() {
               value={formData.description}
               onChange={handleChange}
               rows={3}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
             />
           </div>
 
@@ -175,7 +175,7 @@ function TemplateReview() {
               name="industry"
               value={formData.industry}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
             />
           </div>
 
@@ -189,7 +189,7 @@ function TemplateReview() {
                 name="investment_stage"
                 value={formData.investment_stage}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
               >
                 <option value="Pre-Seed">Pre-Seed</option>
                 <option value="Seed">Seed</option>
@@ -206,7 +206,7 @@ function TemplateReview() {
                 name="product_stage"
                 value={formData.product_stage}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
               >
                 <option value="Concept">Concept</option>
                 <option value="MVP">MVP</option>
@@ -227,7 +227,7 @@ function TemplateReview() {
               onChange={handleChange}
               rows={4}
               placeholder="Describe the types of partners you're looking for..."
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
             />
           </div>
 
@@ -250,7 +250,7 @@ function TemplateReview() {
                     onChange={(e) => setFormData(prev => ({ ...prev, use_csv: e.target.checked }))}
                     className="sr-only"
                   />
-                  <div className={`w-11 h-6 rounded-full transition-colors ${formData.use_csv ? 'bg-blue-600' : 'bg-slate-300'}`}>
+                  <div className={`w-11 h-6 rounded-full transition-colors ${formData.use_csv ? 'bg-black' : 'bg-slate-300'}`}>
                     <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${formData.use_csv ? 'translate-x-5' : ''}`}></div>
                   </div>
                 </div>
@@ -268,7 +268,7 @@ function TemplateReview() {
                     onChange={(e) => setFormData(prev => ({ ...prev, use_web_search: e.target.checked }))}
                     className="sr-only"
                   />
-                  <div className={`w-11 h-6 rounded-full transition-colors ${formData.use_web_search ? 'bg-blue-600' : 'bg-slate-300'}`}>
+                  <div className={`w-11 h-6 rounded-full transition-colors ${formData.use_web_search ? 'bg-black' : 'bg-slate-300'}`}>
                     <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${formData.use_web_search ? 'translate-x-5' : ''}`}></div>
                   </div>
                 </div>
@@ -276,15 +276,69 @@ function TemplateReview() {
             </div>
           </div>
 
-          {/* Progress indicator */}
+          {/* Progress indicator - Enhanced with phase-specific icons */}
           {isSearching && progressMessage && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center gap-3">
-                <svg className="w-5 h-5 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                <span className="text-blue-800 font-medium">{progressMessage}</span>
+            <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-5 shadow-lg">
+              <div className="flex items-center gap-4">
+                {/* Phase-specific animated icon */}
+                <div className="relative">
+                  <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+                    {progress?.phase?.includes('csv') ? (
+                      // Database icon for CSV search
+                      <svg className="w-6 h-6 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                      </svg>
+                    ) : progress?.phase?.includes('web') ? (
+                      // Globe icon for web search
+                      <svg className="w-6 h-6 text-white animate-spin" style={{ animationDuration: '3s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    ) : progress?.phase === 'company_details' ? (
+                      // Magnifying glass for company analysis
+                      <svg className="w-6 h-6 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    ) : progress?.phase === 'scoring' ? (
+                      // Chart icon for scoring
+                      <svg className="w-6 h-6 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    ) : progress?.phase === 'finishing' ? (
+                      // Checkmark for finishing
+                      <svg className="w-6 h-6 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    ) : (
+                      // Default spinner
+                      <svg className="w-6 h-6 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                    )}
+                  </div>
+                  {/* Pulsing ring animation */}
+                  <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-white/20 animate-ping" style={{ animationDuration: '2s' }} />
+                </div>
+
+                <div className="flex-1">
+                  <p className="text-white font-medium text-lg">{progressMessage}</p>
+                  {progress?.phase === 'company_details' && progress?.total && (
+                    <div className="mt-2">
+                      <div className="flex items-center gap-2 text-gray-400 text-sm">
+                        <span>Company {progress.index} of {progress.total}</span>
+                      </div>
+                      <div className="mt-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-white rounded-full transition-all duration-300"
+                          style={{ width: `${(progress.index / progress.total) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {progress?.count && (
+                    <p className="text-gray-400 text-sm mt-1">{progress.count} matches found</p>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -317,7 +371,7 @@ function TemplateReview() {
               <button
                 onClick={handleSearch}
                 disabled={isSearching}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
+                className="bg-black hover:bg-gray-800 text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
               >
                 {isSearching ? (
                   <>

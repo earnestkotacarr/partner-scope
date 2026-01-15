@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react'
 import { isDebugMode, debugSettings } from '../debug/config'
 import { generateFakeData } from '../debug/fakeData'
 
@@ -21,6 +21,16 @@ export function ScenarioProvider({ children }) {
   const [sessionCosts, setSessionCosts] = useState([])  // Array of individual operation costs
   const [currentCost, setCurrentCost] = useState(null)  // Current running cost (during search)
   const [isSearching, setIsSearching] = useState(false) // Search in progress flag
+
+  // Results history for undo support (keep last 5 states)
+  const [resultsHistory, setResultsHistory] = useState([])
+
+  // Evaluation state - tracks if results have been enriched with AI evaluation
+  const [evaluationState, setEvaluationState] = useState({
+    strategy: null,
+    phase: 'none',  // 'none' | 'complete'
+    evaluatedAt: null
+  })
 
   // Add a cost entry from an API operation
   const addCost = useCallback((cost, operation = 'unknown') => {
@@ -50,6 +60,99 @@ export function ScenarioProvider({ children }) {
     }
   }, [sessionCosts, getTotalCost])
 
+  // Save current results to history (call before changing results)
+  const saveResultsSnapshot = useCallback((action = 'unknown') => {
+    if (results && results.matches) {
+      setResultsHistory(prev => {
+        const newEntry = {
+          results: { ...results, matches: [...results.matches] },
+          action,
+          timestamp: Date.now()
+        }
+        // Keep only last 5 entries
+        return [...prev.slice(-4), newEntry]
+      })
+    }
+  }, [results])
+
+  // Undo to previous results state
+  const undoResults = useCallback(() => {
+    if (resultsHistory.length > 0) {
+      const previous = resultsHistory[resultsHistory.length - 1]
+      setResults(previous.results)
+      setResultsHistory(prev => prev.slice(0, -1))
+      return true
+    }
+    return false
+  }, [resultsHistory])
+
+  // Check if undo is available
+  const canUndo = resultsHistory.length > 0
+
+  // Merge evaluation results into existing results (enrichment pattern)
+  const applyEvaluationToResults = useCallback((evaluationResult, strategy) => {
+    if (!evaluationResult || !results?.matches) return
+
+    // Save snapshot for undo support
+    saveResultsSnapshot('evaluation')
+
+    // Build lookup map from evaluation results
+    const evaluationMap = new Map(
+      (evaluationResult.top_candidates || []).map(e => [e.candidate_name, e])
+    )
+
+    // Enrich existing results with evaluation data
+    const enrichedMatches = results.matches.map(match => {
+      const evalData = evaluationMap.get(match.company_name)
+      if (!evalData) return match
+
+      return {
+        ...match,
+        // Update the display score to use evaluation score
+        match_score: evalData.final_score,
+        // Add evaluation enrichment object
+        evaluation: {
+          final_score: evalData.final_score,
+          rank: evalData.rank,
+          dimension_scores: evalData.dimension_scores,
+          strengths: evalData.strengths,
+          weaknesses: evalData.weaknesses,
+          recommendations: evalData.recommendations,
+          flags: evalData.flags,
+          evaluated_at: new Date().toISOString()
+        }
+      }
+    })
+
+    // Sort by evaluation score (evaluated results first, then by score)
+    enrichedMatches.sort((a, b) => {
+      const scoreA = a.evaluation?.final_score ?? a.match_score
+      const scoreB = b.evaluation?.final_score ?? b.match_score
+      return scoreB - scoreA
+    })
+
+    // Update results with enriched data
+    setResults({
+      ...results,
+      matches: enrichedMatches,
+      _lastUpdate: Date.now()
+    })
+
+    // Update evaluation state
+    setEvaluationState({
+      strategy,
+      phase: 'complete',
+      evaluatedAt: new Date().toISOString()
+    })
+
+    console.log('[Evaluation] Applied evaluation to results:', enrichedMatches.filter(m => m.evaluation).length, 'enriched')
+  }, [results, saveResultsSnapshot])
+
+  // Check if results have been evaluated
+  const hasEvaluation = useMemo(() =>
+    results?.matches?.some(m => m.evaluation) ?? false,
+  [results])
+
   const clearScenario = () => {
     setScenario(null)
     setResults(null)
@@ -57,6 +160,8 @@ export function ScenarioProvider({ children }) {
     setSessionCosts([])
     setCurrentCost(null)
     setIsSearching(false)
+    setResultsHistory([])
+    setEvaluationState({ strategy: null, phase: 'none', evaluatedAt: null })
   }
 
   // Initialize with fake data in debug mode
@@ -105,6 +210,15 @@ export function ScenarioProvider({ children }) {
       addCost,
       getTotalCost,
       getCostSummary,
+      // Undo support
+      saveResultsSnapshot,
+      undoResults,
+      canUndo,
+      // Evaluation enrichment
+      evaluationState,
+      setEvaluationState,
+      applyEvaluationToResults,
+      hasEvaluation,
       // Debug mode
       debugInitialized,
       isDebugMode: isDebugMode(),

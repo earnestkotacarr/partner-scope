@@ -11,6 +11,7 @@ import asyncio
 import json
 import csv
 import io
+import random
 from datetime import datetime
 from dotenv import load_dotenv
 load_dotenv()  # Load .env file
@@ -59,6 +60,159 @@ CONFIG = {
 
 # Initialize pipeline
 pipeline = PartnerPipeline(CONFIG)
+
+
+# ============================================================================
+# Information Completeness Scoring
+# ============================================================================
+
+def calculate_completeness_score(company_info: dict) -> int:
+    """
+    Calculate score based on information completeness and quality.
+
+    Scale: 0-100 where higher = more complete/actionable data.
+    This replaces arbitrary position-based scoring with meaningful metrics.
+
+    Scoring breakdown:
+    - Name: 5 points (always present)
+    - Website: 15 points (+5 bonus for real URL, not just CB link)
+    - Description: 8-30 points (based on length/quality)
+    - Industry: 10 points (+5 bonus for multiple industries)
+    - Location: 10 points (+5 bonus for detailed location)
+    - Size: 10 points
+    - Social presence: 5 points (any LinkedIn/Twitter/FB)
+    """
+    score = 0
+
+    # Name (5 points) - baseline
+    name = company_info.get('name') or company_info.get('company_name', '')
+    if name:
+        score += 5
+
+    # Website (15 + 5 bonus points)
+    website = company_info.get('website', '')
+    if website:
+        score += 15
+        # Bonus for real website (not just CrunchBase link)
+        if 'crunchbase.com' not in website.lower():
+            score += 5
+
+    # Description quality (8-30 points based on length)
+    desc = company_info.get('description', '') or ''
+    desc_len = len(desc)
+    if desc_len > 300:
+        score += 30  # Rich, detailed description
+    elif desc_len > 150:
+        score += 22  # Good description
+    elif desc_len > 50:
+        score += 15  # Basic description
+    elif desc_len > 0:
+        score += 8   # Minimal description
+
+    # Industry (10 + 5 bonus points)
+    industry = company_info.get('industry', '') or ''
+    if industry:
+        score += 10
+        # Bonus for multiple industries (more detailed categorization)
+        if ',' in industry or ';' in industry:
+            score += 5
+
+    # Location (10 + 5 bonus points)
+    location = company_info.get('location', '') or ''
+    if location:
+        score += 10
+        # Bonus for detailed location (has city, state/country)
+        if ',' in location:
+            score += 5
+
+    # Size (10 points)
+    size = company_info.get('size', '') or ''
+    if size and size.lower() not in ('not available', 'unknown', 'n/a', ''):
+        score += 10
+
+    # Social presence (5 points for any social link)
+    has_social = any([
+        company_info.get('linkedin_url'),
+        company_info.get('twitter_url'),
+        company_info.get('facebook_url'),
+    ])
+    if has_social:
+        score += 5
+
+    # Clamp to 0-100 range
+    return min(100, max(0, score))
+
+
+# ============================================================================
+# Engaging Loading Messages
+# ============================================================================
+
+LOADING_MESSAGES = {
+    'starting': [
+        "Warming up the search engines...",
+        "Calibrating partner radar...",
+        "Initializing discovery protocols...",
+        "Preparing to scan the ecosystem...",
+        "Powering up the matching algorithms...",
+    ],
+    'csv_search': [
+        "Digging through VC databases...",
+        "Mining CrunchBase archives...",
+        "Excavating startup records...",
+        "Scanning curated company data...",
+        "Sifting through investor portfolios...",
+    ],
+    'csv_processing': [
+        "Analyzing database matches...",
+        "Evaluating company profiles...",
+        "Assessing data completeness...",
+    ],
+    'csv_complete': [
+        "Database scan complete!",
+        "Finished mining the archives.",
+        "VC database search done.",
+    ],
+    'web_search_start': [
+        "Searching across the globe...",
+        "Casting a wide net...",
+        "Querying AI knowledge bases...",
+        "Exploring the startup ecosystem...",
+        "Scanning the innovation landscape...",
+    ],
+    'web_searching': [
+        "Hunting for hidden gems...",
+        "Following the data trails...",
+        "Discovering potential partners...",
+        "Traversing the web...",
+    ],
+    'company_analysis': [
+        "Analyzing {company}...",
+        "Evaluating {company}...",
+        "Profiling {company}...",
+        "Researching {company}...",
+        "Investigating {company}...",
+    ],
+    'scoring': [
+        "Calculating completeness scores...",
+        "Ranking by data quality...",
+        "Scoring information availability...",
+    ],
+    'finishing': [
+        "Polishing the results...",
+        "Almost there...",
+        "Finalizing your matches...",
+        "Preparing your shortlist...",
+    ],
+}
+
+
+def get_loading_message(phase: str, company: str = None) -> str:
+    """Get a random engaging loading message for the given phase."""
+    messages = LOADING_MESSAGES.get(phase, ["Processing..."])
+    msg = random.choice(messages)
+    if company and '{company}' in msg:
+        msg = msg.format(company=company[:30])  # Truncate long names
+    return msg
 
 
 # Request/Response Models
@@ -150,6 +304,7 @@ class ExportRequest(BaseModel):
     results: list[dict]
     chat_history: Optional[list[dict]] = []
     costs: Optional[list[dict]] = []
+    evaluation_strategy: Optional[dict] = None  # AI evaluation strategy with dimensions
     format: str = "pdf"  # "pdf" or "csv"
 
 
@@ -435,24 +590,27 @@ async def _get_csv_results(request: SearchRequest) -> list[PartnerMatchResponse]
     # Transform company dictionaries to PartnerMatchResponse format
     matches = []
     for i, company in enumerate(companies):
-        # Calculate a simple relevance score based on position (will be replaced by LLM ranking later)
-        base_score = 95 - (i * 2)  # Decreasing score by position
-        score = max(50, min(99, base_score))  # Clamp between 50-99
-
         description = company.get('description', '') or ''
         industry = company.get('industry', '') or ''
         location = company.get('location', '') or ''
         raw_data = company.get('raw_data', {}) or {}
 
+        # Build company info dict for scoring
+        company_info = {
+            "name": company.get('name', 'Unknown'),
+            "website": company.get('website', ''),
+            "industry": industry,
+            "location": location,
+            "description": description,
+            "crunchbase_url": raw_data.get('crunchbase_url', ''),
+        }
+
+        # Calculate score based on information completeness
+        score = calculate_completeness_score(company_info)
+
         match = PartnerMatchResponse(
             company_name=company.get('name', 'Unknown'),
-            company_info={
-                "website": company.get('website', ''),
-                "industry": industry,
-                "location": location,
-                "description": description,
-                "crunchbase_url": raw_data.get('crunchbase_url', ''),
-            },
+            company_info=company_info,
             match_score=score,
             rationale=f"Found via CrunchBase search. {description[:200] + '...' if len(description) > 200 else description or 'No description available.'}",
             key_strengths=[
@@ -500,24 +658,27 @@ async def _get_web_search_results(request: SearchRequest) -> list[PartnerMatchRe
     # Transform company dictionaries to PartnerMatchResponse format
     matches = []
     for i, company in enumerate(companies):
-        # Calculate a simple relevance score based on position
-        base_score = 95 - (i * 3)
-        score = max(50, min(99, base_score))
-
         description = company.get('description', '') or ''
         industry = company.get('industry', '') or ''
         location = company.get('location', '') or ''
         size = company.get('size', '') or ''
 
+        # Build company info dict for scoring
+        company_info = {
+            "name": company.get('name', 'Unknown'),
+            "website": company.get('website', ''),
+            "industry": industry,
+            "location": location,
+            "description": description,
+            "size": size,
+        }
+
+        # Calculate score based on information completeness
+        score = calculate_completeness_score(company_info)
+
         match = PartnerMatchResponse(
             company_name=company.get('name', 'Unknown'),
-            company_info={
-                "website": company.get('website', ''),
-                "industry": industry,
-                "location": location,
-                "description": description,
-                "size": size,
-            },
+            company_info=company_info,
             match_score=score,
             rationale=f"Found via AI web search. {description[:200] + '...' if len(description) > 200 else description or 'No description available.'}",
             key_strengths=[
@@ -636,8 +797,8 @@ async def refine_results(request: RefinementRequest):
 
         print(f"[Refinement] Action taken: {result['action_taken']}")
 
-        # Handle NEW SEARCH action
-        if result.get('action_taken') == 'search':
+        # Handle NEW SEARCH or REFINE SEARCH action (both trigger web search)
+        if result.get('action_taken') in ('search', 'refine_search'):
             search_query = result.get('search_query', '')
             search_focus = result.get('search_focus', '')
             merge_mode = result.get('merge_mode', 'add')
@@ -659,19 +820,40 @@ async def refine_results(request: RefinementRequest):
                 description=request.scenario.get('description', '')
             )
 
-            # Run web search
+            # Run web search using the search_companies method
             def run_search():
-                return web_provider.get_potential_partners(search_profile, max_results=10)
+                return web_provider.search_companies(search_query, filters={'max_results': 10})
 
             new_companies = await loop.run_in_executor(None, run_search)
 
             print(f"[Refinement] New search found {len(new_companies)} companies")
 
-            # Rank new results
-            def run_ranking():
-                return pipeline.ranker.rank_partners(new_companies, search_profile)
+            # Transform raw company results into match format with completeness scoring
+            new_matches = []
+            for i, company in enumerate(new_companies):
+                description_text = company.get('description', '') or ''
 
-            new_matches = await loop.run_in_executor(None, run_ranking)
+                # Build company info for scoring
+                company_info = {
+                    'name': company.get('name', 'Unknown'),
+                    'industry': company.get('industry', 'Unknown'),
+                    'location': company.get('location', 'Unknown'),
+                    'description': description_text,
+                    'size': company.get('size', 'Unknown'),
+                    'website': company.get('website', ''),
+                    'source': 'AI Web Search (Refinement)'
+                }
+
+                # Calculate score based on information completeness
+                score = calculate_completeness_score(company_info)
+
+                match = {
+                    'company_name': company.get('name', 'Unknown'),
+                    'company_info': company_info,
+                    'match_score': score,
+                    'rationale': f"Found via refinement search for: {search_focus}. {description_text[:150]}..." if description_text else f"Found via refinement search for: {search_focus}"
+                }
+                new_matches.append(match)
 
             # Get search cost
             search_usage = web_provider.get_last_usage()
@@ -680,14 +862,20 @@ async def refine_results(request: RefinementRequest):
                 search_cost = {
                     "input_tokens": search_usage.total_input_tokens,
                     "output_tokens": search_usage.total_output_tokens,
-                    "web_search_calls": search_usage.api_calls,
+                    "web_search_calls": search_usage.total_web_search_calls,
                     "total_cost": search_usage.total_cost
                 }
+
+            # Determine action type for response
+            is_refine_search = result.get('action_taken') == 'refine_search'
 
             # Merge results based on mode
             if merge_mode == 'replace':
                 final_results = new_matches
-                response_text = f"Searched for new partners and found {len(new_matches)} results."
+                if is_refine_search:
+                    response_text = f"Re-searched with your constraints and found {len(new_matches)} matching partners."
+                else:
+                    response_text = f"Searched for new partners and found {len(new_matches)} results."
             else:  # 'add' mode - merge and deduplicate
                 existing_names = {r.get('company_name', '').lower() for r in request.current_results}
                 unique_new = [m for m in new_matches if m.get('company_name', '').lower() not in existing_names]
@@ -710,12 +898,44 @@ async def refine_results(request: RefinementRequest):
                     "total_cost": (total_cost.get('total_cost', 0) or 0) + search_cost.get('total_cost', 0)
                 }
 
+            # Handle case where search returns 0 results
+            if len(final_results) == 0:
+                return RefinementResponse(
+                    response=f"No partners found matching '{search_focus}'. Try different keywords or broaden your search.",
+                    refined_results=request.current_results,  # Keep existing results
+                    applied_filters=[],
+                    action_taken="search_failed",
+                    cost=total_cost
+                )
+
             return RefinementResponse(
                 response=response_text,
                 refined_results=final_results,
                 applied_filters=[],
-                action_taken="expanded",
+                action_taken="refined" if is_refine_search else "expanded",
                 cost=total_cost
+            )
+
+        # Handle UNDO action - frontend will restore previous results
+        if result.get('action_taken') == 'undo':
+            print(f"[Refinement] Undo requested")
+            return RefinementResponse(
+                response=result["response"],
+                refined_results=request.current_results,  # Return current, frontend handles undo
+                applied_filters=[],
+                action_taken="undo",
+                cost=result.get("cost")
+            )
+
+        # Handle CLARIFY action - request was too vague
+        if result.get('action_taken') == 'clarify':
+            print(f"[Refinement] Clarification needed")
+            return RefinementResponse(
+                response=result["response"],
+                refined_results=request.current_results,  # Keep current results
+                applied_filters=[],
+                action_taken="clarify",
+                cost=result.get("cost")
             )
 
         # Standard filter/reorder action
@@ -832,12 +1052,12 @@ async def stream_search(
         all_matches = []
 
         try:
-            # Send start event
-            yield f"event: progress\ndata: {json.dumps({'phase': 'starting', 'message': 'Initializing search...', 'cost': total_cost})}\n\n"
+            # Send start event with engaging message
+            yield f"event: progress\ndata: {json.dumps({'phase': 'starting', 'message': get_loading_message('starting'), 'cost': total_cost})}\n\n"
 
             # CSV Search
             if use_csv:
-                yield f"event: progress\ndata: {json.dumps({'phase': 'csv_search', 'message': 'Searching CSV database...', 'cost': total_cost})}\n\n"
+                yield f"event: progress\ndata: {json.dumps({'phase': 'csv_search', 'message': get_loading_message('csv_search'), 'cost': total_cost})}\n\n"
 
                 provider = MockCrunchbaseProvider({})
                 companies = provider.search_companies(
@@ -845,20 +1065,28 @@ async def stream_search(
                     filters={'max_results': max_results}
                 )
 
+                # Process and score companies
+                yield f"event: progress\ndata: {json.dumps({'phase': 'csv_processing', 'message': get_loading_message('csv_processing'), 'cost': total_cost})}\n\n"
+
                 for i, company in enumerate(companies):
-                    base_score = 95 - (i * 2)
-                    score = max(50, min(99, base_score))
                     description_text = company.get('description', '') or ''
+
+                    # Build company info for scoring
+                    company_info = {
+                        "name": company.get('name', 'Unknown'),
+                        "website": company.get('website', ''),
+                        "industry": company.get('industry', '') or '',
+                        "location": company.get('location', '') or '',
+                        "description": description_text,
+                        "source": "CrunchBase CSV",
+                    }
+
+                    # Calculate score based on information completeness
+                    score = calculate_completeness_score(company_info)
 
                     match = {
                         'company_name': company.get('name', 'Unknown'),
-                        'company_info': {
-                            "website": company.get('website', ''),
-                            "industry": company.get('industry', '') or '',
-                            "location": company.get('location', '') or '',
-                            "description": description_text,
-                            "source": "CrunchBase CSV",
-                        },
+                        'company_info': company_info,
                         'match_score': score,
                         'rationale': f"Found via CrunchBase search. {description_text[:200]}..." if len(description_text) > 200 else description_text or 'No description available.',
                         'key_strengths': [f"Industry: {company.get('industry', 'N/A')}"],
@@ -867,11 +1095,11 @@ async def stream_search(
                     }
                     all_matches.append(match)
 
-                yield f"event: progress\ndata: {json.dumps({'phase': 'csv_complete', 'message': f'Found {len(companies)} companies from CSV', 'count': len(companies), 'cost': total_cost})}\n\n"
+                yield f"event: progress\ndata: {json.dumps({'phase': 'csv_complete', 'message': f'{get_loading_message(\"csv_complete\")} Found {len(companies)} matches.', 'count': len(companies), 'cost': total_cost})}\n\n"
 
             # Web Search
             if use_web_search:
-                yield f"event: progress\ndata: {json.dumps({'phase': 'web_search_start', 'message': 'Starting AI web search...', 'cost': total_cost})}\n\n"
+                yield f"event: progress\ndata: {json.dumps({'phase': 'web_search_start', 'message': get_loading_message('web_search_start'), 'cost': total_cost})}\n\n"
 
                 if not os.getenv('OPENAI_API_KEY'):
                     yield f"event: error\ndata: {json.dumps({'error': 'OpenAI API key not configured'})}\n\n"
@@ -882,7 +1110,7 @@ async def stream_search(
                     loop = asyncio.get_event_loop()
 
                     # Search for company list
-                    yield f"event: progress\ndata: {json.dumps({'phase': 'web_search_list', 'message': 'Searching for companies...', 'cost': total_cost})}\n\n"
+                    yield f"event: progress\ndata: {json.dumps({'phase': 'web_search_list', 'message': get_loading_message('web_searching'), 'cost': total_cost})}\n\n"
 
                     companies = await loop.run_in_executor(
                         None,
@@ -903,21 +1131,27 @@ async def stream_search(
                         total_cost['web_search_cost'] += usage.total_web_search_cost
                         total_cost['total_cost'] += usage.total_cost
 
-                    # Process each company
+                    # Process each company with completeness scoring
                     for i, company in enumerate(companies):
-                        base_score = 95 - (i * 3)
-                        score = max(50, min(99, base_score))
                         description_text = company.get('description', '') or ''
+
+                        # Build company info for scoring
+                        company_info = {
+                            "name": company.get('name', 'Unknown'),
+                            "website": company.get('website', ''),
+                            "industry": company.get('industry', '') or '',
+                            "location": company.get('location', '') or '',
+                            "description": description_text,
+                            "size": company.get('size', '') or '',
+                            "source": "AI Web Search",
+                        }
+
+                        # Calculate score based on information completeness
+                        score = calculate_completeness_score(company_info)
 
                         match = {
                             'company_name': company.get('name', 'Unknown'),
-                            'company_info': {
-                                "website": company.get('website', ''),
-                                "industry": company.get('industry', '') or '',
-                                "location": company.get('location', '') or '',
-                                "description": description_text,
-                                "source": "AI Web Search",
-                            },
+                            'company_info': company_info,
                             'match_score': score,
                             'rationale': f"Found via AI web search. {description_text[:200]}..." if len(description_text) > 200 else description_text or 'No description available.',
                             'key_strengths': [f"Industry: {company.get('industry', 'N/A')}"],
@@ -926,12 +1160,19 @@ async def stream_search(
                         }
                         all_matches.append(match)
 
-                        # Send progress update for each company
-                        yield f"event: progress\ndata: {json.dumps({'phase': 'company_details', 'company': company.get('name', 'Unknown'), 'index': i + 1, 'total': len(companies), 'cost': total_cost})}\n\n"
+                        # Send progress update for each company with engaging message
+                        company_name = company.get('name', 'Unknown')
+                        yield f"event: progress\ndata: {json.dumps({'phase': 'company_details', 'message': get_loading_message('company_analysis', company_name), 'company': company_name, 'index': i + 1, 'total': len(companies), 'cost': total_cost})}\n\n"
+
+            # Send scoring phase message
+            yield f"event: progress\ndata: {json.dumps({'phase': 'scoring', 'message': get_loading_message('scoring'), 'cost': total_cost})}\n\n"
 
             # Sort and limit results
             all_matches.sort(key=lambda x: x['match_score'], reverse=True)
             final_matches = all_matches[:max_results]
+
+            # Send finishing message
+            yield f"event: progress\ndata: {json.dumps({'phase': 'finishing', 'message': get_loading_message('finishing'), 'cost': total_cost})}\n\n"
 
             # Send complete event
             yield f"event: complete\ndata: {json.dumps({'startup_name': startup_name, 'matches': final_matches, 'total_matches': len(final_matches), 'cost': total_cost})}\n\n"
@@ -955,22 +1196,32 @@ async def stream_search(
 async def export_csv(request: ExportRequest):
     """
     Export search results as a CSV file.
+    Includes evaluation data when available.
     """
     try:
         output = io.StringIO()
         writer = csv.writer(output)
 
-        # Header row
-        writer.writerow([
+        # Check if any results have evaluation data
+        has_evaluation = any(r.get('evaluation') for r in request.results)
+
+        # Header row - add evaluation columns if present
+        headers = [
             'Company Name', 'Website', 'Industry', 'Location',
             'Match Score', 'Rationale', 'Key Strengths',
             'Potential Concerns', 'Recommended Action', 'Source'
-        ])
+        ]
+        if has_evaluation:
+            headers.extend(['AI Rank', 'AI Score', 'Top Strengths', 'Top Weaknesses'])
+
+        writer.writerow(headers)
 
         # Data rows
         for result in request.results:
             company_info = result.get('company_info', {})
-            writer.writerow([
+            evaluation = result.get('evaluation', {})
+
+            row = [
                 result.get('company_name', ''),
                 company_info.get('website', ''),
                 company_info.get('industry', ''),
@@ -981,7 +1232,17 @@ async def export_csv(request: ExportRequest):
                 '; '.join(result.get('potential_concerns', [])),
                 result.get('recommended_action', ''),
                 company_info.get('source', ''),
-            ])
+            ]
+
+            if has_evaluation:
+                row.extend([
+                    evaluation.get('rank', '') if evaluation else '',
+                    evaluation.get('final_score', '') if evaluation else '',
+                    '; '.join(evaluation.get('strengths', [])[:3]) if evaluation else '',
+                    '; '.join(evaluation.get('weaknesses', [])[:3]) if evaluation else '',
+                ])
+
+            writer.writerow(row)
 
         output.seek(0)
         filename = f"partner_search_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
@@ -1020,7 +1281,9 @@ async def export_pdf(request: ExportRequest):
 
 
 def _generate_pdf_reportlab(request: ExportRequest) -> bytes:
-    """Generate PDF content using reportlab."""
+    """Generate PDF content using reportlab.
+    Includes evaluation strategy and dimension scores when available.
+    """
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import letter
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -1032,9 +1295,13 @@ def _generate_pdf_reportlab(request: ExportRequest) -> bytes:
     results = request.results
     chat_history = request.chat_history or []
     costs = request.costs or []
+    evaluation_strategy = request.evaluation_strategy
 
     # Calculate total cost
     total_cost = sum(c.get('total_cost', 0) for c in costs) if costs else 0
+
+    # Check if results have evaluation data
+    has_evaluation = any(r.get('evaluation') for r in results)
 
     # Create PDF in memory
     buffer = io.BytesIO()
@@ -1050,6 +1317,8 @@ def _generate_pdf_reportlab(request: ExportRequest) -> bytes:
     centered_style = ParagraphStyle('Centered', parent=styles['Normal'], fontSize=10, alignment=TA_CENTER)
     chat_user_style = ParagraphStyle('ChatUser', parent=styles['Normal'], fontSize=9, backColor=colors.HexColor('#eff6ff'), spaceBefore=4, spaceAfter=4, leftIndent=10, rightIndent=10)
     chat_assistant_style = ParagraphStyle('ChatAssistant', parent=styles['Normal'], fontSize=9, backColor=colors.HexColor('#f8fafc'), spaceBefore=4, spaceAfter=4, leftIndent=10, rightIndent=10)
+    eval_badge_style = ParagraphStyle('EvalBadge', parent=styles['Normal'], fontSize=8, backColor=colors.HexColor('#111827'), textColor=colors.white)
+    dimension_style = ParagraphStyle('Dimension', parent=styles['Normal'], fontSize=8, textColor=colors.HexColor('#4b5563'))
 
     # Build story (content)
     story = []
@@ -1057,6 +1326,8 @@ def _generate_pdf_reportlab(request: ExportRequest) -> bytes:
     # Header
     story.append(Paragraph("Partner Search Report", title_style))
     story.append(Paragraph(f"<b>{scenario.get('startup_name', 'Unknown Startup')}</b>", centered_style))
+    if has_evaluation:
+        story.append(Paragraph("<font color='#111827'><b>AI Evaluation Included</b></font>", centered_style))
     story.append(Paragraph(f"Generated: {datetime.now().strftime('%B %d, %Y at %H:%M')}", small_style))
     story.append(Spacer(1, 20))
 
@@ -1068,6 +1339,34 @@ def _generate_pdf_reportlab(request: ExportRequest) -> bytes:
     story.append(Paragraph(f"<b>Partner Needs:</b>", normal_style))
     story.append(Paragraph(scenario.get('partner_needs', 'Not specified'), normal_style))
     story.append(Spacer(1, 10))
+
+    # Evaluation Strategy Section (if available)
+    if evaluation_strategy and evaluation_strategy.get('dimensions'):
+        story.append(Paragraph("AI Evaluation Strategy", heading_style))
+        dimensions = evaluation_strategy.get('dimensions', [])
+
+        # Create dimension breakdown table
+        dim_data = [['Dimension', 'Weight', 'Focus']]
+        for dim in dimensions:
+            name = dim.get('dimension', '').replace('_', ' ').title()
+            weight = int(dim.get('weight', 0) * 100)
+            focus = dim.get('focus_areas', ['General'])[0] if dim.get('focus_areas') else 'General'
+            dim_data.append([name, f"{weight}%", focus[:40]])
+
+        dim_table = Table(dim_data, colWidths=[2*inch, 1*inch, 3*inch])
+        dim_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f8fafc')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#1e293b')),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#e2e8f0')),
+        ]))
+        story.append(dim_table)
+        story.append(Spacer(1, 10))
 
     # Chat History Section
     if chat_history:
@@ -1090,10 +1389,12 @@ def _generate_pdf_reportlab(request: ExportRequest) -> bytes:
     story.append(Spacer(1, 10))
 
     # Results Section
-    story.append(Paragraph(f"Search Results ({len(results)} matches)", heading_style))
+    results_title = f"AI Evaluated Results ({len(results)} matches)" if has_evaluation else f"Search Results ({len(results)} matches)"
+    story.append(Paragraph(results_title, heading_style))
 
     for i, result in enumerate(results[:20], 1):  # Limit to 20 for PDF
         company_info = result.get('company_info', {})
+        evaluation = result.get('evaluation', {})
         score = result.get('match_score', 0)
         name = result.get('company_name', 'Unknown')
         industry = company_info.get('industry', 'N/A')
@@ -1109,18 +1410,44 @@ def _generate_pdf_reportlab(request: ExportRequest) -> bytes:
         else:
             score_color = '#ef4444'
 
-        story.append(Paragraph(f"<b>{i}. {name}</b> <font color='{score_color}'>[Score: {score}]</font>", subheading_style))
+        # Build result header with rank if evaluated
+        if evaluation:
+            rank = evaluation.get('rank', i)
+            story.append(Paragraph(f"<b>#{rank}. {name}</b> <font color='{score_color}'>[AI Score: {score}]</font>", subheading_style))
+        else:
+            story.append(Paragraph(f"<b>{i}. {name}</b> <font color='{score_color}'>[Score: {score}]</font>", subheading_style))
+
         story.append(Paragraph(f"<i>{industry} | {location}</i>", small_style))
         story.append(Paragraph(rationale[:300] + ('...' if len(rationale) > 300 else ''), normal_style))
         story.append(Paragraph(f"<b>Website:</b> {website}", small_style))
 
-        strengths = result.get('key_strengths', [])
-        if strengths:
-            story.append(Paragraph("<b>Key Strengths:</b> " + ", ".join(strengths[:3]), small_style))
+        # Show dimension scores if evaluated
+        if evaluation and evaluation.get('dimension_scores'):
+            dim_scores = evaluation.get('dimension_scores', [])[:5]
+            dim_text = " | ".join([
+                f"{d.get('dimension', '').replace('_', ' ').title()}: {int(d.get('score', 0))}"
+                for d in dim_scores
+            ])
+            story.append(Paragraph(f"<font color='#4b5563'><b>Dimensions:</b> {dim_text}</font>", dimension_style))
 
-        concerns = result.get('potential_concerns', [])
-        if concerns:
-            story.append(Paragraph("<b>Concerns:</b> " + ", ".join(concerns[:2]), small_style))
+        # Show evaluation strengths/weaknesses if available
+        if evaluation:
+            eval_strengths = evaluation.get('strengths', [])
+            if eval_strengths:
+                story.append(Paragraph("<font color='#22c55e'><b>Strengths:</b></font> " + ", ".join(eval_strengths[:3]), small_style))
+
+            eval_weaknesses = evaluation.get('weaknesses', [])
+            if eval_weaknesses:
+                story.append(Paragraph("<font color='#ef4444'><b>Weaknesses:</b></font> " + ", ".join(eval_weaknesses[:2]), small_style))
+        else:
+            # Fallback to original strengths/concerns for non-evaluated results
+            strengths = result.get('key_strengths', [])
+            if strengths:
+                story.append(Paragraph("<b>Key Strengths:</b> " + ", ".join(strengths[:3]), small_style))
+
+            concerns = result.get('potential_concerns', [])
+            if concerns:
+                story.append(Paragraph("<b>Concerns:</b> " + ", ".join(concerns[:2]), small_style))
 
         story.append(Paragraph(f"<b>Recommended Action:</b> {result.get('recommended_action', 'N/A')}", small_style))
         story.append(Spacer(1, 8))

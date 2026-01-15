@@ -24,7 +24,7 @@ import TypingIndicator from '../components/chat/TypingIndicator';
 export default function EvaluationPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { scenario, results, addCost, getCostSummary } = useScenario();
+  const { scenario, results, addCost, getCostSummary, applyEvaluationToResults } = useScenario();
   const messagesEndRef = useRef(null);
 
   // Chat state - messages now include embedded data
@@ -123,6 +123,10 @@ Click **"Propose Strategy"** below to begin, or ask me any questions first.`,
           content: `Starting a new evaluation for **${candidates.length} candidates**. Click **"Propose Strategy"** to begin.`,
         }]);
         break;
+      case 'view_results':
+        // Navigate back to results page with enriched data
+        navigate('/results');
+        break;
       default:
         break;
     }
@@ -178,6 +182,11 @@ Click **"Propose Strategy"** below to begin, or ask me any questions first.`,
       const newResult = data.evaluation_result || evaluationResult;
       if (data.evaluation_result) {
         setEvaluationResult(newResult);
+
+        // Apply evaluation results to main results in context (enrichment)
+        if (data.phase === 'complete') {
+          applyEvaluationToResults(data.evaluation_result, newStrategy);
+        }
       }
 
       // Track cost

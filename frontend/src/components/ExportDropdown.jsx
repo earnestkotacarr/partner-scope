@@ -8,6 +8,7 @@ export default function ExportDropdown({
   results,
   chatHistory = [],
   costs = [],
+  evaluationStrategy = null,
   disabled = false,
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,6 +37,7 @@ export default function ExportDropdown({
           results,
           chat_history: chatHistory,
           costs,
+          evaluation_strategy: evaluationStrategy,
           format: 'csv',
         }),
       });
@@ -83,6 +85,7 @@ export default function ExportDropdown({
           results,
           chat_history: chatHistory,
           costs,
+          evaluation_strategy: evaluationStrategy,
           format: 'pdf',
         }),
       });
