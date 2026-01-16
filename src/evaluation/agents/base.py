@@ -46,7 +46,7 @@ class BaseAgent(ABC):
     def __init__(
         self,
         name: str,
-        model: str = "gpt-4o-mini",
+        model: str = "gpt-4.1",
         temperature: float = 0.3,
         max_tokens: int = 4096,
     ):

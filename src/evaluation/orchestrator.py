@@ -65,7 +65,7 @@ class EvaluationOrchestrator:
             - Or call DebugConfig.enable() before creating the orchestrator
     """
 
-    def __init__(self, model: str = "gpt-4o-mini", debug_mode: Optional[bool] = None):
+    def __init__(self, model: str = "gpt-4.1", debug_mode: Optional[bool] = None):
         """
         Initialize the evaluation orchestrator.
 
@@ -608,7 +608,7 @@ async def evaluate_partners(
     candidates: List[Dict[str, Any]],
     partner_requirements: Optional[Dict[str, Any]] = None,
     auto_confirm: bool = False,
-    model: str = "gpt-4o-mini",
+    model: str = "gpt-4.1",
 ) -> Dict[str, Any]:
     """
     Convenience function for running a complete evaluation.

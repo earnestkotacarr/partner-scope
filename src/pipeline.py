@@ -314,7 +314,7 @@ def main():
             'search_engine_id': 'YOUR_SEARCH_ENGINE_ID',
         },
         'llm': {
-            'model': 'gpt-4',
+            'model': 'gpt-4.1',
             'api_key': 'YOUR_OPENAI_API_KEY',
         },
         'work_dir': 'work',

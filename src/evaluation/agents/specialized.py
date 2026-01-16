@@ -32,7 +32,7 @@ class SpecializedAgent(BaseAgent):
     def __init__(
         self,
         dimension: EvaluationDimension,
-        model: str = "gpt-4o-mini",
+        model: str = "gpt-4.1",
         temperature: float = 0.2,
     ):
         super().__init__(
@@ -227,7 +227,7 @@ Respond in JSON format:
 class MarketCompatibilityAgent(SpecializedAgent):
     """Agent for evaluating market compatibility."""
 
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4.1"):
         super().__init__(EvaluationDimension.MARKET_COMPATIBILITY, model)
 
     def get_evaluation_criteria(self) -> List[str]:
@@ -246,7 +246,7 @@ class MarketCompatibilityAgent(SpecializedAgent):
 class FinancialHealthAgent(SpecializedAgent):
     """Agent for evaluating financial health."""
 
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4.1"):
         super().__init__(EvaluationDimension.FINANCIAL_HEALTH, model)
 
     def get_evaluation_criteria(self) -> List[str]:
@@ -265,7 +265,7 @@ class FinancialHealthAgent(SpecializedAgent):
 class TechnicalSynergyAgent(SpecializedAgent):
     """Agent for evaluating technical synergy."""
 
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4.1"):
         super().__init__(EvaluationDimension.TECHNICAL_SYNERGY, model)
 
     def get_evaluation_criteria(self) -> List[str]:
@@ -284,7 +284,7 @@ class TechnicalSynergyAgent(SpecializedAgent):
 class OperationalCapacityAgent(SpecializedAgent):
     """Agent for evaluating operational capacity."""
 
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4.1"):
         super().__init__(EvaluationDimension.OPERATIONAL_CAPACITY, model)
 
     def get_evaluation_criteria(self) -> List[str]:
@@ -303,7 +303,7 @@ class OperationalCapacityAgent(SpecializedAgent):
 class GeographicCoverageAgent(SpecializedAgent):
     """Agent for evaluating geographic coverage."""
 
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4.1"):
         super().__init__(EvaluationDimension.GEOGRAPHIC_COVERAGE, model)
 
     def get_evaluation_criteria(self) -> List[str]:
@@ -322,7 +322,7 @@ class GeographicCoverageAgent(SpecializedAgent):
 class StrategicAlignmentAgent(SpecializedAgent):
     """Agent for evaluating strategic alignment."""
 
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4.1"):
         super().__init__(EvaluationDimension.STRATEGIC_ALIGNMENT, model)
 
     def get_evaluation_criteria(self) -> List[str]:
@@ -341,7 +341,7 @@ class StrategicAlignmentAgent(SpecializedAgent):
 class CulturalFitAgent(SpecializedAgent):
     """Agent for evaluating cultural fit."""
 
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4.1"):
         super().__init__(EvaluationDimension.CULTURAL_FIT, model)
 
     def get_evaluation_criteria(self) -> List[str]:
@@ -360,7 +360,7 @@ class CulturalFitAgent(SpecializedAgent):
 class ResourceComplementarityAgent(SpecializedAgent):
     """Agent for evaluating resource complementarity."""
 
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4.1"):
         super().__init__(EvaluationDimension.RESOURCE_COMPLEMENTARITY, model)
 
     def get_evaluation_criteria(self) -> List[str]:
@@ -379,7 +379,7 @@ class ResourceComplementarityAgent(SpecializedAgent):
 class GrowthPotentialAgent(SpecializedAgent):
     """Agent for evaluating growth potential."""
 
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4.1"):
         super().__init__(EvaluationDimension.GROWTH_POTENTIAL, model)
 
     def get_evaluation_criteria(self) -> List[str]:
@@ -398,7 +398,7 @@ class GrowthPotentialAgent(SpecializedAgent):
 class RiskProfileAgent(SpecializedAgent):
     """Agent for evaluating risk profile."""
 
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "gpt-4.1"):
         super().__init__(EvaluationDimension.RISK_PROFILE, model)
 
     def get_evaluation_criteria(self) -> List[str]:
@@ -416,7 +416,7 @@ class RiskProfileAgent(SpecializedAgent):
 
 # Factory function to create specialized agents
 def create_specialized_agent(
-    dimension: EvaluationDimension, model: str = "gpt-4o-mini"
+    dimension: EvaluationDimension, model: str = "gpt-4.1"
 ) -> SpecializedAgent:
     """Factory function to create the appropriate specialized agent for a dimension."""
 

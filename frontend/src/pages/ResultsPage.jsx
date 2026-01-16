@@ -21,6 +21,7 @@ function ResultsPage() {
     undoResults,
     canUndo,
     evaluationState,
+    getModelConfig,
   } = useScenario()
   const [refinementInput, setRefinementInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -53,6 +54,7 @@ function ResultsPage() {
     setStatusMessage(null)
 
     try {
+      const modelConfig = getModelConfig()
       const response = await fetch('/api/chat/refine', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -60,7 +62,8 @@ function ResultsPage() {
           messages: [],
           current_message: refinementInput,
           current_results: results.matches,
-          scenario: scenario
+          scenario: scenario,
+          model_search: modelConfig.search
         })
       })
 

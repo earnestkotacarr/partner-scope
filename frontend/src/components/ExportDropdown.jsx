@@ -132,11 +132,11 @@ export default function ExportDropdown({
         onClick={() => setIsOpen(!isOpen)}
         disabled={disabled || !hasResults}
         className={`
-          flex items-center gap-2 px-4 py-2 rounded-lg
+          flex items-center gap-2 px-4 py-2 rounded-lg font-medium
           transition-all duration-200
           ${hasResults && !disabled
-            ? 'bg-blue-600 text-white hover:bg-blue-700'
-            : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
+            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }
         `}
       >
@@ -156,33 +156,33 @@ export default function ExportDropdown({
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-slate-200 py-2 z-50">
-          <div className="px-4 py-2 border-b border-slate-100">
-            <p className="text-sm font-medium text-slate-700">Export Results</p>
-            <p className="text-xs text-slate-500">{results?.length || 0} matches</p>
+        <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+          <div className="px-4 py-2 border-b border-gray-100">
+            <p className="text-sm font-medium text-gray-900">Export Results</p>
+            <p className="text-xs text-gray-500">{results?.length || 0} matches</p>
           </div>
 
           {/* CSV Option */}
           <button
             onClick={handleExportCSV}
             disabled={isExporting !== null}
-            className="w-full px-4 py-3 text-left hover:bg-slate-50 flex items-start gap-3 disabled:opacity-50"
+            className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-start gap-3 disabled:opacity-50"
           >
-            <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
               {isExporting === 'csv' ? (
-                <svg className="w-4 h-4 animate-spin text-green-600" fill="none" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 animate-spin text-gray-600" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
               ) : (
-                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               )}
             </div>
             <div>
-              <p className="font-medium text-slate-800">Export as CSV</p>
-              <p className="text-xs text-slate-500">Spreadsheet with company data</p>
+              <p className="font-medium text-gray-900">Export as CSV</p>
+              <p className="text-xs text-gray-500">Spreadsheet with company data</p>
             </div>
           </button>
 
@@ -190,23 +190,23 @@ export default function ExportDropdown({
           <button
             onClick={handleExportPDF}
             disabled={isExporting !== null}
-            className="w-full px-4 py-3 text-left hover:bg-slate-50 flex items-start gap-3 disabled:opacity-50"
+            className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-start gap-3 disabled:opacity-50"
           >
-            <div className="flex-shrink-0 w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
               {isExporting === 'pdf' ? (
-                <svg className="w-4 h-4 animate-spin text-red-600" fill="none" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 animate-spin text-gray-600" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
               ) : (
-                <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               )}
             </div>
             <div>
-              <p className="font-medium text-slate-800">Export as PDF</p>
-              <p className="text-xs text-slate-500">Full report with chat, prompts & costs</p>
+              <p className="font-medium text-gray-900">Export as PDF</p>
+              <p className="text-xs text-gray-500">Full report with chat, prompts & costs</p>
             </div>
           </button>
         </div>

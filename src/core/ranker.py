@@ -70,7 +70,7 @@ class PartnerRanker:
             llm_config: Configuration for LLM (API key, model, etc.)
         """
         self.llm_config = llm_config or {}
-        self.model = self.llm_config.get('model', 'gpt-4')
+        self.model = self.llm_config.get('model', 'gpt-4.1')
         self.api_key = self.llm_config.get('api_key')
 
         # TODO: Initialize LLM client (OpenAI, Anthropic, etc.)

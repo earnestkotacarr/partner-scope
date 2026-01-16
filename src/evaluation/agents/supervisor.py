@@ -35,7 +35,7 @@ class SupervisorAgent(BaseAgent):
     - Handle iterative refinement requests
     """
 
-    def __init__(self, model: str = "gpt-4o-mini", temperature: float = 0.2):
+    def __init__(self, model: str = "gpt-4.1", temperature: float = 0.2):
         super().__init__(
             name="supervisor",
             model=model,

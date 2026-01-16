@@ -10,13 +10,20 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 
 
-# OpenAI Pricing (per 1M tokens) - Standard tier as of Jan 2025
+# OpenAI Pricing (per 1M tokens) - Standard tier as of Jan 2026
 OPENAI_PRICING = {
-    'gpt-4o-mini': {'input': 0.15, 'output': 0.60},
-    'gpt-4o': {'input': 2.50, 'output': 10.00},
+    # GPT-5 Series (Standard tier)
+    'gpt-4.1.2': {'input': 1.75, 'output': 14.00},
+    'gpt-4.1': {'input': 1.25, 'output': 10.00},
+    'gpt-4.1-mini': {'input': 0.25, 'output': 2.00},
+    # GPT-4.1 Series
     'gpt-4.1': {'input': 2.00, 'output': 8.00},
     'gpt-4.1-mini': {'input': 0.40, 'output': 1.60},
-    'gpt-4': {'input': 30.00, 'output': 60.00},  # Legacy
+    # GPT-4o Series
+    'gpt-4o': {'input': 2.50, 'output': 10.00},
+    'gpt-4o-mini': {'input': 0.15, 'output': 0.60},
+    # Legacy
+    'gpt-4': {'input': 30.00, 'output': 60.00},
 }
 
 # Web search tool cost per call
@@ -26,7 +33,7 @@ WEB_SEARCH_COST_PER_CALL = 0.01  # $0.01 per web search tool call
 def calculate_cost(
     input_tokens: int,
     output_tokens: int,
-    model: str = 'gpt-4o-mini',
+    model: str = 'gpt-4.1',
     web_search_calls: int = 0
 ) -> Dict[str, float]:
     """
@@ -47,7 +54,7 @@ def calculate_cost(
             'total_cost': float
         }
     """
-    pricing = OPENAI_PRICING.get(model, OPENAI_PRICING['gpt-4o-mini'])
+    pricing = OPENAI_PRICING.get(model, OPENAI_PRICING['gpt-4.1'])
 
     input_cost = (input_tokens / 1_000_000) * pricing['input']
     output_cost = (output_tokens / 1_000_000) * pricing['output']
@@ -74,20 +81,20 @@ class OperationCost:
     input_tokens: int = 0
     output_tokens: int = 0
     web_search_calls: int = 0
-    model: str = 'gpt-4o-mini'
+    model: str = 'gpt-4.1'
     timestamp: datetime = field(default_factory=datetime.now)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     @property
     def input_cost(self) -> float:
         """Calculate input token cost."""
-        pricing = OPENAI_PRICING.get(self.model, OPENAI_PRICING['gpt-4o-mini'])
+        pricing = OPENAI_PRICING.get(self.model, OPENAI_PRICING['gpt-4.1'])
         return (self.input_tokens / 1_000_000) * pricing['input']
 
     @property
     def output_cost(self) -> float:
         """Calculate output token cost."""
-        pricing = OPENAI_PRICING.get(self.model, OPENAI_PRICING['gpt-4o-mini'])
+        pricing = OPENAI_PRICING.get(self.model, OPENAI_PRICING['gpt-4.1'])
         return (self.output_tokens / 1_000_000) * pricing['output']
 
     @property
@@ -146,7 +153,7 @@ class SessionCostTracker:
         self,
         operation_name: str,
         response_usage,
-        model: str = 'gpt-4o-mini',
+        model: str = 'gpt-4.1',
         web_search_calls: int = 0,
         metadata: Dict[str, Any] = None
     ) -> OperationCost:

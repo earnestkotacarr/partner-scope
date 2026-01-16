@@ -51,7 +51,7 @@ CONFIG = {
     'linkedin': {'enabled': False},
     'web_search': {'enabled': False},
     'llm': {
-        'model': 'gpt-4',
+        'model': 'gpt-4.1',
         'api_key': os.getenv('OPENAI_API_KEY'),
     },
     'work_dir': 'work',
@@ -216,6 +216,14 @@ def get_loading_message(phase: str, company: str = None) -> str:
 
 
 # Request/Response Models
+class ModelConfig(BaseModel):
+    """Model configuration for different pipeline stages."""
+    search: str = 'gpt-4.1'
+    chat: str = 'gpt-4.1'
+    refinement: str = 'gpt-4.1'
+    evaluation: str = 'gpt-4.1'
+
+
 class SearchRequest(BaseModel):
     """Request model for partner search."""
     startup_name: str
@@ -227,6 +235,7 @@ class SearchRequest(BaseModel):
     max_results: Optional[int] = 20
     use_csv: Optional[bool] = True
     use_web_search: Optional[bool] = False
+    ai_models: Optional[ModelConfig] = None
 
 
 class PartnerMatchResponse(BaseModel):
@@ -286,6 +295,7 @@ class RefinementRequest(BaseModel):
     current_message: str
     current_results: list[dict]
     scenario: dict
+    model_search: str = 'gpt-4.1'  # Model to use for refinement search
 
 
 class RefinementResponse(BaseModel):
@@ -642,8 +652,9 @@ async def _get_web_search_results(request: SearchRequest) -> list[PartnerMatchRe
             detail="OpenAI API key not configured. Set OPENAI_API_KEY environment variable."
         )
 
-    # Initialize the web search provider
-    provider = OpenAIWebSearchProvider({})
+    # Initialize the web search provider with model from config
+    search_model = request.ai_models.search if request.ai_models else 'gpt-4.1'
+    provider = OpenAIWebSearchProvider({'model': search_model})
 
     # Run the synchronous search in a thread pool to avoid blocking
     loop = asyncio.get_event_loop()
@@ -807,8 +818,8 @@ async def refine_results(request: RefinementRequest):
             print(f"[Refinement] Search focus: '{search_focus}'")
             print(f"[Refinement] Merge mode: {merge_mode}")
 
-            # Create search provider for web search
-            web_provider = OpenAIWebSearchProvider()
+            # Create search provider for web search with model from request
+            web_provider = OpenAIWebSearchProvider({'model': request.model_search})
 
             # Build search profile from scenario + refinement focus
             search_profile = StartupProfile(
@@ -1031,7 +1042,8 @@ async def stream_search(
     description: str = "",
     max_results: int = 20,
     use_csv: bool = True,
-    use_web_search: bool = False
+    use_web_search: bool = False,
+    model_search: str = "gpt-4.1"
 ):
     """
     Stream search progress and results using Server-Sent Events.
@@ -1109,25 +1121,38 @@ async def stream_search(
                 if not os.getenv('OPENAI_API_KEY'):
                     yield f"event: error\ndata: {json.dumps({'error': 'OpenAI API key not configured'})}\n\n"
                 else:
-                    provider = OpenAIWebSearchProvider({})
+                    provider = OpenAIWebSearchProvider({'model': model_search})
 
                     # Run synchronous search in thread pool with timeout protection
                     loop = asyncio.get_event_loop()
+
+                    # Build startup context for multi-query search
+                    startup_context = {
+                        'startup_name': startup_name,
+                        'industry': industry,
+                        'description': description,
+                        'investment_stage': investment_stage,
+                        'product_stage': product_stage,
+                        'keywords': [],  # Could extract from description in future
+                    }
 
                     # Search for company list
                     yield f"event: progress\ndata: {json.dumps({'phase': 'web_search_list', 'message': get_loading_message('web_searching'), 'cost': total_cost})}\n\n"
 
                     try:
-                        # Wrap in asyncio.wait_for with 120 second timeout
+                        # Wrap in asyncio.wait_for with 10 minute timeout (GPT-5 quality mode is slow)
                         companies = await asyncio.wait_for(
                             loop.run_in_executor(
                                 None,
                                 lambda: provider.search_companies(
                                     query=partner_needs,
-                                    filters={'max_results': max_results or 10}
+                                    filters={
+                                        'max_results': max_results or 10,
+                                        'startup_context': startup_context,
+                                    }
                                 )
                             ),
-                            timeout=120.0  # 2 minute timeout for full web search
+                            timeout=600.0  # 10 minute timeout for full web search (quality mode)
                         )
                     except asyncio.TimeoutError:
                         yield f"event: error\ndata: {json.dumps({'error': 'Web search timed out. Please try again or use CSV search only.'})}\n\n"
@@ -1150,6 +1175,8 @@ async def stream_search(
                     # Process each company with completeness scoring
                     for i, company in enumerate(companies):
                         description_text = company.get('description', '') or ''
+                        needs_satisfied = company.get('needs_satisfied', [])
+                        how_it_helps = company.get('how_it_helps', '')
 
                         # Build company info for scoring
                         company_info = {
@@ -1160,10 +1187,18 @@ async def stream_search(
                             "description": description_text,
                             "size": company.get('size', '') or '',
                             "source": "AI Web Search",
+                            # New need-centric fields
+                            "needs_satisfied": needs_satisfied,  # List of need tags
+                            "how_it_helps": how_it_helps,        # Explanation of fit
                         }
 
                         # Calculate score based on information completeness
                         score = calculate_completeness_score(company_info)
+
+                        # Use how_it_helps as rationale if available, otherwise description
+                        rationale = how_it_helps if how_it_helps else (
+                            f"Found via AI web search. {description_text[:200]}..." if len(description_text) > 200 else description_text or 'No description available.'
+                        )
 
                         match = {
                             'company_name': company.get('name', 'Unknown'),
@@ -1171,8 +1206,8 @@ async def stream_search(
                             'match_score': score,
                             'info_score': score,  # Explicit info completeness score
                             'fit_score': None,    # Will be set after AI evaluation
-                            'rationale': f"Found via AI web search. {description_text[:200]}..." if len(description_text) > 200 else description_text or 'No description available.',
-                            'key_strengths': [f"Industry: {company.get('industry', 'N/A')}"],
+                            'rationale': rationale,
+                            'key_strengths': needs_satisfied if needs_satisfied else [f"Industry: {company.get('industry', 'N/A')}"],
                             'potential_concerns': ["Web search results - verify independently"],
                             'recommended_action': "Review company website",
                         }

@@ -3,34 +3,40 @@ import { useNavigate } from 'react-router-dom'
 import { useScenario } from '../context/ScenarioContext'
 import { useStreamingSearch } from '../hooks/useStreamingSearch'
 import CostBadge from '../components/CostBadge'
+import { MODEL_PRESETS } from '../constants/modelPresets'
 
 // Quirky rotating messages to keep users entertained during search
 const QUIRKY_MESSAGES = [
-  "Searching the web...",
-  "Surfing the internet waves...",
-  "Digging through databases...",
-  "Working hard... or hardly working?",
-  "Out for coffee, be right back...",
+  "Warming up the Batmobile...",
   "Consulting the oracle...",
-  "Asking the AI nicely...",
-  "Warming up the search engines...",
-  "Scanning the startup galaxy...",
-  "Following the breadcrumbs...",
-  "Peeking behind the curtain...",
-  "Hunting for unicorns...",
-  "Mining for gold...",
-  "Reading between the lines...",
-  "Connecting the dots...",
-  "Crunching the numbers...",
-  "Sifting through the noise...",
-  "Doing the heavy lifting...",
-  "Burning the midnight oil...",
-  "Leaving no stone unturned...",
-  "Going the extra mile...",
-  "Thinking outside the box...",
-  "Breaking new ground...",
-  "Pushing the boundaries...",
-  "Making magic happen...",
+  "Reticulating splines...",
+  "Deploying carrier pigeons...",
+  "Teaching robots to read...",
+  "Asking ChatGPT's cousin...",
+  "Spinning up the hamster wheels...",
+  "Calibrating the flux capacitor...",
+  "Bribing the search gnomes...",
+  "Downloading more RAM...",
+  "Feeding the algorithm...",
+  "Polishing the crystal ball...",
+  "Waking up the interns...",
+  "Consulting ancient scrolls...",
+  "Negotiating with the cloud...",
+  "Untangling the world wide web...",
+  "Pinging the mothership...",
+  "Channeling startup energy...",
+  "Summoning venture spirits...",
+  "Decoding business hieroglyphics...",
+  "Mining the data caves...",
+  "Following the digital breadcrumbs...",
+  "Scanning the innovation horizon...",
+  "Assembling the dream team...",
+  "Activating partner radar...",
+  "Brewing a fresh batch of insights...",
+  "Convincing electrons to cooperate...",
+  "Running competitive analysis... on our competitors...",
+  "Asking nicely (with API keys)...",
+  "Exploring the startup multiverse...",
 ]
 
 function TemplateReview() {
@@ -43,6 +49,9 @@ function TemplateReview() {
     setIsSearching,
     addCost,
     getCostSummary,
+    modelPreset,
+    setModelPreset,
+    getModelConfig,
   } = useScenario()
   const [formData, setFormData] = useState({
     startup_name: '',
@@ -136,7 +145,7 @@ function TemplateReview() {
           } while (QUIRKY_MESSAGES[newIndex] === prev && QUIRKY_MESSAGES.length > 1)
           return QUIRKY_MESSAGES[newIndex]
         })
-      }, 2500) // Change every 2.5 seconds
+      }, 15000) // Change every 15 seconds
     } else {
       // Clear interval when not searching
       if (quirkyIntervalRef.current) {
@@ -170,7 +179,8 @@ function TemplateReview() {
       description: formData.description,
       max_results: 20,
       use_csv: formData.use_csv,
-      use_web_search: formData.use_web_search
+      use_web_search: formData.use_web_search,
+      ai_models: getModelConfig()
     })
   }
 
@@ -336,6 +346,46 @@ function TemplateReview() {
                   </div>
                 </div>
               </label>
+
+              {/* Model Preset Selector - only show when web search enabled */}
+              {formData.use_web_search && (
+                <div className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-slate-700">AI Model</span>
+                  </div>
+
+                  {/* Segmented Control */}
+                  <div className="flex rounded-lg bg-slate-200 p-0.5">
+                    {Object.values(MODEL_PRESETS).map((preset) => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => setModelPreset(preset.id)}
+                        className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                          modelPreset === preset.id
+                            ? 'bg-black text-white'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        {preset.name}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Cost/Speed Description */}
+                  <div className="mt-2 text-xs text-slate-600 font-medium">
+                    {MODEL_PRESETS[modelPreset].description}
+                  </div>
+                  {/* Model Breakdown */}
+                  <div className="mt-1 text-xs text-slate-400">
+                    Search: {MODEL_PRESETS[modelPreset].models.search}
+                    {' • '}
+                    Chat: {MODEL_PRESETS[modelPreset].models.chat}
+                    {' • '}
+                    Eval: {MODEL_PRESETS[modelPreset].models.evaluation}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -384,12 +434,12 @@ function TemplateReview() {
                 </div>
 
                 <div className="flex-1">
+                  {/* Actual progress message */}
+                  <p className="text-white font-medium text-lg">{progressMessage}</p>
                   {/* Quirky rotating message */}
-                  <p className="text-white/70 text-sm italic transition-all duration-300">
+                  <p className="text-white/60 text-sm italic mt-1 transition-all duration-300">
                     {quirkyMessage}
                   </p>
-                  {/* Actual progress message */}
-                  <p className="text-white font-medium text-lg mt-1">{progressMessage}</p>
                   {progress?.phase === 'company_details' && progress?.total && (
                     <div className="mt-2">
                       <div className="flex items-center gap-2 text-gray-400 text-sm">

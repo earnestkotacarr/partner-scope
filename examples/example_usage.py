@@ -23,7 +23,7 @@ def example_food_safety_startup():
         'cbinsights': {'enabled': True},
         'linkedin': {'enabled': False},
         'web_search': {'enabled': True},
-        'llm': {'model': 'gpt-4', 'api_key': 'YOUR_API_KEY'},
+        'llm': {'model': 'gpt-4.1', 'api_key': 'YOUR_API_KEY'},
         'work_dir': 'work',
         'results_dir': 'results',
     }
@@ -55,7 +55,7 @@ def example_fintech_startup():
         'cbinsights': {'enabled': True},
         'linkedin': {'enabled': False},
         'web_search': {'enabled': True},
-        'llm': {'model': 'gpt-4', 'api_key': 'YOUR_API_KEY'},
+        'llm': {'model': 'gpt-4.1', 'api_key': 'YOUR_API_KEY'},
         'work_dir': 'work',
         'results_dir': 'results',
     }
@@ -87,7 +87,7 @@ def example_healthcare_startup():
         'cbinsights': {'enabled': True},
         'linkedin': {'enabled': False},
         'web_search': {'enabled': True},
-        'llm': {'model': 'gpt-4', 'api_key': 'YOUR_API_KEY'},
+        'llm': {'model': 'gpt-4.1', 'api_key': 'YOUR_API_KEY'},
         'work_dir': 'work',
         'results_dir': 'results',
     }

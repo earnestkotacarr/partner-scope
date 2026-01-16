@@ -324,6 +324,40 @@ function ResultCard({ match, strategy }) {
         </div>
       </div>
 
+      {/* Needs Satisfied Tags - Most Prominent */}
+      {match.company_info?.needs_satisfied?.length > 0 && (
+        <div className="mb-3">
+          <div className="flex flex-wrap gap-2">
+            {match.company_info.needs_satisfied.map((need, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-medium border border-green-200"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                {need}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* How It Helps - Need-Centric Explanation */}
+      {match.company_info?.how_it_helps && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+          <p className="text-xs font-semibold text-blue-800 uppercase mb-1 flex items-center gap-1">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            How They Help You
+          </p>
+          <p className="text-sm text-blue-900 leading-relaxed">
+            {match.company_info.how_it_helps}
+          </p>
+        </div>
+      )}
+
       {/* Company Info Badges */}
       <div className="mb-3 flex flex-wrap gap-2">
         {hasEvaluation && (
@@ -360,12 +394,14 @@ function ResultCard({ match, strategy }) {
         )}
       </div>
 
-      {/* Company Description / Rationale */}
-      <div className="mb-4">
-        <p className="text-gray-700 text-sm leading-relaxed">
-          {match.rationale || match.company_info?.description}
-        </p>
-      </div>
+      {/* Company Description - Only show if no how_it_helps (avoid redundancy) */}
+      {!match.company_info?.how_it_helps && (
+        <div className="mb-4">
+          <p className="text-gray-700 text-sm leading-relaxed">
+            {match.rationale || match.company_info?.description}
+          </p>
+        </div>
+      )}
 
       {/* Expandable Company Details Section */}
       <div className="mb-4">

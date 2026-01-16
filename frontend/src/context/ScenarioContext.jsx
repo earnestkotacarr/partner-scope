@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react'
 import { isDebugMode, debugSettings } from '../debug/config'
 import { generateFakeData } from '../debug/fakeData'
+import { MODEL_PRESETS, DEFAULT_PRESET } from '../constants/modelPresets'
 
 const ScenarioContext = createContext(null)
 
@@ -31,6 +32,14 @@ export function ScenarioProvider({ children }) {
     phase: 'none',  // 'none' | 'complete'
     evaluatedAt: null
   })
+
+  // Model preset selection (quality, balanced, fast)
+  const [modelPreset, setModelPreset] = useState(DEFAULT_PRESET)
+
+  // Get the current model configuration based on selected preset
+  const getModelConfig = useCallback(() => {
+    return MODEL_PRESETS[modelPreset]?.models || MODEL_PRESETS.balanced.models
+  }, [modelPreset])
 
   // Add a cost entry from an API operation
   const addCost = useCallback((cost, operation = 'unknown') => {
@@ -162,6 +171,7 @@ export function ScenarioProvider({ children }) {
     setIsSearching(false)
     setResultsHistory([])
     setEvaluationState({ strategy: null, phase: 'none', evaluatedAt: null })
+    setModelPreset(DEFAULT_PRESET)
   }
 
   // Initialize with fake data in debug mode
@@ -219,6 +229,10 @@ export function ScenarioProvider({ children }) {
       setEvaluationState,
       applyEvaluationToResults,
       hasEvaluation,
+      // Model preset selection
+      modelPreset,
+      setModelPreset,
+      getModelConfig,
       // Debug mode
       debugInitialized,
       isDebugMode: isDebugMode(),

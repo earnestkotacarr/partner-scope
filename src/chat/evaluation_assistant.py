@@ -48,7 +48,7 @@ class EvaluationChatAssistant:
 
     def __init__(self):
         self._client = None
-        self.model = "gpt-4o-mini"
+        self.model = "gpt-4.1"
 
     @property
     def client(self):

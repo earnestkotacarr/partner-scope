@@ -1,8 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
-// Timeout constants
-const PROGRESS_TIMEOUT = 120000; // 2 minutes without any progress event (web search can be slow)
-const MAX_SEARCH_TIMEOUT = 300000; // 5 minutes maximum for entire search
+// Timeout constants (GPT-5 quality mode: 21 API calls × ~90s each = ~30 min)
+const PROGRESS_TIMEOUT = 600000; // 10 minutes without progress
+const MAX_SEARCH_TIMEOUT = 1800000; // 30 minutes maximum for entire search
 
 /**
  * Custom hook for streaming search with real-time cost updates via SSE.
@@ -90,6 +90,7 @@ export function useStreamingSearch({ onProgress, onComplete, onError } = {}) {
         max_results: String(searchParams.max_results || 20),
         use_csv: String(searchParams.use_csv !== false),
         use_web_search: String(searchParams.use_web_search === true),
+        model_search: searchParams.ai_models?.search || 'gpt-4.1',
       });
 
       const url = `/api/search/stream?${params.toString()}`;

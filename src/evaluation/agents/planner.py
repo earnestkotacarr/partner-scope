@@ -31,7 +31,7 @@ class PlannerAgent(BaseAgent):
     - Handle user feedback and strategy modifications
     """
 
-    def __init__(self, model: str = "gpt-4o-mini", temperature: float = 0.3):
+    def __init__(self, model: str = "gpt-4.1", temperature: float = 0.3):
         super().__init__(
             name="planner",
             model=model,
