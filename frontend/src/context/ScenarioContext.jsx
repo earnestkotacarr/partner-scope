@@ -30,7 +30,8 @@ export function ScenarioProvider({ children }) {
   const [evaluationState, setEvaluationState] = useState({
     strategy: null,
     phase: 'none',  // 'none' | 'complete'
-    evaluatedAt: null
+    evaluatedAt: null,
+    result: null,  // Full evaluation result for comparison panel
   })
 
   // Model preset selection (quality, balanced, fast)

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useScenario } from '../context/ScenarioContext'
 import CostBadge from '../components/CostBadge'
+import ExternalResearchComparison from '../components/evaluation/ExternalResearchComparison'
 
 function DiscoveryChat() {
   const navigate = useNavigate()

@@ -4,6 +4,7 @@ import { useScenario } from '../context/ScenarioContext'
 import { useStreamingSearch } from '../hooks/useStreamingSearch'
 import CostBadge from '../components/CostBadge'
 import { MODEL_PRESETS } from '../constants/modelPresets'
+import ExternalResearchComparison from '../components/evaluation/ExternalResearchComparison'
 
 // Quirky rotating messages to keep users entertained during search
 const QUIRKY_MESSAGES = [
@@ -52,6 +53,7 @@ function TemplateReview() {
     modelPreset,
     setModelPreset,
     getModelConfig,
+    evaluationState,
   } = useScenario()
   const [formData, setFormData] = useState({
     startup_name: '',
@@ -524,6 +526,23 @@ function TemplateReview() {
         })()}
         isSearching={isSearching}
       />
+
+      {/* External Research Comparison - Floating panel, top-right (persists from evaluation) */}
+      {evaluationState?.result && (
+        <div className="fixed top-20 right-6 z-40 w-96 max-h-[calc(100vh-120px)] overflow-auto shadow-2xl rounded-xl border border-gray-200 bg-white">
+          <ExternalResearchComparison
+            partnerScopeResults={evaluationState.result}
+            startupProfile={{
+              name: scenario?.startup_name || formData.startup_name || 'My Startup',
+              industry: scenario?.industry || formData.industry || '',
+              stage: scenario?.investment_stage || formData.investment_stage || 'Seed',
+              partner_needs: scenario?.partner_needs || formData.partner_needs || '',
+            }}
+            strategy={evaluationState.strategy}
+            onCandidateClick={null}
+          />
+        </div>
+      )}
     </div>
   )
 }

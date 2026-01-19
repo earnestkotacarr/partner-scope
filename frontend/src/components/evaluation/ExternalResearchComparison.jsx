@@ -16,7 +16,7 @@ export default function ExternalResearchComparison({
   strategy,
   onCandidateClick,
 }) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true); // Start expanded so users can see it
   const [externalText, setExternalText] = useState('');
   const [source, setSource] = useState('gemini');
   const [externalResults, setExternalResults] = useState(null);

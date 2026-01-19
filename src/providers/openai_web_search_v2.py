@@ -192,7 +192,7 @@ class OpenAIWebSearchProviderV2(BaseProvider):
     This is an isolated copy of V1 that can be freely modified.
     V1 is frozen and serves as the production baseline.
 
-    Current architecture (Phase 1 → 1.5 → 2) can be completely changed.
+    Current architecture (Phase 1 → 2 → 3 → 4 → 5) can be completely changed.
     Add new phases, remove phases, try different approaches.
 
     The goal: find partners that genuinely help startups succeed.
@@ -346,7 +346,7 @@ Format as numbered list. Only include real, currently operating companies."""
         return self._parse_companies(response.output_text)
 
     # =========================================================================
-    # === TUNABLE: Phase 1.5 - Strategic Reflection ===
+    # === TUNABLE: Phase 2 - Strategic Reflection ===
     # =========================================================================
     def _analyze_and_generate_creative_queries(
         self,
@@ -423,7 +423,7 @@ Each query should be a realistic web search string, 5-15 words."""
 
         usage = TokenUsage(
             model=self.model,
-            operation="Strategic reflection (Phase 1.5)",
+            operation="Strategic reflection (Phase 2)",
             input_tokens=getattr(response.usage, 'input_tokens', 0) if response.usage else 0,
             output_tokens=getattr(response.usage, 'output_tokens', 0) if response.usage else 0,
             web_search_calls=0
@@ -461,7 +461,7 @@ Each query should be a realistic web search string, 5-15 words."""
 
         # Debug output if no queries found
         if not queries:
-            print(f"  [Phase 1.5 Debug] No queries parsed. Response preview:")
+            print(f"  [Phase 2 Debug] No queries parsed. Response preview:")
             print(f"    {content[:300]}...")
 
         return queries[:3]
@@ -852,7 +852,7 @@ Format:
 
         Current architecture:
         - Phase 1: Initial Discovery (4 queries)
-        - Phase 1.5: Strategic Reflection (3 queries)
+        - Phase 2: Strategic Reflection (3 queries)
         - Phase 2: Selective Enrichment
 
         Feel free to add/remove/modify phases!
@@ -913,25 +913,25 @@ Format:
         print(f"\n  [Phase 1 Complete] {phase1_count} unique companies")
 
         # =====================================================================
-        # PHASE 1.5: Strategic Reflection
+        # PHASE 2: Strategic Reflection
         # =====================================================================
-        print(f"\n[Phase 1.5] Strategic Reflection")
+        print(f"\n[Phase 2] Strategic Reflection")
         print(f"-" * 40)
 
         creative_queries = self._analyze_and_generate_creative_queries(query, startup_context, all_companies)
         print(f"  Generated {len(creative_queries)} creative queries")
 
         for i, search_query in enumerate(creative_queries, 1):
-            print(f"\n  [P1.5-{i}/{len(creative_queries)}] {search_query[:50]}...")
+            print(f"\n  [P2-{i}/{len(creative_queries)}] {search_query[:50]}...")
             try:
                 results = self._search_with_details(search_query, companies_per_query, query)
-                new_count = add_companies(results, 'phase1.5')
+                new_count = add_companies(results, 'phase2')
                 print(f"    → Found {len(results)}, {new_count} new. Total: {len(all_companies)}")
             except Exception as e:
                 print(f"    → ERROR: {str(e)}")
 
-        phase15_new = len(all_companies) - phase1_count
-        print(f"\n  [Phase 1.5 Complete] Added {phase15_new} companies")
+        phase2_new = len(all_companies) - phase1_count
+        print(f"\n  [Phase 2 Complete] Added {phase2_new} companies")
 
         # =====================================================================
         # PHASE 3: Need Decomposition & Targeted Search (NEW - Deep Research)
@@ -1008,13 +1008,13 @@ Format:
         self._current_search_usage = None
 
         p1 = sum(1 for c in all_companies if c.get('discovery_phase') == 'phase1')
-        p15 = sum(1 for c in all_companies if c.get('discovery_phase') == 'phase1.5')
+        p2 = sum(1 for c in all_companies if c.get('discovery_phase') == 'phase2')
         p3 = sum(1 for c in all_companies if c.get('discovery_phase') == 'phase3')
 
         print(f"\n{'='*70}")
         print(f"[V2 Deep Research Search Complete]")
         print(f"  Phase 1 (Discovery): {p1} companies")
-        print(f"  Phase 1.5 (Reflection): {p15} companies")
+        print(f"  Phase 2 (Reflection): {p2} companies")
         print(f"  Phase 3 (Targeted): {p3} companies")
         print(f"  Phase 4 (Filtered): top {len(all_companies)}")
         print(f"  Total: {len(all_companies)} companies")

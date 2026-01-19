@@ -4,6 +4,7 @@ import { useScenario } from '../context/ScenarioContext'
 import Results from '../components/Results'
 import CostBadge from '../components/CostBadge'
 import ExportDropdown from '../components/ExportDropdown'
+import ExternalResearchComparison from '../components/evaluation/ExternalResearchComparison'
 
 function ResultsPage() {
   const navigate = useNavigate()
@@ -348,6 +349,23 @@ function ResultsPage() {
 
       {/* Floating Cost Badge */}
       <CostBadge cost={displayCost} isSearching={isSearching} />
+
+      {/* External Research Comparison - Floating panel, top-right (persists from evaluation) */}
+      {evaluationState?.result && (
+        <div className="fixed top-20 right-6 z-40 w-96 max-h-[calc(100vh-120px)] overflow-auto shadow-2xl rounded-xl border border-gray-200 bg-white">
+          <ExternalResearchComparison
+            partnerScopeResults={evaluationState.result}
+            startupProfile={{
+              name: scenario?.startup_name || 'My Startup',
+              industry: scenario?.industry || '',
+              stage: scenario?.investment_stage || 'Seed',
+              partner_needs: scenario?.partner_needs || '',
+            }}
+            strategy={evaluationState.strategy}
+            onCandidateClick={null}
+          />
+        </div>
+      )}
     </div>
   )
 }

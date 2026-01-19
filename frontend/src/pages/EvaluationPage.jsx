@@ -23,7 +23,7 @@ import ExternalResearchComparison from '../components/evaluation/ExternalResearc
 export default function EvaluationPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { scenario, results, addCost, getCostSummary, applyEvaluationToResults } = useScenario();
+  const { scenario, results, addCost, getCostSummary, applyEvaluationToResults, setEvaluationState } = useScenario();
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
@@ -187,6 +187,14 @@ Click **"Propose Strategy"** below to begin, or ask me any questions first.`,
         // Apply evaluation results to main results in context (enrichment)
         if (data.phase === 'complete') {
           applyEvaluationToResults(data.evaluation_result, newStrategy);
+
+          // Save to global context for comparison panel persistence
+          setEvaluationState({
+            strategy: newStrategy,
+            phase: 'complete',
+            evaluatedAt: new Date().toISOString(),
+            result: newResult,
+          });
         }
       }
 
@@ -381,6 +389,18 @@ Click **"Propose Strategy"** below to begin, or ask me any questions first.`,
         }}
         isSearching={loading}
       />
+
+      {/* External Research Comparison - Floating panel, top-right */}
+      {evaluationResult && (
+        <div className="fixed top-20 right-6 z-40 w-96 max-h-[calc(100vh-120px)] overflow-auto shadow-2xl rounded-xl border border-gray-200 bg-white">
+          <ExternalResearchComparison
+            partnerScopeResults={evaluationResult}
+            startupProfile={startupProfile}
+            strategy={strategy}
+            onCandidateClick={(c) => setSelectedCandidate(c)}
+          />
+        </div>
+      )}
 
       {/* Candidate Detail Modal */}
       {selectedCandidate && (
