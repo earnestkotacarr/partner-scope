@@ -1,217 +1,92 @@
 # PartnerScope for Corundum Corp.
 
-**Scaling Partner Discovery Without Scaling Headcount**
+**Reducing Partner Discovery from Weeks to Minutes**
 
 ---
 
 ## The Challenge
 
-Corundum Corp. has built a decade of expertise in open innovation and venture building. Your team excels at turning early-stage technologies into real businesses through strategic partnerships.
-
-But partner discovery remains a bottleneck:
-
 > *"Corundum Corp. has a customer (e.g. startup) with a business idea, and needs to assist them with finding business partners such as investors, technology providers, or manufacturers. How can they do this in the best way?"*
 
-Today, this means:
-- Hours of manual research per client engagement
-- Searching multiple databases and websites
-- Inconsistent evaluation criteria across team members
-- Limited capacity to serve more clients simultaneously
+**Current Reality:**
 
-**The question isn't whether your team can find good partners—it's whether you can do it at scale without compromising quality.**
+| Metric | Today |
+|--------|-------|
+| Hours per customer | 100-200 hours |
+| Average | 150 hours |
+| Cost per hour | ¥10,000 |
+| **Total cost per customer** | **¥1,500,000** |
 
----
-
-## How PartnerScope Fits Your Workflow
-
-PartnerScope augments your consultants' expertise, not replaces it. Your team remains in control while AI handles the time-intensive discovery and initial filtering.
-
-**Current Workflow:**
-
-| Stage | Today | Time |
-|-------|-------|------|
-| Client intake | Manual interviews, note-taking | 1-2 hours |
-| Partner research | Database searches, web research | 4-8 hours |
-| Candidate evaluation | Spreadsheets, gut feel | 2-4 hours |
-| Refinement | Re-do research based on feedback | 2-4 hours |
-| **Total** | | **9-18 hours** |
-
-**With PartnerScope:**
-
-| Stage | With PartnerScope | Time |
-|-------|-------------------|------|
-| Client intake | Guided conversation extracts requirements | 10-15 min |
-| Partner research | Multi-source AI search | 2-5 min |
-| Candidate evaluation | Multi-dimensional scoring | 5-10 min |
-| Refinement | Instant re-ranking, no re-search | 1-2 min |
-| **Total** | | **20-30 min** |
-
-Your consultants shift from data gathering to strategic advisory—where their expertise matters most.
+This is manual, time-intensive work: searching databases, reviewing websites, evaluating fit, and iterating based on client feedback.
 
 ---
 
-## Three Ways to Use PartnerScope
+## What PartnerScope Does
 
-### 1. Accelerate Client Engagements
+PartnerScope uses AI to handle the time-intensive parts of partner discovery while keeping your team in control.
 
-Run a comprehensive partner search during the initial client meeting. By the end of a one-hour session, you have:
+| Stage | Today | With PartnerScope |
+|-------|-------|-------------------|
+| Requirements gathering | Manual interviews | Guided AI conversation (10 min) |
+| Partner research | Database + web searches | Multi-source AI search (5 min) |
+| Candidate evaluation | Spreadsheets, manual review | Multi-dimensional scoring (10 min) |
+| Refinement cycles | Re-do research | Instant re-ranking (2 min) |
+| **Total** | **100-200 hours** | **Under 1 hour** |
 
-- Structured client requirements (automatically extracted)
-- 20 ranked partner candidates with rationale
-- Multi-dimensional evaluation scores
-- Talking points for each top candidate
+**Cost comparison:**
 
-**Impact:** Deliver preliminary results in the first meeting instead of a follow-up.
-
-### 2. Scale Your Service Capacity
-
-Each consultant can handle more client engagements when partner research takes 30 minutes instead of 8 hours.
-
-| Metric | Before | With PartnerScope |
-|--------|--------|-------------------|
-| Research time per client | 8 hours | 30 minutes |
-| Clients per consultant/week | 2-3 | 8-12 |
-| Time to first deliverable | 3-5 days | Same day |
-
-**Impact:** Serve 4x more clients without hiring.
-
-### 3. Validate and Benchmark Results
-
-Use the comparison feature to validate PartnerScope results against other research methods:
-
-- Run the same query through Gemini Deep Research or OpenAI
-- PartnerScope evaluates both result sets with identical criteria
-- Side-by-side comparison shows which found better partners
-
-**Impact:** Confidence that you're delivering the best possible candidates.
+| Approach | Hours | Cost |
+|----------|-------|------|
+| Manual process | 150 hours | ¥1,500,000 |
+| PartnerScope | <1 hour + API costs | ~¥10,000 + ¥200 |
 
 ---
 
-## What Your Clients Get
+## How It Works
 
-When Corundum delivers partner recommendations powered by PartnerScope, clients receive:
+**1. Discovery Chat**
+Guided conversation extracts structured requirements from the client—partner type, must-have capabilities, success criteria, red flags.
 
-**Structured Partner Profiles:**
-- Company name, website, industry, location
-- Why they're a good fit (specific to client's needs)
-- Strengths and potential concerns
-- Recommended next steps
+**2. Multi-Source Search**
+AI searches both curated databases and live web, finding obvious partners and non-obvious ones the client wouldn't have thought to look for.
 
-**Multi-Dimensional Scoring:**
-- Market compatibility
-- Technical synergy
-- Financial health
-- Strategic alignment
-- Growth potential
-- Risk assessment
+**3. Evaluation & Ranking**
+20 candidates scored across multiple dimensions (market fit, technical synergy, strategic alignment, etc.) with adjustable weights.
 
-**Transparent Methodology:**
-- Clear evaluation criteria
-- Adjustable weights based on client priorities
-- Confidence scores for each assessment
+**4. Refinement**
+Exclude candidates, adjust priorities, or dive deeper—without re-running the entire search.
 
 ---
 
-## Adapting to Different Client Types
+## Quality Assurance
 
-PartnerScope handles the full range of partner needs your clients bring:
+Your team stays in control:
 
-| Client Need | Partner Type | Example Search |
-|-------------|--------------|----------------|
-| "We need to test our prototype" | Pilot Partners | Universities, corporate innovation labs |
-| "We need manufacturing capacity" | Manufacturing Partners | Contract manufacturers, OEMs |
-| "We need distribution channels" | Distribution Partners | Resellers, platform providers |
-| "We need technical integration" | Technology Partners | API providers, complementary tech |
-| "We need funding" | Investment Partners | VCs, corporate venture arms |
-| "We need credibility" | Validation Partners | Research institutions, industry bodies |
+- **Review** extracted requirements before searching
+- **Customize** evaluation dimensions and weights
+- **Compare** results against other AI research tools (Gemini, OpenAI)
+- **Refine** rankings based on your expertise
 
-The AI adapts its search strategy based on what the client actually needs.
+PartnerScope handles discovery; your team applies judgment and relationships.
 
 ---
 
-## Quality Control
+## What Clients Receive
 
-Your reputation depends on recommendation quality. PartnerScope provides multiple safeguards:
-
-**Before Search:**
-- Review and edit extracted client requirements
-- Choose data sources (curated databases vs. live web search)
-- Select quality level (thorough vs. fast)
-
-**During Evaluation:**
-- Customize evaluation dimensions and weights
-- Exclude competitors or unsuitable candidates
-- Focus on specific criteria important to the client
-
-**After Results:**
-- Compare against external research tools
-- Refine rankings without re-running search
-- Export results for client deliverables
-
-Your consultants make the final call—PartnerScope just gets them there faster.
-
----
-
-## Cost Structure
-
-Transparent, usage-based pricing:
-
-| Operation | Cost |
-|-----------|------|
-| Discovery conversation | ~$0.02/message |
-| Partner search (20 results) | ~$0.80-1.50 |
-| Evaluation | ~$0.15-0.30 |
-| **Typical full engagement** | **$1-2** |
-
-Compare to consultant time: 8 hours × hourly rate = significant savings.
-
----
-
-## Integration with Your Practice
-
-PartnerScope complements Corundum's existing capabilities:
-
-| Corundum Expertise | PartnerScope Support |
-|--------------------|---------------------|
-| Client relationship management | Structured needs discovery |
-| Industry knowledge | AI-powered research at scale |
-| Strategic advisory | Data-driven candidate ranking |
-| Deal facilitation | Shortlist with rationale |
-| Long-term partnership support | Initial matching and evaluation |
-
-The tool handles discovery; your team handles relationships and strategy.
+Structured partner profiles with:
+- Company details and fit rationale
+- Multi-dimensional scores with confidence levels
+- Strengths, concerns, and recommended next steps
+- Transparent methodology they can understand
 
 ---
 
 ## Getting Started
 
-**Pilot Approach:**
-
-1. Select 2-3 upcoming client engagements
-2. Run PartnerScope in parallel with your normal process
-3. Compare results, time spent, and client satisfaction
-4. Evaluate fit for broader adoption
-
-**What You'll Need:**
-- Web browser (no installation required)
-- OpenAI API key (or we can provide access)
-- 30 minutes to learn the workflow
-
----
-
-## Summary
-
-| Challenge | PartnerScope Solution |
-|-----------|----------------------|
-| Partner research takes 8+ hours | Comprehensive search in minutes |
-| Inconsistent evaluation criteria | Standardized multi-dimensional scoring |
-| Limited consultant capacity | 4x more clients per consultant |
-| Slow time-to-deliverable | Same-day preliminary results |
-| Quality concerns with AI | Human-in-the-loop at every stage |
-
-**PartnerScope doesn't replace Corundum's expertise—it amplifies it.**
-
-Your consultants spend less time gathering data and more time doing what they do best: building relationships and creating impactful ventures through collaboration.
+1. Select an upcoming client engagement
+2. Run PartnerScope alongside your normal process
+3. Compare results and time spent
+4. Evaluate fit for broader use
 
 ---
 
