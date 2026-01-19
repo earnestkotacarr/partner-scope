@@ -18,6 +18,7 @@ import ChatStrategyDisplay from '../components/evaluation/ChatStrategyDisplay';
 import ChatRankingDisplay from '../components/evaluation/ChatRankingDisplay';
 import CandidateDetailModal from '../components/evaluation/CandidateDetailModal';
 import PhaseTransitionButtons from '../components/evaluation/PhaseTransitionButtons';
+import ExternalResearchComparison from '../components/evaluation/ExternalResearchComparison';
 
 export default function EvaluationPage() {
   const location = useLocation();
@@ -295,6 +296,8 @@ Click **"Propose Strategy"** below to begin, or ask me any questions first.`,
                 key={index}
                 message={msg}
                 onCandidateClick={handleCandidateClick}
+                startupProfile={startupProfile}
+                strategy={strategy}
               />
             ))}
 
@@ -391,7 +394,7 @@ Click **"Propose Strategy"** below to begin, or ask me any questions first.`,
 }
 
 // Chat Message Component with avatar-based layout
-function ChatMessage({ message, onCandidateClick }) {
+function ChatMessage({ message, onCandidateClick, startupProfile, strategy }) {
   const isUser = message.role === 'user';
   const embeddedData = message.embeddedData || {};
 
@@ -521,6 +524,13 @@ function ChatMessage({ message, onCandidateClick }) {
                 </ul>
               </div>
             )}
+            {/* External Research Comparison */}
+            <ExternalResearchComparison
+              partnerScopeResults={embeddedData.evaluationResult}
+              startupProfile={startupProfile}
+              strategy={strategy}
+              onCandidateClick={onCandidateClick}
+            />
           </>
         )}
       </div>

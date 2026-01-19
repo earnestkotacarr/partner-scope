@@ -26,7 +26,7 @@ from pathlib import Path
 
 from src.pipeline import PartnerPipeline
 from src.core import StartupProfile
-from src.providers import MockCrunchbaseProvider, OpenAIWebSearchProvider
+from src.providers import MockCrunchbaseProvider, OpenAIWebSearchProvider, OpenAIWebSearchProviderV2
 from src.chat import StartupDiscoveryAssistant, RefinementAssistant
 from src.chat.prompts import STARTUP_DISCOVERY_PROMPT, REFINEMENT_PROMPT
 
@@ -236,6 +236,7 @@ class SearchRequest(BaseModel):
     use_csv: Optional[bool] = True
     use_web_search: Optional[bool] = False
     ai_models: Optional[ModelConfig] = None
+    search_version: Optional[str] = "v1"  # "v1" (production) or "v2" (experimental)
 
 
 class PartnerMatchResponse(BaseModel):
@@ -339,6 +340,22 @@ class EvaluationChatResponse(BaseModel):
     phase: str = "init"
     strategy: Optional[dict] = None
     evaluation_result: Optional[dict] = None
+    cost: Optional[dict] = None
+
+
+class CompareExternalRequest(BaseModel):
+    """Request model for comparing external research results."""
+    raw_text: str  # Raw text from Gemini, OpenAI, Claude deep research
+    source: str = "external"  # "gemini", "openai", "claude", "external"
+    startup_profile: dict  # Same startup profile used in PartnerScope search
+    strategy: Optional[dict] = None  # Optional: use same strategy as PartnerScope
+
+
+class CompareExternalResponse(BaseModel):
+    """Response model for external comparison."""
+    parsed_candidates: list[dict]  # Parsed candidates from external text
+    evaluation_result: dict  # Evaluation results using same criteria
+    source: str
     cost: Optional[dict] = None
 
 
@@ -654,7 +671,13 @@ async def _get_web_search_results(request: SearchRequest) -> list[PartnerMatchRe
 
     # Initialize the web search provider with model from config
     search_model = request.ai_models.search if request.ai_models else 'gpt-4.1'
-    provider = OpenAIWebSearchProvider({'model': search_model})
+    search_version = getattr(request, 'search_version', 'v1') or 'v1'
+
+    # Use V2 experimental provider if requested
+    if search_version == 'v2':
+        provider = OpenAIWebSearchProviderV2({'model': search_model})
+    else:
+        provider = OpenAIWebSearchProvider({'model': search_model})
 
     # Run the synchronous search in a thread pool to avoid blocking
     loop = asyncio.get_event_loop()
@@ -1031,6 +1054,194 @@ async def evaluation_chat(request: EvaluationChatRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# Compare External Research Endpoint
+@app.post("/api/compare/evaluate", response_model=CompareExternalResponse)
+async def compare_external_research(request: CompareExternalRequest):
+    """
+    Parse and evaluate external research results (from Gemini, OpenAI, Claude deep research).
+
+    Uses LLM to extract company candidates from raw text, then runs the same
+    evaluation criteria as PartnerScope for fair comparison.
+    """
+    try:
+        # Check for API key
+        if not os.getenv('OPENAI_API_KEY'):
+            raise HTTPException(
+                status_code=400,
+                detail="OpenAI API key not configured. Set OPENAI_API_KEY environment variable."
+            )
+
+        from openai import OpenAI
+        from src.utils.cost_tracker import calculate_cost
+
+        client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        total_cost = {"input_tokens": 0, "output_tokens": 0, "total_cost": 0}
+
+        print(f"\n[CompareExternal] Parsing {request.source} research ({len(request.raw_text)} chars)")
+
+        # Step 1: Parse raw text into candidate format using LLM
+        parse_prompt = f"""Extract company recommendations from this external research output.
+
+EXTERNAL RESEARCH TEXT:
+{request.raw_text[:15000]}  # Limit to 15k chars to avoid token limits
+
+Extract ALL companies mentioned as potential partners. For each company, extract:
+- name: Company name
+- industry: Industry/sector
+- location: Location if mentioned
+- description: What the company does
+- website: Website URL if mentioned
+- partnership_value: Why this company was recommended as a partner
+
+Respond in JSON:
+{{
+    "companies": [
+        {{
+            "name": "Company Name",
+            "industry": "Industry",
+            "location": "Location or 'Not specified'",
+            "description": "What they do",
+            "website": "https://... or 'Not specified'",
+            "partnership_value": "Why recommended"
+        }}
+    ]
+}}
+"""
+
+        parse_response = client.chat.completions.create(
+            model="gpt-4.1",
+            messages=[
+                {"role": "system", "content": "You are a data extraction assistant. Extract structured company data from research text. Always respond in valid JSON."},
+                {"role": "user", "content": parse_prompt}
+            ],
+            temperature=0.1,
+            max_tokens=4000
+        )
+
+        parse_text = parse_response.choices[0].message.content
+
+        if parse_response.usage:
+            parse_cost = calculate_cost(
+                input_tokens=parse_response.usage.prompt_tokens,
+                output_tokens=parse_response.usage.completion_tokens,
+                model="gpt-4.1"
+            )
+            total_cost["input_tokens"] += parse_cost.get("input_tokens", 0)
+            total_cost["output_tokens"] += parse_cost.get("output_tokens", 0)
+            total_cost["total_cost"] += parse_cost.get("total_cost", 0)
+
+        # Parse the JSON response
+        import re
+        try:
+            parsed_data = json.loads(parse_text)
+        except:
+            # Try extracting JSON from markdown
+            json_match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', parse_text)
+            if json_match:
+                parsed_data = json.loads(json_match.group(1))
+            else:
+                # Try finding JSON object
+                brace_start = parse_text.find('{')
+                brace_end = parse_text.rfind('}') + 1
+                if brace_start >= 0 and brace_end > brace_start:
+                    parsed_data = json.loads(parse_text[brace_start:brace_end])
+                else:
+                    raise ValueError("Could not parse companies from external text")
+
+        companies = parsed_data.get('companies', [])
+        print(f"[CompareExternal] Parsed {len(companies)} companies from {request.source}")
+
+        # Step 2: Format as candidates for evaluation
+        formatted_candidates = []
+        for i, company in enumerate(companies):
+            formatted_candidates.append({
+                'id': str(i),
+                'company_name': company.get('name', 'Unknown'),
+                'company_info': {
+                    'name': company.get('name', ''),
+                    'industry': company.get('industry', ''),
+                    'location': company.get('location', ''),
+                    'description': company.get('description', ''),
+                    'website': company.get('website', ''),
+                    'source': f'{request.source.title()} Deep Research',
+                },
+                'match_score': 50,  # Placeholder
+                'info_score': 50,
+                'rationale': company.get('partnership_value', ''),
+                'key_strengths': [],
+            })
+
+        # Step 3: Run evaluation using the same EvaluationChatAssistant
+        from src.chat.evaluation_assistant import EvaluationChatAssistant
+
+        loop = asyncio.get_event_loop()
+        assistant = EvaluationChatAssistant()
+
+        # Use provided strategy or generate default
+        strategy = request.strategy
+        if not strategy:
+            # Generate strategy based on startup profile
+            strategy_result = await loop.run_in_executor(
+                None,
+                lambda: assistant.chat(
+                    messages=[],
+                    current_message='start',
+                    candidates=formatted_candidates,
+                    startup_profile=request.startup_profile,
+                )
+            )
+            strategy = strategy_result.get('strategy')
+
+            if strategy_result.get('cost'):
+                total_cost["input_tokens"] += strategy_result['cost'].get("input_tokens", 0)
+                total_cost["output_tokens"] += strategy_result['cost'].get("output_tokens", 0)
+                total_cost["total_cost"] += strategy_result['cost'].get("total_cost", 0)
+
+        # Run evaluation
+        eval_result = await loop.run_in_executor(
+            None,
+            lambda: assistant.chat(
+                messages=[],
+                current_message='confirm',
+                candidates=formatted_candidates,
+                startup_profile=request.startup_profile,
+                strategy=strategy,
+                action_hint='confirm',
+            )
+        )
+
+        if eval_result.get('cost'):
+            total_cost["input_tokens"] += eval_result['cost'].get("input_tokens", 0)
+            total_cost["output_tokens"] += eval_result['cost'].get("output_tokens", 0)
+            total_cost["total_cost"] += eval_result['cost'].get("total_cost", 0)
+
+        evaluation_result = eval_result.get('evaluation_result', {})
+
+        print(f"[CompareExternal] Evaluation complete. Top-8 avg: {_calculate_top8_avg(evaluation_result):.1f}")
+
+        return CompareExternalResponse(
+            parsed_candidates=formatted_candidates,
+            evaluation_result=evaluation_result,
+            source=request.source,
+            cost=total_cost,
+        )
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def _calculate_top8_avg(evaluation_result: dict) -> float:
+    """Calculate average score of top 8 candidates."""
+    top_candidates = evaluation_result.get('top_candidates', [])
+    if not top_candidates:
+        return 0.0
+
+    scores = [c.get('final_score', 0) for c in top_candidates[:8]]
+    return sum(scores) / len(scores) if scores else 0.0
+
+
 # SSE Streaming Search Endpoint
 @app.get("/api/search/stream")
 async def stream_search(
@@ -1043,7 +1254,8 @@ async def stream_search(
     max_results: int = 20,
     use_csv: bool = True,
     use_web_search: bool = False,
-    model_search: str = "gpt-4.1"
+    model_search: str = "gpt-4.1",
+    search_version: str = "v1"  # "v1" (production) or "v2" (experimental)
 ):
     """
     Stream search progress and results using Server-Sent Events.
@@ -1121,7 +1333,11 @@ async def stream_search(
                 if not os.getenv('OPENAI_API_KEY'):
                     yield f"event: error\ndata: {json.dumps({'error': 'OpenAI API key not configured'})}\n\n"
                 else:
-                    provider = OpenAIWebSearchProvider({'model': model_search})
+                    # Use V2 experimental provider if requested
+                    if search_version == 'v2':
+                        provider = OpenAIWebSearchProviderV2({'model': model_search})
+                    else:
+                        provider = OpenAIWebSearchProvider({'model': model_search})
 
                     # Run synchronous search in thread pool with timeout protection
                     loop = asyncio.get_event_loop()
