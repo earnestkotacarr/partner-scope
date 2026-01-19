@@ -4,92 +4,107 @@
 
 ---
 
-## The Challenge
+## The Bottleneck
+
+Corundum Corp. has spent a decade building expertise in open innovation and venture building. Your team excels at turning early-stage technologies into real businesses through strategic partnerships.
+
+But partner discovery remains a bottleneck:
 
 > *"Corundum Corp. has a customer (e.g. startup) with a business idea, and needs to assist them with finding business partners such as investors, technology providers, or manufacturers. How can they do this in the best way?"*
 
-**Current Reality:**
+**Current baseline:**
 
-| Metric | Today |
-|--------|-------|
-| Hours per customer | 100-200 hours |
-| Average | 150 hours |
-| Cost per hour | ¥10,000 |
-| **Total cost per customer** | **¥1,500,000** |
+| Per Customer | |
+|:-------------|:------------|
+| Hours spent | 100-200 (avg: 150) |
+| Hourly cost | ¥10,000 |
+| **Total cost** | **¥1,500,000** |
 
-This is manual, time-intensive work: searching databases, reviewing websites, evaluating fit, and iterating based on client feedback.
+This is searching databases, reviewing websites, evaluating fit, iterating on feedback—valuable work, but time-intensive.
 
 ---
 
-## What PartnerScope Does
-
-PartnerScope uses AI to handle the time-intensive parts of partner discovery while keeping your team in control.
+## What Changes with PartnerScope
 
 | Stage | Today | With PartnerScope |
-|-------|-------|-------------------|
-| Requirements gathering | Manual interviews | Guided AI conversation (10 min) |
+|:------|:------|:------------------|
+| Requirements gathering | Manual interviews, note-taking | AI-guided conversation (10 min) |
 | Partner research | Database + web searches | Multi-source AI search (5 min) |
-| Candidate evaluation | Spreadsheets, manual review | Multi-dimensional scoring (10 min) |
+| Candidate evaluation | Spreadsheets, manual scoring | Multi-dimensional ranking (10 min) |
 | Refinement cycles | Re-do research | Instant re-ranking (2 min) |
 | **Total** | **100-200 hours** | **Under 1 hour** |
 
-**Cost comparison:**
+**Cost impact:**
 
-| Approach | Hours | Cost |
-|----------|-------|------|
-| Manual process | 150 hours | ¥1,500,000 |
-| PartnerScope | <1 hour + API costs | ~¥10,000 + ¥200 |
-
----
-
-## How It Works
-
-**1. Discovery Chat**
-Guided conversation extracts structured requirements from the client—partner type, must-have capabilities, success criteria, red flags.
-
-**2. Multi-Source Search**
-AI searches both curated databases and live web, finding obvious partners and non-obvious ones the client wouldn't have thought to look for.
-
-**3. Evaluation & Ranking**
-20 candidates scored across multiple dimensions (market fit, technical synergy, strategic alignment, etc.) with adjustable weights.
-
-**4. Refinement**
-Exclude candidates, adjust priorities, or dive deeper—without re-running the entire search.
+| | Hours | Cost |
+|:--|------:|-----:|
+| Manual process | 150 | ¥1,500,000 |
+| With PartnerScope | <1 | ~¥10,000 + ¥200 API |
 
 ---
 
-## Quality Assurance
+## The Discovery Chat
 
-Your team stays in control:
+One of the most time-consuming parts of partner search is understanding what the client actually needs. The Discovery Chat handles this through guided conversation.
 
-- **Review** extracted requirements before searching
-- **Customize** evaluation dimensions and weights
-- **Compare** results against other AI research tools (Gemini, OpenAI)
-- **Refine** rankings based on your expertise
+**How it works:**
+- AI coach asks strategic questions about the client's business
+- Extracts partner type, must-have requirements, success criteria, red flags
+- Outputs structured brief ready for search
 
-PartnerScope handles discovery; your team applies judgment and relationships.
+**Two ways to use it:**
+
+| Option | How | When |
+|:-------|:----|:-----|
+| **Consultant-led** | Run the chat during client meeting | Standard workflow |
+| **Client self-service** | Send chat link to client before meeting | Client prepares in advance, meeting starts with structured brief already in hand |
+
+The self-service option means clients can do the intake on their own time, and your first meeting starts with actionable requirements instead of discovery questions.
+
+---
+
+## The Full Workflow
+
+**1. Discovery** — Guided chat extracts structured requirements
+
+**2. Search** — AI searches databases and web simultaneously, finds obvious and non-obvious partners
+
+**3. Evaluate** — 20 candidates scored on market fit, technical synergy, strategic alignment (weights adjustable)
+
+**4. Refine** — Exclude candidates, adjust priorities, dig deeper—no re-searching needed
+
+---
+
+## Quality Control
+
+Your expertise stays central:
+
+- **Review** requirements before searching
+- **Customize** evaluation criteria and weights
+- **Compare** against other tools (Gemini, OpenAI Deep Research)
+- **Refine** based on your judgment
+
+PartnerScope handles the searching; you handle the relationships and strategy.
 
 ---
 
 ## What Clients Receive
 
-Structured partner profiles with:
-- Company details and fit rationale
+- Company profiles with fit rationale
 - Multi-dimensional scores with confidence levels
-- Strengths, concerns, and recommended next steps
-- Transparent methodology they can understand
+- Strengths, concerns, next steps
+- Transparent, explainable methodology
 
 ---
 
-## Getting Started
+## Next Steps
 
-1. Select an upcoming client engagement
-2. Run PartnerScope alongside your normal process
+1. Pick an upcoming client engagement
+2. Run PartnerScope alongside normal process
 3. Compare results and time spent
-4. Evaluate fit for broader use
 
 ---
 
 *PartnerScope — Partner discovery at the speed of innovation.*
 
-*Developed in collaboration with UTokyo Research, 2026*
+*UTokyo Research, 2026*
