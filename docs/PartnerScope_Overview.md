@@ -192,32 +192,14 @@ No hidden fees. No subscriptions. Pay only for what you use.
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Web Interface                         │
-│            (React + Tailwind + Real-time Updates)        │
-└─────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────┐
-│                    API Server                            │
-│              (FastAPI + Streaming SSE)                   │
-└─────────────────────────────────────────────────────────┘
-                           │
-          ┌────────────────┼────────────────┐
-          ▼                ▼                ▼
-┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-│   Discovery  │  │    Search    │  │  Evaluation  │
-│     Chat     │  │   Provider   │  │   Assistant  │
-└──────────────┘  └──────────────┘  └──────────────┘
-          │                │                │
-          └────────────────┼────────────────┘
-                           ▼
-┌─────────────────────────────────────────────────────────┐
-│                    OpenAI GPT-4.1                        │
-│            (+ Web Search Tool for Discovery)             │
-└─────────────────────────────────────────────────────────┘
-```
+| Layer | Component | Technology |
+|-------|-----------|------------|
+| **Frontend** | Web Interface | React, Tailwind, Real-time Updates |
+| **Backend** | API Server | FastAPI, Streaming SSE |
+| **Services** | Discovery Chat | Conversational partner needs extraction |
+| | Search Provider | Multi-source candidate discovery |
+| | Evaluation Assistant | Multi-dimensional scoring & refinement |
+| **AI** | Language Model | OpenAI GPT-4.1 + Web Search Tool |
 
 **Key Design Decisions:**
 - Single LLM with specialized prompts (not multi-agent)
