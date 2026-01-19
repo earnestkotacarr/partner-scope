@@ -105,6 +105,21 @@ The gut feel doesn't go away—it gets applied where it matters most: evaluating
 
 ---
 
+## Future: Integration with Corundum Data
+
+PartnerScope becomes more powerful when connected to your existing knowledge:
+
+| Data Source | What It Enables |
+|:------------|:----------------|
+| Past partnerships | "Companies similar to ones that worked before" |
+| Client history | Avoid recommending past clients as partners |
+| Internal network | Surface warm introductions through existing relationships |
+| Deal outcomes | Learn which partner types succeed for which client types |
+
+This turns PartnerScope from a general tool into one that reflects Corundum's decade of expertise and relationships.
+
+---
+
 *PartnerScope — Partner discovery at the speed of innovation.*
 
 *UTokyo Research, 2026*
