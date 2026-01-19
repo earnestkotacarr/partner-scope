@@ -186,20 +186,29 @@ function DiscoveryChat() {
             </div>
           )}
 
-          {/* Generate Template CTA */}
-          {readyForTemplate && !loading && (
+          {/* Generate Template CTA - Always visible after first exchange */}
+          {messages.length >= 2 && !loading && (
             <div className="mb-8 flex gap-4">
               <div className="w-8 flex-shrink-0" />
-              <div className="flex-1">
+              <div className="flex-1 flex items-center gap-3">
                 <button
                   onClick={handleGenerateTemplate}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-black text-white text-sm font-medium rounded-full hover:bg-gray-800 transition-colors"
+                  className={`inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-full transition-all ${
+                    readyForTemplate
+                      ? 'bg-black text-white hover:bg-gray-800'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
                 >
-                  Generate Partner Profile
+                  {readyForTemplate ? 'Generate Partner Profile' : "I'm Ready for Search"}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </button>
+                {!readyForTemplate && (
+                  <span className="text-xs text-gray-400">
+                    Click anytime, or keep chatting for more detail
+                  </span>
+                )}
               </div>
             </div>
           )}

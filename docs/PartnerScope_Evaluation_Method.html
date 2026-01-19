@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>PartnerScope Evaluation Method</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">PartnerScope Evaluation Method</h1>
+</header>
+<h1 id="partnerscope-dynamic-partner-evaluation-framework">PartnerScope:
+Dynamic Partner Evaluation Framework</h1>
+<p><strong>A Conversational, User-Driven Approach to Multi-Dimensional
+Partner Assessment</strong></p>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>PartnerScope’s evaluation system enables startups to assess potential
+partners through a <strong>dynamic, conversational workflow</strong>.
+Unlike static evaluation frameworks, our approach allows real-time
+strategy refinement, interactive dimension weighting, and
+post-evaluation adjustments—all through natural language chat.</p>
+<p><strong>Key Features:</strong> - Conversational strategy planning -
+User-configurable evaluation dimensions - Real-time weight adjustment -
+Post-evaluation refinement (exclude, reweight, filter) - Batch
+processing for large candidate sets</p>
+<hr />
+<h2 id="comparison-with-partnermas">Comparison with PartnerMAS</h2>
+<p>Our evaluation system is inspired by PartnerMAS (arXiv:2509.24046),
+but differs significantly in architecture and interaction model.</p>
+<h3 id="partnermas-inspiration">PartnerMAS (Inspiration)</h3>
+<p>PartnerMAS uses a <strong>three-tier hierarchical multi-agent
+system</strong>:</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 36%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Agent</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Planner Agent</strong></td>
+<td>Designs evaluation strategy</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Specialized Agents</strong></td>
+<td>Role-specific assessments (multiple agents in parallel)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Supervisor Agent</strong></td>
+<td>Aggregates outputs into final ranking</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Characteristics:</strong> - Multiple LLM agents running in
+parallel - Fixed evaluation strategy (designed once by planner) -
+Automated aggregation (no human-in-the-loop) - Batch processing of
+candidates - 10-15% higher match rates vs. single-agent approaches</p>
+<h3 id="partnerscope-our-implementation">PartnerScope (Our
+Implementation)</h3>
+<p>PartnerScope uses a <strong>single LLM with conversational
+interface</strong>:</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 26%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Process</th>
+<th>User Interaction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Strategy Planning</strong></td>
+<td>User can modify dimensions and weights</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Evaluation Execution</strong></td>
+<td>Batch processing with progress feedback</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Results &amp; Refinement</strong></td>
+<td>User can exclude, reweight, filter results</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Characteristics:</strong> - Single LLM (not multi-agent) -
+Dynamic strategy (user can modify at any time) - Human-in-the-loop at
+every stage - Conversational refinement after evaluation - Interactive,
+iterative workflow</p>
+<hr />
+<h2 id="key-differences">Key Differences</h2>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 35%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>PartnerMAS</th>
+<th>PartnerScope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Architecture</strong></td>
+<td>Multi-agent hierarchy</td>
+<td>Single LLM + chat</td>
+</tr>
+<tr>
+<td><strong>Strategy</strong></td>
+<td>Fixed (set once)</td>
+<td>Dynamic (user-modifiable)</td>
+</tr>
+<tr>
+<td><strong>User Role</strong></td>
+<td>Passive (receives results)</td>
+<td>Active (guides process)</td>
+</tr>
+<tr>
+<td><strong>Refinement</strong></td>
+<td>Re-run entire pipeline</td>
+<td>In-place adjustments</td>
+</tr>
+<tr>
+<td><strong>Interaction</strong></td>
+<td>Batch input/output</td>
+<td>Conversational</td>
+</tr>
+<tr>
+<td><strong>Parallelism</strong></td>
+<td>Multiple agents in parallel</td>
+<td>Sequential batch processing</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What we kept from PartnerMAS:</strong> - Multi-dimensional
+evaluation concept - Weighted scoring across dimensions -
+Strategy-driven assessment</p>
+<p><strong>What we changed:</strong> - Replaced multi-agent with
+conversational single-agent - Added dynamic strategy modification -
+Added post-evaluation refinement - Made the process interactive and
+iterative</p>
+<hr />
+<h2 id="evaluation-workflow">Evaluation Workflow</h2>
+<h3 id="phase-1-strategy-planning">Phase 1: Strategy Planning</h3>
+<p>The system proposes an evaluation strategy based on startup profile
+and candidates.</p>
+<p><strong>Process:</strong> 1. User initiates evaluation (“start”) 2.
+LLM analyzes startup profile and candidate pool 3. Proposes 4-5 relevant
+dimensions with weights 4. User can accept or modify</p>
+<p><strong>Example Strategy Proposal:</strong></p>
+<pre><code>1. Market Compatibility (25%)
+   Alignment with target market and customer segments
+
+2. Technical Synergy (25%)
+   Technology compatibility and integration potential
+
+3. Strategic Alignment (20%)
+   Business goals and long-term vision alignment
+
+4. Growth Potential (15%)
+   Mutual growth and scalability opportunity
+
+5. Risk Profile (15%)
+   Risk factors and potential challenges</code></pre>
+<p><strong>User Modifications:</strong> - “Focus more on technical
+synergy” - “Add geographic coverage as a dimension” - “Remove risk
+profile, we’ll assess that separately”</p>
+<p>The LLM adjusts weights and dimensions accordingly, always ensuring
+weights sum to 1.0.</p>
+<hr />
+<h3 id="phase-2-evaluation-execution">Phase 2: Evaluation Execution</h3>
+<p>Candidates are evaluated in batches to handle large candidate pools
+efficiently.</p>
+<p><strong>Process:</strong> 1. Candidates split into batches of 5 2.
+Each batch evaluated against all dimensions 3. Scores assigned with
+confidence levels 4. Results aggregated and ranked</p>
+<p><strong>Per-Candidate Output:</strong></p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;candidate_name&quot;</span><span class="fu">:</span> <span class="st">&quot;TechPartner Inc&quot;</span><span class="fu">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;final_score&quot;</span><span class="fu">:</span> <span class="dv">85</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;dimension_scores&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span><span class="dt">&quot;dimension&quot;</span><span class="fu">:</span> <span class="st">&quot;market_compatibility&quot;</span><span class="fu">,</span> <span class="dt">&quot;score&quot;</span><span class="fu">:</span> <span class="dv">90</span><span class="fu">,</span> <span class="dt">&quot;confidence&quot;</span><span class="fu">:</span> <span class="fl">0.85</span><span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span><span class="dt">&quot;dimension&quot;</span><span class="fu">:</span> <span class="st">&quot;technical_synergy&quot;</span><span class="fu">,</span> <span class="dt">&quot;score&quot;</span><span class="fu">:</span> <span class="dv">88</span><span class="fu">,</span> <span class="dt">&quot;confidence&quot;</span><span class="fu">:</span> <span class="fl">0.90</span><span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span><span class="dt">&quot;dimension&quot;</span><span class="fu">:</span> <span class="st">&quot;strategic_alignment&quot;</span><span class="fu">,</span> <span class="dt">&quot;score&quot;</span><span class="fu">:</span> <span class="dv">82</span><span class="fu">,</span> <span class="dt">&quot;confidence&quot;</span><span class="fu">:</span> <span class="fl">0.75</span><span class="fu">}</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;strengths&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;Strong API ecosystem&quot;</span><span class="ot">,</span> <span class="st">&quot;Proven startup partnerships&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;weaknesses&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;Limited APAC presence&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;recommendations&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;Explore joint pilot program&quot;</span><span class="ot">]</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p><strong>Scoring Formula:</strong></p>
+<pre><code>final_score = Σ (dimension_score × weight × confidence) / Σ (weight × confidence)</code></pre>
+<p>The confidence factor ensures that dimensions with uncertain data
+contribute less to the final score.</p>
+<hr />
+<h3 id="phase-3-results-refinement">Phase 3: Results &amp;
+Refinement</h3>
+<p>Unlike static evaluation systems, PartnerScope allows
+<strong>post-evaluation refinement</strong> through natural
+language.</p>
+<p><strong>Refinement Actions:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 50%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Action</th>
+<th>Example Command</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Exclude</strong></td>
+<td>“Remove TechPartner from results”</td>
+<td>Filters out candidate, re-ranks remaining</td>
+</tr>
+<tr>
+<td><strong>Reweight</strong></td>
+<td>“Focus more on technical synergy”</td>
+<td>Adjusts weights, recalculates scores</td>
+</tr>
+<tr>
+<td><strong>Filter</strong></td>
+<td>“Show only top 3”</td>
+<td>Returns subset of results</td>
+</tr>
+<tr>
+<td><strong>Focus</strong></td>
+<td>“Tell me more about geographic coverage”</td>
+<td>Provides deeper analysis</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example Refinement Flow:</strong></p>
+<pre><code>User: &quot;The top candidate has regulatory issues we discovered. Exclude them.&quot;
+System: &quot;Removed TechPartner Inc. Re-ranked remaining candidates.
+         New #1: DataSync Corp (Score: 82)&quot;
+
+User: &quot;Actually, prioritize geographic coverage more heavily.&quot;
+System: &quot;Adjusted weights: Geographic Coverage now 30% (was 15%).
+         Re-calculated scores. New ranking:
+         1. GlobalReach Ltd (Score: 88)
+         2. DataSync Corp (Score: 79)&quot;</code></pre>
+<p>This iterative refinement is <strong>not possible in
+PartnerMAS</strong>, which requires re-running the entire multi-agent
+pipeline for any strategy change.</p>
+<hr />
+<h2 id="available-evaluation-dimensions">Available Evaluation
+Dimensions</h2>
+<table>
+<colgroup>
+<col style="width: 45%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Key Factors</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>market_compatibility</strong></td>
+<td>Market alignment, customer segments, positioning</td>
+</tr>
+<tr>
+<td><strong>financial_health</strong></td>
+<td>Financial stability, revenue, funding status</td>
+</tr>
+<tr>
+<td><strong>technical_synergy</strong></td>
+<td>Technology compatibility, integration potential</td>
+</tr>
+<tr>
+<td><strong>operational_capacity</strong></td>
+<td>Supply chain, logistics, operational capabilities</td>
+</tr>
+<tr>
+<td><strong>geographic_coverage</strong></td>
+<td>Geographic presence, regional expertise</td>
+</tr>
+<tr>
+<td><strong>strategic_alignment</strong></td>
+<td>Business goals, long-term vision alignment</td>
+</tr>
+<tr>
+<td><strong>cultural_fit</strong></td>
+<td>Organizational culture compatibility</td>
+</tr>
+<tr>
+<td><strong>resource_complementarity</strong></td>
+<td>Complementary resources and expertise</td>
+</tr>
+<tr>
+<td><strong>growth_potential</strong></td>
+<td>Mutual growth, scalability potential</td>
+</tr>
+<tr>
+<td><strong>risk_profile</strong></td>
+<td>Risk factors, potential challenges</td>
+</tr>
+</tbody>
+</table>
+<p>Users can select any subset of these dimensions and assign custom
+weights.</p>
+<hr />
+<h2 id="technical-implementation">Technical Implementation</h2>
+<h3 id="architecture">Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                      User Interface                          │
+│                   (Chat-based interaction)                   │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│               EvaluationChatAssistant                        │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │   Strategy  │  │  Evaluation │  │  Refinement │         │
+│  │   Planning  │  │  Execution  │  │   Handler   │         │
+│  └─────────────┘  └─────────────┘  └─────────────┘         │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    OpenAI GPT-4.1                            │
+│              (Single LLM, multiple prompts)                  │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+<h3 id="not-multi-agent">NOT Multi-Agent</h3>
+<p><strong>Important clarification:</strong> Despite being inspired by
+PartnerMAS’s multi-agent approach, PartnerScope uses a <strong>single
+LLM</strong> with different prompts for different tasks. This is simpler
+and enables the conversational, interactive workflow.</p>
+<table>
+<thead>
+<tr>
+<th>PartnerMAS</th>
+<th>PartnerScope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Planner Agent</td>
+<td>Strategy planning prompt</td>
+</tr>
+<tr>
+<td>Specialized Agents</td>
+<td>Batch evaluation prompt</td>
+</tr>
+<tr>
+<td>Supervisor Agent</td>
+<td>Summary generation prompt</td>
+</tr>
+</tbody>
+</table>
+<p>We achieve similar task decomposition through <strong>prompt
+engineering</strong>, not agent orchestration.</p>
+<hr />
+<h2 id="batch-processing">Batch Processing</h2>
+<p>To handle large candidate pools (50+ candidates), evaluation is
+performed in batches.</p>
+<p><strong>Configuration:</strong> - Batch size: 5 candidates - Each
+batch: 1 LLM call - Output: Scores + strengths/weaknesses for each
+candidate</p>
+<p><strong>Why batches?</strong> - Avoids context length limits -
+Maintains evaluation quality (no “context rot”) - Enables progress
+feedback to user - Allows partial results if interrupted</p>
+<p><strong>Process:</strong></p>
+<pre><code>50 candidates → 10 batches → 10 LLM calls → Aggregated ranking</code></pre>
+<hr />
+<h2 id="cost-analysis">Cost Analysis</h2>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>LLM Calls</th>
+<th>Est. Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Strategy proposal</td>
+<td>1</td>
+<td>$0.02</td>
+</tr>
+<tr>
+<td>Strategy modification</td>
+<td>1 per change</td>
+<td>$0.02</td>
+</tr>
+<tr>
+<td>Evaluation (50 candidates)</td>
+<td>10 batches + 1 summary</td>
+<td>$0.25</td>
+</tr>
+<tr>
+<td>Refinement</td>
+<td>1 per request</td>
+<td>$0.02</td>
+</tr>
+<tr>
+<td><strong>Typical session</strong></td>
+<td><strong>~15 calls</strong></td>
+<td><strong>$0.30-0.50</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="advantages-of-dynamic-approach">Advantages of Dynamic
+Approach</h2>
+<h3 id="adaptability">1. Adaptability</h3>
+<p>Users can adjust strategy mid-process based on: - New information
+about candidates - Changing business priorities - Stakeholder
+feedback</p>
+<h3 id="transparency">2. Transparency</h3>
+<p>Every decision is visible and explainable: - Dimension weights are
+explicit - Scores include confidence levels - Reasoning is provided for
+rankings</p>
+<h3 id="iteration-speed">3. Iteration Speed</h3>
+<p>Refinements don’t require re-evaluation: - Exclude a candidate:
+instant re-rank - Adjust weights: instant recalculation - Full
+re-evaluation only when needed</p>
+<h3 id="human-judgment">4. Human Judgment</h3>
+<p>The system augments, not replaces, human decision-making: - User
+controls strategy - User validates results - User applies domain
+knowledge</p>
+<hr />
+<h2 id="limitations">Limitations</h2>
+<h3 id="vs.-partnermas">vs. PartnerMAS</h3>
+<table>
+<colgroup>
+<col style="width: 48%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr>
+<th>Limitation</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No parallel processing</td>
+<td>Single LLM, sequential batches</td>
+</tr>
+<tr>
+<td>No specialized expertise</td>
+<td>Same model for all dimensions</td>
+</tr>
+<tr>
+<td>Potential inconsistency</td>
+<td>Different batches may have slight scoring variation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mitigations">Mitigations</h3>
+<ul>
+<li><strong>Batch processing</strong> reduces context rot</li>
+<li><strong>Confidence scores</strong> flag uncertain evaluations</li>
+<li><strong>User refinement</strong> allows correction of anomalies</li>
+</ul>
+<hr />
+<h2 id="example-session">Example Session</h2>
+<pre><code>User: Start evaluation
+
+System: Here&#39;s my proposed evaluation strategy:
+
+        1. Market Compatibility (25%)
+        2. Technical Synergy (25%)
+        3. Strategic Alignment (20%)
+        4. Growth Potential (15%)
+        5. Risk Profile (15%)
+
+        This will evaluate 23 candidates. Adjust weights or run?
+
+User: Focus more on technical synergy, we need API integration
+
+System: Adjusted weights:
+        - Technical Synergy: 35% (was 25%)
+        - Market Compatibility: 20% (was 25%)
+
+        Ready to run evaluation?
+
+User: Yes, run it
+
+System: Evaluating 23 candidates in 5 batches...
+        Batch 1/5 complete ✓
+        Batch 2/5 complete ✓
+        ...
+
+        ## Evaluation Complete!
+
+        1. APIConnect Inc - Score: 92
+           + Strong REST API, developer-friendly docs
+        2. TechBridge Ltd - Score: 87
+           + Proven integrations with 50+ platforms
+        3. DataSync Corp - Score: 84
+           + Real-time sync capabilities
+
+User: Exclude APIConnect, they&#39;re a competitor
+
+System: Removed APIConnect Inc. Re-ranked:
+        1. TechBridge Ltd - Score: 87
+        2. DataSync Corp - Score: 84
+        3. CloudLink Partners - Score: 81
+
+User: Tell me more about TechBridge&#39;s weaknesses
+
+System: TechBridge Ltd weaknesses:
+        - Limited presence in APAC region
+        - Smaller support team (response times 24-48h)
+        - No SOC2 certification yet (in progress)</code></pre>
+<hr />
+<h2 id="references">References</h2>
+<ol type="1">
+<li>“PartnerMAS: An LLM Hierarchical Multi-Agent Framework for Business
+Partner Selection on High-Dimensional Features.” arXiv:2509.24046v1,
+2025. https://arxiv.org/abs/2509.24046</li>
+<li>OpenAI. “GPT-4.1 Technical Report.” 2025.</li>
+</ol>
+<hr />
+<p><em>Document Version: 1.0</em> <em>Last Updated: January 2026</em>
+<em>PartnerScope by UTokyo Research</em></p>
+</body>
+</html>
