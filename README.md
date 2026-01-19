@@ -1,216 +1,374 @@
-# Partner Scope
+# PartnerScope
 
-**Team 3 - Corundum Corp** | UTokyo GMSI Innovation Workshop
+**Intelligent Partner Discovery for Startups**
 
-A VC partner-matching pipeline that helps find and rank potential partners for startups.
+Turn weeks of manual partner research into minutes of conversation. PartnerScope combines conversational AI with structured search and multi-dimensional evaluation to help startups find and rank potential business partners.
 
-## Current Status (Dec 2024)
-
-### ✅ What's Working
-
-**Stage 1 - Search & Identification:**
-
-| Component | Status | Description |
-|-----------|--------|-------------|
-| MockCrunchbaseProvider | ✅ Working | Reads from pre-curated CrunchBase CSV exports with keyword-based query matching |
-| OpenAI Web Search | ✅ Working | GPT-4o with web search for real-time partner discovery |
-| React Frontend | ✅ Working | Vite + Tailwind CSS form with color-coded match scores |
-| FastAPI Backend | ✅ Working | Web server with mock data endpoints |
-
-**Configured Test Startups:**
-
-1. **CoVital Node** - doorway co-regulation robot for loneliness
-   - Pilot partners (100 companies): dorm operators, co-living, employers
-   - Validation partners (150 companies): research labs, hospitals for IRB/ethics
-
-2. **StellarCore Mining** - asteroid resource-mapping AI
-   - Data-source partners (300 companies): smallsat, spacecraft, sensors
-   - Validation partners (300 companies): planetary science labs
-
-### 🚧 What Needs To Be Done
-
-**Immediate Admin:**
-- [ ] Activate Crunchbase Pro subscription
-- [ ] Add $100 credits to OpenAI
-- [ ] Send receipts to GMSI Office
-
-**Stage 1 - Search & Identification:**
-- [ ] Chatbot to help startups define partner requirements (Earnest & Claude)
-- [ ] Generate Scenario Template from conversation (Earnest & Claude)
-- [ ] Integrate real Crunchbase API when available (Shreejan)
-- [ ] Look into both Companies and Investors (Shreejan)
-
-**Stage 2 - Evaluation & Analysis:**
-- [ ] Criteria Assessment (geographic match, past collaborations, needs)
-- [ ] Business Viability Check
-- [ ] "E" Score summarization
-
-**Stage 3 - Recommendation & Output:**
-- [ ] Generate recommendation reports (CSV/Interface)
-- [ ] Include: potential targets, partner candidates, detailed info, growth potential
-- [ ] Transparency: links/sources
-
-**Backend (Wentao):**
-- [ ] Web Search provider improvements
-- [ ] Pipeline integration
-
-**Scenarios for Midterm (Dec 18):**
-- [ ] Space - Wentao/Natsuki
-- [ ] AI/ALife - Earnest
-- [ ] Health - Shreejan
-- [ ] Environment - Amalie
+> *From months of research to minutes of conversation.*
 
 ---
 
-## Overview
+## The Problem
 
-Partner Scope automates the process of finding suitable corporate partners for startups by:
+Finding the right business partners is one of the most time-consuming challenges for startups:
 
-1. **Data Collection**: Searches multiple sources (Crunchbase, CB Insights, web search) for potential partner companies
-2. **Deduplication**: Intelligently merges and deduplicates company data from different sources
-3. **AI Ranking**: Uses LLM-based analysis to rank and match partners based on startup needs
-4. **Reporting**: Generates detailed reports with scores, rationales, and contact information
+- Hours of manual research across databases and websites
+- Inconsistent evaluation criteria across team members
+- No systematic way to compare candidates
+- Difficulty articulating exactly what kind of partner is needed
+
+**PartnerScope solves this** by guiding you through a complete partner discovery workflow—from needs articulation to ranked recommendations.
+
+---
+
+## How It Works
+
+```
+Discovery Chat → Partner Search → Evaluation → Comparison
+```
+
+### 1. Discovery Chat
+
+Start with a conversation, not a form. Our AI coach helps you articulate your partnership needs through natural dialogue.
+
+**What makes it different:**
+- Acts as a strategic advisor, not just a data collector
+- Proactively suggests partnership types you may not have considered
+- Extracts structured requirements from conversation
+
+**What gets extracted:**
+- Partner type (pilot, distribution, validation, etc.)
+- Minimum requirements ("must have 100+ participants")
+- Success criteria ("60% retention at week 8")
+- Red flags to avoid
+- Information to collect during outreach
+
+### 2. Partner Search
+
+Multi-source search combines database lookups with real-time AI web search.
+
+| Source | Best For | Speed |
+|--------|----------|-------|
+| Database/CSV | Known players, established companies | Fast |
+| AI Web Search | Emerging players, niche specialists | Thorough |
+
+**5-Phase Search Architecture:**
+
+| Phase | What Happens | Why It Matters |
+|-------|--------------|----------------|
+| 1. Discovery | 4 search queries from different angles | Casts a wide net |
+| 2. Reflection | Analyzes gaps, searches for non-obvious partners | Finds what you didn't know to look for |
+| 3. Decomposition | Breaks need into sub-needs, targeted search for each | Ensures comprehensive coverage |
+| 4. Batch Filtering | Scores candidates in small batches | Maintains quality across large candidate sets |
+| 5. Enrichment | Fills missing data for top candidates | Clean, complete output |
+
+**Output:** 20 ranked partners with company details, partnership fit rationale, needs satisfied, and validation scores (1-10).
+
+### 3. Evaluation
+
+Multi-dimensional assessment with human-in-the-loop refinement.
+
+**Available Dimensions:**
+
+| Dimension | What It Measures |
+|-----------|------------------|
+| Market Compatibility | Target market alignment |
+| Technical Synergy | Technology compatibility |
+| Financial Health | Stability, funding status |
+| Operational Capacity | Logistics, scale capability |
+| Geographic Coverage | Regional presence |
+| Strategic Alignment | Business goal fit |
+| Cultural Fit | Organizational compatibility |
+| Resource Complementarity | Complementary assets |
+| Growth Potential | Scalability opportunity |
+| Risk Profile | Potential challenges |
+
+**Post-Evaluation Refinement:** Adjust results without re-running the entire evaluation:
+
+| Action | Example | What Happens |
+|--------|---------|--------------|
+| Exclude | "Remove TechPartner, they're a competitor" | Filters out, re-ranks remaining |
+| Reweight | "Prioritize geographic coverage" | Adjusts weights, recalculates scores |
+| Filter | "Show only top 3" | Returns focused subset |
+| Focus | "Tell me more about their weaknesses" | Deeper analysis |
+
+### 4. Comparison with External Research
+
+Validate results against other AI research tools (Gemini Deep Research, OpenAI Deep Research, Claude).
+
+1. Run your preferred external research tool with the same query
+2. Paste the results into PartnerScope
+3. PartnerScope evaluates them using the same criteria
+4. Side-by-side comparison shows which found better partners
+
+---
+
+## Quality vs. Speed vs. Cost
+
+| Mode | Quality | Speed | Cost | Best For |
+|------|---------|-------|------|----------|
+| Quality | Highest | ~20-30 min | ~$0.32/search | Final selection, high-stakes decisions |
+| Balanced | Good | ~20 sec | ~$0.18/search | Day-to-day use (recommended) |
+| Fast | Basic | ~5 sec | ~$0.05/search | Quick exploration, brainstorming |
+
+**Cost Transparency:**
+- Discovery chat: ~$0.02/message
+- Search (50 candidates): ~$0.80-1.50
+- Evaluation: ~$0.15-0.30
+- Typical full session: **$1-2 total**
+
+No hidden fees. No subscriptions. Pay only for what you use.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.12+
+- Node.js 18+
+- OpenAI API key
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-org/partner-scope.git
+   cd partner-scope
+   ```
+
+2. **Install Python dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Install frontend dependencies**
+   ```bash
+   cd frontend
+   npm install
+   cd ..
+   ```
+
+4. **Configure API keys**
+   ```bash
+   cp config.yaml.template config.yaml
+   cp .env.template .env
+   ```
+
+   Edit `.env` and add your API keys:
+   ```
+   OPENAI_API_KEY=sk-...
+   ```
+
+### Running the Application
+
+**Development Mode** (with hot reload):
+
+```bash
+# Terminal 1: Frontend
+cd frontend
+npm run dev
+# → http://localhost:3000
+
+# Terminal 2: Backend
+python server.py
+# → http://localhost:8000
+```
+
+**Production Mode:**
+
+```bash
+# Build frontend
+cd frontend && npm run build && cd ..
+
+# Start server (serves built frontend)
+python server.py
+# → http://localhost:8000
+```
+
+### CLI Usage
+
+```bash
+python main.py \
+  --startup-name "CoVital Node" \
+  --investment-stage "Seed" \
+  --product-stage "MVP" \
+  --partner-needs "Housing partners for pilot testing" \
+  --industry "Healthcare/Robotics" \
+  --max-results 50
+```
+
+### Debug Mode
+
+Test the application without API calls using fake data:
+
+```bash
+# Backend
+DEBUG_MODE=1 python server.py
+
+# Frontend (browser console)
+window.debug.enable()
+```
+
+---
 
 ## Project Structure
 
 ```
 partner-scope/
-├── src/
-│   ├── providers/              # Data source integrations
-│   │   ├── base.py             # Base provider interface
-│   │   ├── crunchbase.py       # Crunchbase API integration
-│   │   ├── mock_crunchbase.py  # Mock provider using CSV exports
-│   │   ├── openai_web_search.py# OpenAI GPT-4o web search
-│   │   ├── cbinsights.py       # CB Insights web scraping
-│   │   ├── linkedin.py         # LinkedIn integration
-│   │   └── web_search.py       # Generic web search
-│   ├── core/                   # Core functionality
-│   │   ├── aggregator.py       # Company deduplication and merging
-│   │   └── ranker.py           # LLM-based partner ranking
-│   └── pipeline.py             # Main pipeline orchestrator
-├── csv/                        # Pre-curated CrunchBase exports
-│   ├── covital-pilot-partners.csv
-│   ├── covital-validation-partners.csv
-│   ├── partner1_space.csv
-│   └── partner2_space.csv
-├── frontend/                   # React + Vite frontend
-├── web/                        # FastAPI backend
-├── work/                       # Working directory (debug files)
-├── results/                    # Final output reports
-├── tests/                      # Test suite
-└── requirements.txt            # Python dependencies
+├── frontend/                 # React application
+│   ├── src/
+│   │   ├── pages/           # LandingPage, EvaluationPage, ResultsPage
+│   │   ├── components/      # Reusable UI components
+│   │   ├── context/         # React context providers
+│   │   └── hooks/           # Custom React hooks
+│   └── dist/                # Production build
+│
+├── src/                     # Python backend
+│   ├── providers/           # Data source integrations
+│   │   ├── base.py         # BaseProvider interface
+│   │   ├── mock_crunchbase.py
+│   │   ├── openai_web_search.py
+│   │   └── ...
+│   ├── core/               # Business logic
+│   │   ├── aggregator.py   # Company deduplication
+│   │   └── ranker.py       # LLM-based ranking
+│   ├── chat/               # Conversational AI
+│   │   ├── startup_discovery.py
+│   │   └── evaluation_assistant.py
+│   ├── evaluation/         # Evaluation framework
+│   │   ├── models.py
+│   │   ├── orchestrator.py
+│   │   └── agents/
+│   └── pipeline.py         # Main orchestrator
+│
+├── server.py               # FastAPI entry point
+├── main.py                 # CLI entry point
+├── config.yaml             # Configuration
+├── results/                # Generated reports
+└── work/                   # Debug/intermediate files
 ```
 
-## Setup
+---
 
-### 1. Install Dependencies
+## Architecture
+
+| Layer | Component | Technology |
+|-------|-----------|------------|
+| Frontend | Web Interface | React 19, Tailwind CSS, Real-time Updates |
+| Backend | API Server | FastAPI, Streaming SSE |
+| Services | Discovery Chat | Conversational partner needs extraction |
+| | Search Provider | Multi-source candidate discovery |
+| | Evaluation Assistant | Multi-dimensional scoring & refinement |
+| AI | Language Model | OpenAI GPT-4.1 + Web Search |
+
+**Key Design Decisions:**
+- Single LLM with specialized prompts (not multi-agent)
+- Batch processing to avoid quality degradation at scale
+- External state management for consistent scoring
+- Human-in-the-loop at every stage
+
+---
+
+## Use Cases
+
+**Pilot Partners**
+> "We need universities or employers who can provide 100-300 users for an 8-12 week pilot"
+
+**Distribution Partners**
+> "Looking for healthcare distributors with hospital network relationships"
+
+**Technology Partners**
+> "Need API integration partners in the fintech space"
+
+**Validation Partners**
+> "Seeking research institutions for clinical validation studies"
+
+---
+
+## Configuration
+
+### config.yaml
+
+```yaml
+providers:
+  crunchbase:
+    enabled: false
+  openai_web_search:
+    enabled: true
+
+llm:
+  provider: openai  # or anthropic
+  model: gpt-4.1
+
+pipeline:
+  similarity_threshold: 0.85
+  max_results: 50
+```
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `OPENAI_API_KEY` | OpenAI API key (required) |
+| `CRUNCHBASE_API_KEY` | Crunchbase API key (optional) |
+| `DEBUG_MODE` | Enable debug mode with fake data |
+
+---
+
+## Output Formats
+
+**Markdown Report** (`results/{startup}_{timestamp}.md`)
+- Executive summary
+- Ranked partners with scores
+- Detailed rationales
+- Contact information
+
+**JSON Data** (`results/{startup}_{timestamp}.json`)
+- Structured data for programmatic access
+- Full evaluation details
+
+**CSV Export**
+- Exportable from the web UI
+- Sortable by any evaluation dimension
+
+---
+
+## Make Commands
 
 ```bash
-pip install -r requirements.txt
+make install     # Install all dependencies
+make setup       # Create config files from templates
+make test        # Run test suite
+make clean       # Clean generated files
+make run         # Show example CLI command
 ```
 
-### 2. Configure API Keys
+---
 
-Copy the template files and add your API keys:
+## Research Foundation
 
-```bash
-cp config.yaml.template config.yaml
-cp .env.template .env
-```
+PartnerScope draws inspiration from academic research in partner selection:
 
-Edit `config.yaml` and `.env` to add your API keys:
-- **Crunchbase API**: https://www.crunchbase.com/
-- **Google Custom Search API**: https://developers.google.com/custom-search
-- **OpenAI API**: https://platform.openai.com/api-keys
+- **PartnerMAS** (arXiv:2509.24046): Multi-agent framework for partner evaluation
+- **Batch Processing**: Inspired by insights from Recursive Language Models (arXiv:2512.24601)
 
-### 3. Run the Pipeline
+We've adapted these approaches for practical startup use—prioritizing interactivity and human control over full automation.
 
-```python
-from src.pipeline import PartnerPipeline
+---
 
-config = {...}  # Load from config.yaml
-pipeline = PartnerPipeline(config)
+## Technical Specifications
 
-results = pipeline.run(
-    startup_name="TempTrack",
-    investment_stage="Seed",
-    product_stage="MVP",
-    partner_needs="Large logistics company for pilot testing temperature tracking stickers",
-    industry="Food Safety / Supply Chain",
-    max_results=20
-)
-```
+- **Backend:** Python 3.12+, FastAPI
+- **Frontend:** React 19, Tailwind CSS
+- **AI Models:** OpenAI GPT-4.1 series (configurable)
+- **Data Sources:** CSV/Database import, Real-time web search
+- **Output Formats:** JSON, Markdown, CSV
 
-## Usage
+---
 
-### Input Parameters
+## Team
 
-- **startup_name**: Name of the startup
-- **investment_stage**: Current funding stage (Seed, Series A, etc.)
-- **product_stage**: Development stage (MVP, Beta, Launched, etc.)
-- **partner_needs**: Description of what the startup is looking for in a partner
-- **industry**: Startup's industry (optional)
-- **description**: Brief description of the startup (optional)
+**Team 3 - Corundum Corp** | UTokyo GMSI Innovation Workshop
 
-### Output
-
-The pipeline generates:
-
-1. **Markdown Report** (`results/{startup_name}_{timestamp}.md`):
-   - Executive summary
-   - Ranked list of partners with scores
-   - Detailed rationales
-   - Contact information and social links
-   - Recommended next steps
-
-2. **JSON Data** (`results/{startup_name}_{timestamp}.json`):
-   - Structured data for programmatic access
-
-3. **Debug Files** (`work/` directory):
-   - Raw provider results
-   - Aggregated companies
-   - Intermediate processing data
-
-## Next Steps
-
-See the **What Needs To Be Done** section at the top for current development tasks.
-
-Key milestones:
-- **Dec 18, 2024** - Midterm Presentation (4 scenarios required)
-
-## Example Scenarios
-
-### Scenario 1: CoVital Node (AI/Robotics)
-```python
-# Doorway co-regulation robot for loneliness
-# Partner 1: Pilot population (housing/employers)
-provider.search_companies("dorm university co-living employer student housing wellness")
-
-# Partner 2: Validation (research institutions)
-provider.search_companies("research IRB ethics clinical psych HCI hospital lab")
-```
-
-### Scenario 2: StellarCore Mining (Space)
-```python
-# Asteroid resource-mapping AI
-# Partner 1: Data-source partners
-provider.search_companies("satellite spacecraft smallsat cubesat radar sensor aerospace")
-
-# Partner 2: Scientific validation
-provider.search_companies("planetary science research lab mineralogy geology asteroid")
-```
-
-## Notes
-
-- **API Costs**: Be mindful of API costs, especially for LLM calls. Consider batching and caching.
-- **Rate Limiting**: Implement rate limiting to avoid being blocked by data sources.
-- **Legal**: Respect Terms of Service for all data sources, especially when web scraping.
-- **Data Privacy**: Handle contact information responsibly and comply with data protection regulations.
-
-## License
-
-[Add your license here]
-
-## Contributing
-
-[Add contribution guidelines here]
+ 
