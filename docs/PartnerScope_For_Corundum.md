@@ -57,7 +57,7 @@ One of the most time-consuming parts of partner search is understanding what the
 | Option | How | When |
 |:-------|:----|:-----|
 | **Consultant-led** | Run the chat during client meeting | Standard workflow |
-| **Client self-service** | Send chat link to client before meeting | Client prepares in advance, meeting starts with structured brief already in hand |
+| **Client self-service** | Send chat link to client before meeting | Client arrives prepared, meeting starts with structured brief |
 
 The self-service option means clients can do the intake on their own time, and your first meeting starts with actionable requirements instead of discovery questions.
 
@@ -72,6 +72,25 @@ The self-service option means clients can do the intake on their own time, and y
 **3. Evaluate** — 20 candidates scored on market fit, technical synergy, strategic alignment (weights adjustable)
 
 **4. Refine** — Exclude candidates, adjust priorities, dig deeper—no re-searching needed
+
+---
+
+## For Consultants: Common Questions
+
+**"What if the AI misses something important?"**
+You review everything before it goes to the client. The AI generates candidates; you apply judgment. Think of it as a research assistant that works fast, not a replacement for your expertise.
+
+**"Can I customize it for different client types?"**
+Yes. Evaluation dimensions and weights are adjustable. A hardware startup looking for manufacturers gets different criteria than a SaaS company looking for channel partners.
+
+**"How do I explain this to clients?"**
+The methodology is transparent—clients see the evaluation criteria and scores. Many clients appreciate the structured approach; it shows rigor.
+
+**"What about confidentiality?"**
+Client information stays within the session. No client data is used to train AI models. Search queries go to external APIs but contain only the partner requirements, not sensitive client details.
+
+**"Will this make my work less valuable?"**
+The opposite. You spend less time on data gathering and more time on strategic advice, relationship building, and deal facilitation—where your expertise matters most.
 
 ---
 
