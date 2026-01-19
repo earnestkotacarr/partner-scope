@@ -133,24 +133,25 @@ class SearchUsageSummary:
 
 
 # =============================================================================
-# RLM-Style REPL Environment for Candidate Processing
+# Batch Processing with External State Management
 # =============================================================================
-# Inspired by arXiv:2512.24601 - Recursive Language Models
-# Key insight: Treat candidates as external environment variables,
-# process in batches via recursive sub-calls to avoid context rot.
+# Inspired by insights from arXiv:2512.24601 (Recursive Language Models)
+# Key insight: Don't stuff all candidates into one LLM context (causes "context rot")
+# Solution: Store candidates externally, process in small batches, aggregate programmatically
+# Note: This is iterative batch processing, not true recursive LLM calls.
 # =============================================================================
 
 class CandidateREPL:
     """
-    Simulated REPL environment for RLM-style candidate processing.
+    External state container for batch candidate processing.
 
     Instead of stuffing all candidates into one LLM context (causing "context rot"),
-    we store them externally and process in batches via recursive sub-calls.
+    we store them externally and process in iterative batches.
 
-    The LLM can:
-    - View a batch of candidates
-    - Score each candidate in the batch
-    - Results are aggregated programmatically
+    This is NOT true RLM (recursive self-calls), but applies the same insight:
+    - Store state externally (not in LLM context)
+    - Process in small batches
+    - Aggregate results programmatically
     """
 
     def __init__(self, candidates: List[Dict]):
@@ -556,11 +557,12 @@ Format as numbered list."""
         return self._parse_companies(response.output_text)
 
     # =========================================================================
-    # === TUNABLE: Phase 4 - RLM-Style Intelligent Filtering & Ranking ===
+    # === TUNABLE: Phase 4 - Batch Filtering & Ranking ===
     # =========================================================================
-    # Inspired by arXiv:2512.24601 - Recursive Language Models
+    # Inspired by arXiv:2512.24601 (Recursive Language Models)
     # Instead of one big context (causes "context rot"), process in batches
-    # via recursive sub-calls, aggregating scores programmatically.
+    # with external state, aggregating scores programmatically.
+    # Note: This is iterative batch processing, not true recursive calls.
     # =========================================================================
 
     def _score_candidate_batch(
@@ -616,7 +618,7 @@ Output format (one per line, no extra text):
 
         usage = TokenUsage(
             model=self.model,
-            operation=f"RLM batch {batch_start_idx//8 + 1}",
+            operation=f"Batch {batch_start_idx//8 + 1}",
             input_tokens=getattr(response.usage, 'input_tokens', 0) if response.usage else 0,
             output_tokens=getattr(response.usage, 'output_tokens', 0) if response.usage else 0,
             web_search_calls=0
@@ -660,14 +662,15 @@ Output format (one per line, no extra text):
         top_k: int = 15
     ) -> List[Dict]:
         """
-        RLM-Style Deep Validation using recursive sub-calls.
+        Batch filtering with external state management.
 
-        Key insight from arXiv:2512.24601:
+        Inspired by arXiv:2512.24601 (Recursive Language Models):
         - Don't stuff all candidates into one LLM context (causes "context rot")
-        - Store candidates externally in REPL environment
-        - Process in small batches via recursive sub-calls
+        - Store candidates externally
+        - Process in small iterative batches
         - Aggregate scores programmatically
 
+        Note: This is iterative batch processing, not true recursive LLM calls.
         This approach handles 50+ candidates without quality degradation.
         """
         if len(candidates) <= top_k:
@@ -676,11 +679,11 @@ Output format (one per line, no extra text):
         # Initialize REPL environment with all candidates
         repl = CandidateREPL(candidates)
 
-        # RLM batch size - small enough to avoid context rot
+        # Batch size - small enough to avoid context rot
         # Optimal: 8 candidates per batch (fits in ~2K tokens)
         BATCH_SIZE = 8
 
-        print(f"    [RLM] Processing {len(candidates)} candidates in batches of {BATCH_SIZE}")
+        print(f"    [Batch] Processing {len(candidates)} candidates in batches of {BATCH_SIZE}")
 
         # Recursive sub-calls: process each batch
         num_batches = (len(candidates) + BATCH_SIZE - 1) // BATCH_SIZE
@@ -692,7 +695,7 @@ Output format (one per line, no extra text):
             if not batch:
                 continue
 
-            print(f"    [RLM] Batch {batch_num + 1}/{num_batches}: candidates {start_idx + 1}-{start_idx + len(batch)}")
+            print(f"    [Batch] Batch {batch_num + 1}/{num_batches}: candidates {start_idx + 1}-{start_idx + len(batch)}")
 
             # Sub-call: score this batch
             batch_scores = self._score_candidate_batch(
@@ -705,12 +708,12 @@ Output format (one per line, no extra text):
         # Aggregate: get top-k by score
         result = repl.get_top_k(top_k)
 
-        print(f"    [RLM] Complete. Top score: {result[0].get('validation_score', 0) if result else 'N/A'}")
+        print(f"    [Batch] Complete. Top score: {result[0].get('validation_score', 0) if result else 'N/A'}")
 
         return result
 
     # =========================================================================
-    # === TUNABLE: Phase 2 - Enrichment ===
+    # === TUNABLE: Phase 5 - Enrichment ===
     # =========================================================================
     def _needs_enrichment(self, company: Dict) -> bool:
         """Check if company needs detail enrichment."""
@@ -848,20 +851,18 @@ Format:
     # =========================================================================
     def search_companies(self, query: str, filters: Dict[str, Any] = None) -> List[Dict]:
         """
-        V2 Search - Experimental sandbox for optimization.
+        V2 Search - 5-Phase Deep Research Architecture.
 
         Current architecture:
-        - Phase 1: Initial Discovery (4 queries)
-        - Phase 2: Strategic Reflection (3 queries)
-        - Phase 2: Selective Enrichment
+        - Phase 1: Initial Discovery (4 queries × 6 companies = ~24 candidates)
+        - Phase 2: Strategic Reflection (3 creative queries = ~18 candidates)
+        - Phase 3: Need Decomposition (3-4 sub-needs × 4 companies = ~16 candidates)
+        - Phase 4: Batch Filtering (iterative batch scoring, top-k selection)
+        - Phase 5: Selective Enrichment (fill missing data for up to 10 companies)
 
-        Feel free to add/remove/modify phases!
-
-        EXPERIMENT IDEAS:
-        - Add Phase 3: "Re-validate against original needs"
-        - Add Phase 4: "Cross-reference with success patterns"
-        - Try parallel query execution
-        - Try iterative refinement (search → critique → search again)
+        References:
+        - Batch processing: arXiv:2512.24601
+        - PartnerMAS evaluation: arXiv:2509.24046
         """
         self._current_search_usage = SearchUsageSummary(model=self.model)
 
@@ -961,14 +962,14 @@ Format:
         print(f"\n  [Phase 3 Complete] Added {phase3_new} companies")
 
         # =====================================================================
-        # PHASE 4: RLM-Style Intelligent Filtering & Ranking
+        # PHASE 4: Batch Filtering & Ranking
         # =====================================================================
-        # Inspired by arXiv:2512.24601 - Recursive Language Models
-        # Process candidates in batches to avoid "context rot"
+        # Inspired by arXiv:2512.24601 - process in batches to avoid "context rot"
+        # Note: Iterative batch processing, not true recursive LLM calls
         # =====================================================================
-        print(f"\n[Phase 4] RLM-Style Filtering & Ranking")
+        print(f"\n[Phase 4] Batch Filtering & Ranking")
         print(f"-" * 40)
-        print(f"  {len(all_companies)} candidates → recursive batch evaluation")
+        print(f"  {len(all_companies)} candidates → iterative batch evaluation")
 
         if len(all_companies) > max_results:
             all_companies = self._validate_and_rank_candidates(

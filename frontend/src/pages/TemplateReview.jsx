@@ -61,8 +61,13 @@ function TemplateReview() {
     industry: '',
     investment_stage: 'Seed',
     product_stage: 'MVP',
+    partner_type: 'strategic',
     partner_needs: '',
     keywords: [],
+    minimum_requirements: [],
+    success_criteria: [],
+    red_flags: [],
+    information_to_collect: [],
     use_csv: true,
     use_web_search: true
   })
@@ -117,8 +122,13 @@ function TemplateReview() {
         industry: scenario.industry || '',
         investment_stage: scenario.investment_stage || 'Seed',
         product_stage: scenario.product_stage || 'MVP',
+        partner_type: scenario.partner_type || 'strategic',
         partner_needs: scenario.partner_needs || '',
         keywords: scenario.keywords || [],
+        minimum_requirements: scenario.minimum_requirements || [],
+        success_criteria: scenario.success_criteria || [],
+        red_flags: scenario.red_flags || [],
+        information_to_collect: scenario.information_to_collect || [],
         use_csv: scenario.use_csv !== undefined ? scenario.use_csv : true,
         use_web_search: scenario.use_web_search !== undefined ? scenario.use_web_search : true
       })
@@ -291,6 +301,26 @@ function TemplateReview() {
             </div>
           </div>
 
+          {/* Partner Type */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Partner Type
+            </label>
+            <select
+              name="partner_type"
+              value={formData.partner_type}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+            >
+              <option value="pilot_population">Pilot Population (users/participants to test with)</option>
+              <option value="validation">Validation (research credibility, clinical evidence)</option>
+              <option value="distribution">Distribution (sales channels, market access)</option>
+              <option value="technology">Technology (integration, complementary tech)</option>
+              <option value="manufacturing">Manufacturing (production capacity)</option>
+              <option value="strategic">Strategic (credibility, investment, enterprise access)</option>
+            </select>
+          </div>
+
           {/* Partner Needs */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -305,6 +335,85 @@ function TemplateReview() {
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
             />
           </div>
+
+          {/* Advanced: Requirements, Success Criteria, Red Flags */}
+          {(formData.minimum_requirements?.length > 0 ||
+            formData.success_criteria?.length > 0 ||
+            formData.red_flags?.length > 0 ||
+            formData.information_to_collect?.length > 0) && (
+            <div className="border-t border-slate-200 pt-4">
+              <h3 className="text-sm font-medium text-slate-700 mb-3">Discovery Insights</h3>
+              <div className="space-y-4">
+                {/* Minimum Requirements */}
+                {formData.minimum_requirements?.length > 0 && (
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <label className="block text-xs font-semibold text-blue-800 mb-2 uppercase tracking-wide">
+                      Must-Have Requirements
+                    </label>
+                    <ul className="space-y-1">
+                      {formData.minimum_requirements.map((req, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-blue-900">
+                          <span className="text-blue-500 mt-0.5">✓</span>
+                          <span>{req}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Success Criteria */}
+                {formData.success_criteria?.length > 0 && (
+                  <div className="bg-green-50 rounded-lg p-3">
+                    <label className="block text-xs font-semibold text-green-800 mb-2 uppercase tracking-wide">
+                      Success Criteria
+                    </label>
+                    <ul className="space-y-1">
+                      {formData.success_criteria.map((crit, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-green-900">
+                          <span className="text-green-500 mt-0.5">◎</span>
+                          <span>{crit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Red Flags */}
+                {formData.red_flags?.length > 0 && (
+                  <div className="bg-red-50 rounded-lg p-3">
+                    <label className="block text-xs font-semibold text-red-800 mb-2 uppercase tracking-wide">
+                      Red Flags to Avoid
+                    </label>
+                    <ul className="space-y-1">
+                      {formData.red_flags.map((flag, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-red-900">
+                          <span className="text-red-500 mt-0.5">⚠</span>
+                          <span>{flag}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Information to Collect */}
+                {formData.information_to_collect?.length > 0 && (
+                  <div className="bg-amber-50 rounded-lg p-3">
+                    <label className="block text-xs font-semibold text-amber-800 mb-2 uppercase tracking-wide">
+                      Info to Collect from Partners
+                    </label>
+                    <ul className="space-y-1">
+                      {formData.information_to_collect.map((info, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-amber-900">
+                          <span className="text-amber-500 mt-0.5">?</span>
+                          <span>{info}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Data Sources */}
           <div className="border-t border-slate-200 pt-4">

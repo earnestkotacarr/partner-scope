@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>PartnerScope V2 Search Method</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">PartnerScope V2 Search Method</h1>
+</header>
+<h1 id="partnerscope-v2-deep-research-partner-search">PartnerScope V2:
+Deep Research Partner Search</h1>
+<p><strong>A 5-Phase Intelligent Search Architecture for Strategic
+Partner Discovery</strong></p>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>PartnerScope V2 employs a multi-phase deep research methodology to
+identify high-quality strategic partners for startups. Unlike simple
+keyword searches, our approach combines iterative query refinement, need
+decomposition, and an innovative batch-scoring system inspired by
+Recursive Language Models (arXiv:2512.24601).</p>
+<p><strong>Key Metrics:</strong> - Top-8 Average Score:
+<strong>88.2/100</strong> - Cost per search: <strong>$0.80-1.50</strong>
+- Candidates evaluated: <strong>50-60 per search</strong> - Final
+output: <strong>20 ranked partners</strong></p>
+<hr />
+<h2 id="data-sources">Data Sources</h2>
+<p>PartnerScope supports two complementary data sources that can be used
+independently or combined:</p>
+<h3 id="databasecsv-source-simulated-crunchbase">1. Database/CSV Source
+(Simulated Crunchbase)</h3>
+<p><strong>Purpose:</strong> Leverage structured company databases for
+high-quality, pre-vetted candidates.</p>
+<p><strong>How it works:</strong> - Pre-curated CSV files exported from
+Crunchbase or similar databases - Keyword-based matching maps user
+queries to relevant CSV files - Provides structured data: company name,
+description, industry, location, CB Rank</p>
+<p><strong>Use case:</strong> When you have access to premium databases
+(Crunchbase, PitchBook, CB Insights) and want to search their curated
+company data.</p>
+<p><strong>Configuration:</strong></p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keyword mappings connect queries to CSV files</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>mappings <span class="op">=</span> {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;pilot&#39;</span>: {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;keywords&#39;</span>: [<span class="st">&#39;housing&#39;</span>, <span class="st">&#39;university&#39;</span>, <span class="st">&#39;wellness&#39;</span>, <span class="st">&#39;student&#39;</span>],</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;csv_path&#39;</span>: <span class="st">&#39;test_data/csv/pilot-partners.csv&#39;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;validation&#39;</span>: {</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;keywords&#39;</span>: [<span class="st">&#39;research&#39;</span>, <span class="st">&#39;clinical&#39;</span>, <span class="st">&#39;hospital&#39;</span>, <span class="st">&#39;academic&#39;</span>],</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;csv_path&#39;</span>: <span class="st">&#39;test_data/csv/validation-partners.csv&#39;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><strong>Advantages:</strong> - Fast lookups (no API calls) - High
+data quality from curated sources - No per-query costs - Consistent,
+structured output</p>
+<p><strong>Limitations:</strong> - Requires manual CSV
+preparation/export - Data freshness depends on export frequency -
+Limited to companies in your database</p>
+<hr />
+<h3 id="ai-web-search-source">2. AI Web Search Source</h3>
+<p><strong>Purpose:</strong> Real-time discovery of partners across the
+entire web using LLM-powered search.</p>
+<p><strong>How it works:</strong> - OpenAI’s web search tool performs
+live internet searches - LLM interprets results and extracts structured
+company data - 5-phase deep research methodology (detailed below)</p>
+<p><strong>Use case:</strong> When you need comprehensive discovery
+beyond your database, or don’t have access to premium data sources.</p>
+<p><strong>Advantages:</strong> - Real-time, up-to-date information -
+Discovers companies not in databases - No data preparation required -
+Finds non-obvious partners through reflection</p>
+<p><strong>Limitations:</strong> - Per-query API costs ($0.80-1.50) -
+Slower than database lookups - May require enrichment for missing
+fields</p>
+<hr />
+<h3 id="hybrid-mode-recommended">Hybrid Mode (Recommended)</h3>
+<p><strong>Best practice:</strong> Enable both sources for maximum
+coverage.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 29%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Source</th>
+<th>Finds</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CSV/Database</td>
+<td>Known players, established companies</td>
+<td>Fortune 500 healthcare distributors</td>
+</tr>
+<tr>
+<td>Web Search</td>
+<td>Emerging players, niche specialists</td>
+<td>New hospital networks, regional GPOs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Combined Output:</strong> - Database candidates provide
+reliable baseline - Web search adds discovery of non-obvious partners -
+Phase 4 (RLM Filtering) ranks ALL candidates together - Best partners
+surface regardless of source</p>
+<hr />
+<h2 id="the-5-phase-architecture">The 5-Phase Architecture</h2>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 20%" />
+<col style="width: 30%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Phase</th>
+<th>Name</th>
+<th>Process</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>INPUT</strong></td>
+<td>User Need</td>
+<td><em>“Distribution partners with hospital networks”</em></td>
+<td>Search request</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>1</strong></td>
+<td><strong>Initial Discovery</strong></td>
+<td>Generate 4 search queries from different angles. Execute web
+searches (6 companies per query). Capture obvious/direct matches.</td>
+<td>~24 candidates</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>2</strong></td>
+<td><strong>Strategic Reflection</strong></td>
+<td>Analyze gaps in Phase 1 results. Identify overlooked industries
+&amp; partner types. Generate 3 “creative” queries for non-obvious
+fits.</td>
+<td>+18 candidates</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>3</strong></td>
+<td><strong>Need Decomposition</strong></td>
+<td>Decompose partner need into 3-4 specific sub-needs. Run targeted
+search for EACH sub-need. Ensure comprehensive coverage.</td>
+<td>+16 candidates</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>4</strong></td>
+<td><strong>Batch Filtering</strong></td>
+<td>Process candidates in batches of 8 (avoids context rot). Score each
+1-10 on partnership fit. Aggregate scores programmatically.</td>
+<td>Top 20 ranked</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>5</strong></td>
+<td><strong>Enrichment</strong></td>
+<td>Identify candidates with missing data. Web search to fill gaps.
+Ensure clean, complete output.</td>
+<td>20 final partners</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pipeline Flow:</strong></p>
+<blockquote>
+<p><strong>User Input</strong> → Phase 1 (Discovery) → Phase 2
+(Reflection) → Phase 3 (Decomposition) → Phase 4 (Filtering) → Phase 5
+(Enrichment) → <strong>20 Ranked Partners</strong></p>
+</blockquote>
+<hr />
+<h2 id="phase-details">Phase Details</h2>
+<h3 id="phase-1-initial-discovery">Phase 1: Initial Discovery</h3>
+<p><strong>Objective:</strong> Cast a wide net to capture obvious
+partnership candidates.</p>
+<p><strong>Process:</strong> 1. Generate 4 distinct search queries based
+on: - Startup profile (name, industry, stage) - Stated partnership needs
+- Keywords and context</p>
+<ol start="2" type="1">
+<li><p>Execute each query via OpenAI’s web search tool</p></li>
+<li><p>For each company found, extract:</p>
+<ul>
+<li>Company name &amp; website</li>
+<li>Industry/sector</li>
+<li>Location &amp; size</li>
+<li>Description</li>
+<li>Needs satisfied (tags)</li>
+<li>Partnership fit rationale</li>
+</ul></li>
+</ol>
+<p><strong>Query Generation Rules:</strong> - Keep queries short (5-10
+words) - Use natural language (no boolean operators) - Each query takes
+a different angle</p>
+<p><strong>Example:</strong></p>
+<pre><code>Input: &quot;Distribution partners with hospital networks&quot;
+
+Generated Queries:
+1. &quot;hospital distribution partners healthcare startups&quot;
+2. &quot;medical device distributors US market&quot;
+3. &quot;healthcare supply chain companies partnerships&quot;
+4. &quot;hospital network vendor programs&quot;</code></pre>
+<hr />
+<h3 id="phase-2-strategic-reflection">Phase 2: Strategic Reflection</h3>
+<p><strong>Objective:</strong> Identify gaps and find non-obvious
+partners.</p>
+<p><strong>Process:</strong> 1. Analyze companies found in Phase 1 2.
+Identify patterns and gaps: - Which industries are over-represented? -
+What partner types are missing? - What adjacent markets weren’t
+explored?</p>
+<ol start="3" type="1">
+<li>Generate 3 “creative” queries targeting gaps</li>
+</ol>
+<p><strong>Reflection Framework:</strong> - What’s the REAL underlying
+problem? - What types of partners did we NOT search for? - What
+unconventional partners could help?</p>
+<p><strong>Example Output:</strong></p>
+<pre><code>Gap Analysis:
+&quot;Companies found are mostly large national distributors.
+Missing: Regional hospital networks, GPO buying groups,
+specialty clinic chains, healthcare IT integrators&quot;
+
+Creative Queries:
+1. &quot;group purchasing organizations healthcare startups&quot;
+2. &quot;regional hospital systems vendor partnerships&quot;
+3. &quot;healthcare IT companies distribution partnerships&quot;</code></pre>
+<hr />
+<h3 id="phase-3-need-decomposition-targeted-search">Phase 3: Need
+Decomposition &amp; Targeted Search</h3>
+<p><strong>Objective:</strong> Ensure comprehensive coverage by
+addressing each need individually.</p>
+<p><strong>Process:</strong> 1. Decompose the partner need into 3-4
+specific, non-overlapping sub-needs</p>
+<ol start="2" type="1">
+<li>For each sub-need:
+<ul>
+<li>Generate targeted search query</li>
+<li>Find companies that SPECIALIZE in that specific area</li>
+<li>Tag results with the sub-need they address</li>
+</ul></li>
+</ol>
+<p><strong>Example:</strong></p>
+<pre><code>Original Need: &quot;Distribution partners with hospital networks&quot;
+
+Decomposed Sub-Needs:
+1. Medical device distribution and logistics
+2. Hospital group purchasing organization relationships
+3. Healthcare supply chain management
+4. Clinical trial site network access
+
+Each sub-need gets its own targeted search.</code></pre>
+<hr />
+<h3 id="phase-4-batch-filtering-ranking">Phase 4: Batch Filtering &amp;
+Ranking</h3>
+<p><strong>Objective:</strong> Intelligently filter and rank candidates
+without quality degradation.</p>
+<p><strong>The Problem:</strong> Evaluating 50+ candidates in a single
+LLM context causes “context rot” - the model’s attention degrades for
+items in the middle of long lists, leading to inconsistent scoring.</p>
+<p><strong>The Solution:</strong> Inspired by insights from Recursive
+Language Models (arXiv:2512.24601), we use <strong>batch processing with
+external state management</strong> to evaluate candidates in small
+groups, avoiding quality degradation from long contexts.</p>
+<p>Note: This is not true RLM (which involves recursive self-calls). We
+apply the core insight—“don’t stuff everything in one context”—through
+iterative batch processing.</p>
+<p><strong>Process:</strong> 1. Store all candidates in external state
+(not in LLM context) 2. Process in batches of 8 candidates 3. For each
+batch: - Present candidates to LLM - Score each 1-10 on partnership fit
+- Store scores externally (outside LLM) 4. Aggregate all scores
+programmatically 5. Return top-K by score</p>
+<p><strong>Scoring Criteria:</strong> | Score | Meaning | |——-|———| |
+9-10 | DIRECTLY addresses multiple stated needs | | 7-8 | Addresses at
+least one stated need well | | 5-6 | Tangentially related but not clear
+fit | | 1-4 | Does NOT address the specific needs |</p>
+<p><strong>Why Batch Size 8?</strong> - Small enough to avoid context
+rot (~2K tokens) - Large enough for efficient processing - Empirically
+validated for consistent scoring</p>
+<hr />
+<h3 id="phase-5-selective-enrichment">Phase 5: Selective Enrichment</h3>
+<p><strong>Objective:</strong> Ensure all output data is complete and
+accurate.</p>
+<p><strong>Process:</strong> 1. Identify candidates missing: - Valid
+website URL - Adequate description (&gt;30 chars)</p>
+<ol start="2" type="1">
+<li>For each incomplete candidate (up to 10):
+<ul>
+<li>Execute targeted web search</li>
+<li>Extract missing fields</li>
+<li>Update candidate record</li>
+</ul></li>
+<li>Mark candidates as enriched</li>
+</ol>
+<hr />
+<h2 id="technical-implementation">Technical Implementation</h2>
+<h3 id="model-configuration">Model Configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Model</th>
+<th>Cost/1M tokens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Query Generation</td>
+<td>gpt-4.1</td>
+<td>$2.00 / $8.00</td>
+</tr>
+<tr>
+<td>Web Search</td>
+<td>gpt-4.1 + web</td>
+<td>$2.00 / $8.00 + $0.01/call</td>
+</tr>
+<tr>
+<td>Reflection</td>
+<td>gpt-4.1</td>
+<td>$2.00 / $8.00</td>
+</tr>
+<tr>
+<td>Batch Scoring</td>
+<td>gpt-4.1</td>
+<td>$2.00 / $8.00</td>
+</tr>
+<tr>
+<td>Enrichment</td>
+<td>gpt-4.1 + web</td>
+<td>$2.00 / $8.00 + $0.01/call</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cost-breakdown-typical-search">Cost Breakdown (Typical
+Search)</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>API Calls</th>
+<th>Est. Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 1</td>
+<td>5 (1 query gen + 4 search)</td>
+<td>$0.25</td>
+</tr>
+<tr>
+<td>Phase 2</td>
+<td>4 (1 reflection + 3 search)</td>
+<td>$0.20</td>
+</tr>
+<tr>
+<td>Phase 3</td>
+<td>5 (1 decompose + 4 search)</td>
+<td>$0.25</td>
+</tr>
+<tr>
+<td>Phase 4</td>
+<td>7 batches</td>
+<td>$0.15</td>
+</tr>
+<tr>
+<td>Phase 5</td>
+<td>Up to 10 enrichments</td>
+<td>$0.15</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>~25 calls</strong></td>
+<td><strong>$0.80-1.50</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="output-format">Output Format</h2>
+<p>Each candidate includes:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Company Name&quot;</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;website&quot;</span><span class="fu">:</span> <span class="st">&quot;https://company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;industry&quot;</span><span class="fu">:</span> <span class="st">&quot;Healthcare Technology&quot;</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;location&quot;</span><span class="fu">:</span> <span class="st">&quot;San Francisco, CA&quot;</span><span class="fu">,</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;size&quot;</span><span class="fu">:</span> <span class="st">&quot;500-1000 employees&quot;</span><span class="fu">,</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;Brief description of the company...&quot;</span><span class="fu">,</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;needs_satisfied&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;distribution&quot;</span><span class="ot">,</span> <span class="st">&quot;hospital networks&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;how_it_helps&quot;</span><span class="fu">:</span> <span class="st">&quot;Why this company is a good partnership fit&quot;</span><span class="fu">,</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;discovery_phase&quot;</span><span class="fu">:</span> <span class="st">&quot;phase1&quot;</span><span class="fu">,</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;validation_score&quot;</span><span class="fu">:</span> <span class="dv">8</span><span class="fu">,</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;validation_reasoning&quot;</span><span class="fu">:</span> <span class="st">&quot;Strong hospital network relationships...&quot;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<hr />
+<h2 id="performance-benchmarks">Performance Benchmarks</h2>
+<h3 id="evaluation-methodology">Evaluation Methodology</h3>
+<p>Partners are evaluated using the PartnerMAS framework across 6
+dimensions: - Strategic Alignment - Resource Complementarity - Market
+Access - Operational Compatibility - Risk Assessment - Value Creation
+Potential</p>
+<h3 id="results">Results</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>V2 Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Top-8 Average</td>
+<td>88.2</td>
+</tr>
+<tr>
+<td>Overall Average</td>
+<td>78.5</td>
+</tr>
+<tr>
+<td>Score Std Dev</td>
+<td>8.3</td>
+</tr>
+<tr>
+<td>Min Score</td>
+<td>62</td>
+</tr>
+<tr>
+<td>Max Score</td>
+<td>96</td>
+</tr>
+</tbody>
+</table>
+<h3 id="comparison-with-external-tools">Comparison with External
+Tools</h3>
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 44%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Top-8 Avg</th>
+<th>Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PartnerScope V2</strong></td>
+<td><strong>88.2</strong></td>
+<td>5-phase deep research + batch filtering</td>
+</tr>
+<tr>
+<td>Gemini Deep Research</td>
+<td>82.6</td>
+<td>Single-pass research</td>
+</tr>
+<tr>
+<td>OpenAI Deep Research</td>
+<td>79.4</td>
+<td>Single-pass research</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="key-innovations">Key Innovations</h2>
+<h3 id="multi-phase-query-refinement">1. Multi-Phase Query
+Refinement</h3>
+<p>Unlike single-query searches, we iterate through discovery →
+reflection → targeted phases to find both obvious and non-obvious
+partners.</p>
+<h3 id="need-decomposition">2. Need Decomposition</h3>
+<p>Breaking complex needs into specific sub-needs ensures comprehensive
+coverage and prevents blind spots.</p>
+<h3 id="batch-processing-with-external-state">3. Batch Processing with
+External State</h3>
+<p>Inspired by RLM insights (arXiv:2512.24601), we process candidates in
+small batches with external state management. This preserves evaluation
+quality across large candidate sets, avoiding the “context rot” problem
+in long-context LLM evaluations. (Note: This is iterative batch
+processing, not true recursive LLM calls.)</p>
+<h3 id="programmatic-score-aggregation">4. Programmatic Score
+Aggregation</h3>
+<p>Scores are stored externally and aggregated programmatically,
+enabling consistent ranking across any number of candidates.</p>
+<hr />
+<h2 id="references">References</h2>
+<ol type="1">
+<li>“Recursive Language Models.” arXiv:2512.24601, 2025.
+https://arxiv.org/abs/2512.24601</li>
+<li>“PartnerMAS: An LLM Hierarchical Multi-Agent Framework for Business
+Partner Selection on High-Dimensional Features.” arXiv:2509.24046v1,
+2025. https://arxiv.org/abs/2509.24046</li>
+<li>OpenAI. “GPT-4.1 Technical Report.” 2025.</li>
+</ol>
+<hr />
+<p><em>Document Version: 2.0</em> <em>Last Updated: January 2026</em>
+<em>PartnerScope by UTokyo Research</em></p>
+</body>
+</html>

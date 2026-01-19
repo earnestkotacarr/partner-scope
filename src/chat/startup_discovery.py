@@ -124,16 +124,38 @@ class StartupDiscoveryAssistant:
 
 {
     "startup_name": "Name of the startup (or 'Unknown' if not mentioned)",
-    "description": "Brief description of what they're building",
+    "description": "Brief description of what they're building - include the core technology/innovation",
     "industry": "Primary industry/sector",
     "investment_stage": "One of: Pre-Seed, Seed, Series A, Series B, Series C+, or Unknown",
     "product_stage": "One of: Concept, MVP, Beta, Launched",
+    "partner_type": "Primary type: pilot_population, validation, distribution, technology, manufacturing, or strategic",
     "partner_needs": "Description of the types of partners they need (combine all discussed needs)",
-    "keywords": ["list", "of", "search", "keywords", "for", "finding", "partners"]
+    "keywords": ["list", "of", "search", "keywords", "for", "finding", "partners"],
+    "minimum_requirements": [
+        "List of non-negotiable requirements partners must have",
+        "e.g., 'Can recruit 100-300 participants', 'Has internal wellness program'"
+    ],
+    "success_criteria": [
+        "List of measurable outcomes that define success",
+        "e.g., '20% reduction in loneliness score', '60% user retention at week 8'"
+    ],
+    "red_flags": [
+        "List of warning signs that would make a partner NOT a good fit",
+        "e.g., 'No single owner/champion', 'Unclear approval timeline'"
+    ],
+    "information_to_collect": [
+        "List of information to gather from potential partners during outreach",
+        "e.g., 'Monthly utilization rates', 'Existing tools in use', 'Budget range'"
+    ]
 }
 
-Be thorough in the partner_needs field - include all types of partners discussed.
-Generate relevant keywords based on the conversation for searching.
+**Instructions:**
+- Be thorough in the partner_needs field - include all types of partners discussed
+- Generate relevant keywords based on the conversation for searching
+- For arrays (minimum_requirements, success_criteria, red_flags, information_to_collect):
+  - Extract specific items mentioned in the conversation
+  - If not discussed, provide an empty array []
+  - Don't make up generic items - only include what was actually discussed
 
 Respond ONLY with the JSON object, no other text."""
 
@@ -181,8 +203,13 @@ Respond ONLY with the JSON object, no other text."""
                     "industry": "",
                     "investment_stage": "Seed",
                     "product_stage": "MVP",
+                    "partner_type": "strategic",
                     "partner_needs": "Partner companies for collaboration",
-                    "keywords": ["partner", "collaboration"]
+                    "keywords": ["partner", "collaboration"],
+                    "minimum_requirements": [],
+                    "success_criteria": [],
+                    "red_flags": [],
+                    "information_to_collect": []
                 }
 
         # Add cost to template response
