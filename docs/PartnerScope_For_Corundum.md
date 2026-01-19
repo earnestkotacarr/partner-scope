@@ -20,7 +20,7 @@ But partner discovery remains a bottleneck:
 | Hourly cost | ¥10,000 |
 | **Total cost** | **¥1,500,000** |
 
-This is searching databases, reviewing websites, evaluating fit, iterating on feedback—valuable work, but time-intensive.
+This is searching databases, reviewing websites, evaluating fit based on experience and gut feel, iterating on client feedback, and often re-doing work when priorities shift—valuable work, but time-intensive and hard to scale.
 
 ---
 
@@ -30,7 +30,7 @@ This is searching databases, reviewing websites, evaluating fit, iterating on fe
 |:------|:------|:------------------|
 | Requirements gathering | Manual interviews, note-taking | AI-guided conversation (10 min) |
 | Partner research | Database + web searches | Multi-source AI search (5 min) |
-| Candidate evaluation | Spreadsheets, manual scoring | Multi-dimensional ranking (10 min) |
+| Candidate evaluation | Spreadsheets, gut feel | Structured multi-dimensional scoring (10 min) |
 | Refinement cycles | Re-do research | Instant re-ranking (2 min) |
 | **Total** | **100-200 hours** | **Under 1 hour** |
 
@@ -77,14 +77,14 @@ The self-service option means clients can do the intake on their own time, and y
 
 ## Quality Control
 
-Your expertise stays central:
+Your expertise stays central—but now it's applied to curated candidates instead of raw research:
 
 - **Review** requirements before searching
 - **Customize** evaluation criteria and weights
 - **Compare** against other tools (Gemini, OpenAI Deep Research)
-- **Refine** based on your judgment
+- **Refine** based on your judgment and industry knowledge
 
-PartnerScope handles the searching; you handle the relationships and strategy.
+The gut feel doesn't go away—it gets applied where it matters most: evaluating fit, not gathering data.
 
 ---
 
