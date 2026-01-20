@@ -278,6 +278,4 @@ We've adapted these approaches for practical startup use—prioritizing interact
 
 ---
 
-*PartnerScope — From months of research to minutes of conversation.*
-
-*UTokyo Research, 2026*
+*PartnerScope — From months of research to minutes of conversation.* | *UTokyo Research, 2026*
