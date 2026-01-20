@@ -6,15 +6,13 @@
 
 ## The Bottleneck
 
-Corundum Corp. has spent a decade building expertise in open innovation and venture building. But partner discovery remains a bottleneck:
-
 > *"Corundum Corp. has a customer (e.g. startup) with a business idea, and needs to assist them with finding business partners such as investors, technology providers, or manufacturers. How can they do this in the best way?"*
 
-Searching databases, reviewing websites, evaluating fit based on experience and gut feel, and often re-doing work when priorities shift.
+Corundum Corp. has spent a decade building expertise in open innovation and venture building. But partner discovery remains a bottleneck—searching databases, reviewing websites, evaluating fit based on experience and gut feel, and often re-doing work when priorities shift.
 
 **Current baseline:** 100-200 hours per customer (avg: 150) at ¥10,000/hour = **¥1,500,000**
 
-**With PartnerScope:** Under 1 hour consultant time + **$1-2 API costs**
+**With PartnerScope:** Under 1 hour consultant time + **¥150-300 API costs**
 
 ---
 
