@@ -12,7 +12,7 @@ Corundum Corp. has spent a decade building expertise in open innovation and vent
 
 ---
 
-## The Workflow
+## The PartnerScope Workflow
 
 | Stage | Today | With PartnerScope |
 |:------|:------|:------------------|
