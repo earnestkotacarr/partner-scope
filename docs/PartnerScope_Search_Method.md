@@ -326,33 +326,14 @@ Each candidate includes:
 
 ## Performance Benchmarks
 
-### Evaluation Methodology
+Partners are evaluated using the PartnerMAS framework across 6 dimensions: Strategic Alignment, Resource Complementarity, Market Access, Operational Compatibility, Risk Assessment, and Value Creation Potential.
 
-Partners are evaluated using the PartnerMAS framework across 6 dimensions:
-- Strategic Alignment
-- Resource Complementarity
-- Market Access
-- Operational Compatibility
-- Risk Assessment
-- Value Creation Potential
-
-### Results
-
-| Metric | Score |
-|--------|-------|
-| Top-8 Average | 88.2 |
-| Overall Average | 78.5 |
-| Score Std Dev | 8.3 |
-| Min Score | 62 |
-| Max Score | 96 |
-
-### Comparison with External Tools
-
-| Tool | Top-8 Avg | Method |
-|------|-----------|--------|
-| **PartnerScope** | **88.2** | 5-phase deep research + batch filtering |
-| Gemini Deep Research | 82.6 | Single-pass research |
-| OpenAI Deep Research | 79.4 | Single-pass research |
+| Metric | PartnerScope | Gemini Deep Research | OpenAI Deep Research |
+|--------|:------------:|:--------------------:|:--------------------:|
+| **Top-8 Average** | **88.2** | 82.6 | 79.4 |
+| Overall Average | 78.5 | — | — |
+| Score Range | 62–96 | — | — |
+| Method | 5-phase + batch filtering | Single-pass | Single-pass |
 
 ---
 
