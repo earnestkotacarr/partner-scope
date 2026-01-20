@@ -341,7 +341,7 @@ Each candidate includes:
 
 ## Performance Benchmarks
 
-Partners are evaluated using PartnerScope's dynamic evaluation framework, informed by the PartnerMAS methodology. The framework adapts criteria and weights based on startup context and partnership needs.
+Evaluated using PartnerScope's dynamic framework (informed by PartnerMAS methodology):
 
 | Metric | PartnerScope | Gemini Deep Research | OpenAI Deep Research |
 |--------|:------------:|:--------------------:|:--------------------:|
