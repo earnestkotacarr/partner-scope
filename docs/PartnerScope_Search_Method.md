@@ -352,28 +352,21 @@ Partners are evaluated using PartnerScope's dynamic evaluation framework, inform
 
 ---
 
-## Refinement: Iterate Without Re-Searching
+## Refinement: Iterate as You Learn
 
-After evaluation, consultants can refine results instantly—no need to run another expensive search.
+As results come in, specifications can be narrowed down and gaps filled through additional research.
 
-**What you can adjust:**
+**What you can do:**
 
 | Action | How It Works |
 |--------|--------------|
-| **Adjust weights** | Increase importance of market access, decrease strategic alignment—rankings update instantly |
-| **Exclude candidates** | Remove companies that don't fit (e.g., competitors, past clients)—remaining candidates re-rank |
-| **Change criteria** | Add or remove evaluation dimensions based on client feedback |
-| **Compare externally** | Run Gemini or OpenAI Deep Research on same query, compare results side-by-side |
+| **Adjust weights** | Change importance of criteria as patterns emerge—rankings update instantly |
+| **Exclude candidates** | Remove companies that don't fit—remaining candidates re-rank automatically |
+| **Change criteria** | Add or remove evaluation dimensions as requirements become clearer |
+| **Re-research** | Run additional targeted searches to fill gaps or explore new directions |
+| **Compare externally** | Validate results against Gemini or OpenAI Deep Research |
 
-**Why this matters:**
-
-Client feedback often shifts priorities mid-engagement. Traditional approaches require re-doing research from scratch. With PartnerScope:
-
-- Client says "we need more focus on APAC presence" → adjust weights, see new rankings in seconds
-- Client says "exclude anyone we've worked with before" → remove candidates, rankings update
-- Client questions methodology → show them external research comparison
-
-This turns a multi-day iteration cycle into a conversation.
+Traditional research is linear: search once, deliver, start over if priorities change. PartnerScope is iterative: refine specifications, re-search specific areas, and build on what you've learned.
 
 ---
 

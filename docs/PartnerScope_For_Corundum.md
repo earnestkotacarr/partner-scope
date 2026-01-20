@@ -63,20 +63,21 @@ The self-service option means clients can do the intake on their own time, and y
 
 ---
 
-## Refinement: Responding to Client Feedback
+## Refinement: Iterate as You Learn
 
-Client priorities shift. Traditional research means starting over. With PartnerScope, you iterate instantly.
+As results come in, you learn more about what fits. PartnerScope lets you narrow down specifications and dig deeper without starting over.
 
-**What you can adjust:**
+**What you can do:**
 
-| Action | Example |
-|:-------|:--------|
-| **Adjust weights** | Client says "APAC presence matters more than we thought" → increase weight, rankings update in seconds |
-| **Exclude candidates** | "We've worked with them before" or "they're a competitor" → remove, remaining candidates re-rank |
-| **Change criteria** | Add "regulatory experience" as a new dimension mid-engagement |
-| **Compare externally** | Client questions your methodology → show Gemini or OpenAI results side-by-side |
+| Action | What Happens |
+|:-------|:-------------|
+| **Adjust weights** | Increase importance of certain criteria as patterns emerge—rankings update instantly |
+| **Exclude candidates** | Remove companies that don't fit—remaining candidates re-rank automatically |
+| **Change criteria** | Add or remove evaluation dimensions as requirements become clearer |
+| **Re-research** | Run additional targeted searches to fill gaps or explore new directions |
+| **Compare externally** | Validate results against Gemini or OpenAI Deep Research |
 
-This turns what used to be a multi-day re-research cycle into a live conversation with the client.
+Traditional research is linear: search once, deliver results, start over if priorities change. PartnerScope is iterative: refine specifications, re-search specific areas, and build on what you've learned.
 
 ---
 
