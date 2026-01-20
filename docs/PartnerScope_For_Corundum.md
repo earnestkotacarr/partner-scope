@@ -68,6 +68,7 @@ Your gut feel doesn't go away—it gets applied where it matters:
 | Past partnerships | Prioritize companies similar to past successes |
 | Client history | Avoid recommending past clients as partners |
 | Internal network | Surface warm introductions |
+| Private data (pseudonymized) | Learn from sensitive deal history without exposing identities |
 
 This turns PartnerScope into a tool that reflects Corundum's decade of expertise.
 
