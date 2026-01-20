@@ -1,4 +1,4 @@
-# PartnerScope V2: Deep Research Partner Search
+# PartnerScope: Deep Research Partner Search
 
 **A 5-Phase Intelligent Search Architecture for Strategic Partner Discovery**
 
@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-PartnerScope V2 employs a multi-phase deep research methodology to identify high-quality strategic partners for startups. Unlike simple keyword searches, our approach combines iterative query refinement, need decomposition, and an innovative batch-scoring system inspired by Recursive Language Models (arXiv:2512.24601).
+PartnerScope employs a multi-phase deep research methodology to identify high-quality strategic partners for startups. Unlike simple keyword searches, our approach combines iterative query refinement, need decomposition, and an innovative batch-scoring system inspired by Recursive Language Models (arXiv:2512.24601).
 
 **Key Metrics:**
 - Top-8 Average Score: **88.2/100**
@@ -338,8 +338,8 @@ Partners are evaluated using the PartnerMAS framework across 6 dimensions:
 
 ### Results
 
-| Metric | V2 Score |
-|--------|----------|
+| Metric | Score |
+|--------|-------|
 | Top-8 Average | 88.2 |
 | Overall Average | 78.5 |
 | Score Std Dev | 8.3 |
@@ -350,7 +350,7 @@ Partners are evaluated using the PartnerMAS framework across 6 dimensions:
 
 | Tool | Top-8 Avg | Method |
 |------|-----------|--------|
-| **PartnerScope V2** | **88.2** | 5-phase deep research + batch filtering |
+| **PartnerScope** | **88.2** | 5-phase deep research + batch filtering |
 | Gemini Deep Research | 82.6 | Single-pass research |
 | OpenAI Deep Research | 79.4 | Single-pass research |
 

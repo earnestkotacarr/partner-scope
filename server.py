@@ -26,7 +26,7 @@ from pathlib import Path
 
 from src.pipeline import PartnerPipeline
 from src.core import StartupProfile
-from src.providers import MockCrunchbaseProvider, OpenAIWebSearchProvider, OpenAIWebSearchProviderV2
+from src.providers import MockCrunchbaseProvider, OpenAIWebSearchProvider
 from src.chat import StartupDiscoveryAssistant, RefinementAssistant
 from src.chat.prompts import STARTUP_DISCOVERY_PROMPT, REFINEMENT_PROMPT
 
@@ -236,7 +236,6 @@ class SearchRequest(BaseModel):
     use_csv: Optional[bool] = True
     use_web_search: Optional[bool] = False
     ai_models: Optional[ModelConfig] = None
-    search_version: Optional[str] = "v1"  # "v1" (production) or "v2" (experimental)
 
 
 class PartnerMatchResponse(BaseModel):
@@ -671,13 +670,7 @@ async def _get_web_search_results(request: SearchRequest) -> list[PartnerMatchRe
 
     # Initialize the web search provider with model from config
     search_model = request.ai_models.search if request.ai_models else 'gpt-4.1'
-    search_version = getattr(request, 'search_version', 'v1') or 'v1'
-
-    # Use V2 experimental provider if requested
-    if search_version == 'v2':
-        provider = OpenAIWebSearchProviderV2({'model': search_model})
-    else:
-        provider = OpenAIWebSearchProvider({'model': search_model})
+    provider = OpenAIWebSearchProvider({'model': search_model})
 
     # Run the synchronous search in a thread pool to avoid blocking
     loop = asyncio.get_event_loop()
@@ -1255,7 +1248,6 @@ async def stream_search(
     use_csv: bool = True,
     use_web_search: bool = False,
     model_search: str = "gpt-4.1",
-    search_version: str = "v1"  # "v1" (production) or "v2" (experimental)
 ):
     """
     Stream search progress and results using Server-Sent Events.
@@ -1333,11 +1325,7 @@ async def stream_search(
                 if not os.getenv('OPENAI_API_KEY'):
                     yield f"event: error\ndata: {json.dumps({'error': 'OpenAI API key not configured'})}\n\n"
                 else:
-                    # Use V2 experimental provider if requested
-                    if search_version == 'v2':
-                        provider = OpenAIWebSearchProviderV2({'model': model_search})
-                    else:
-                        provider = OpenAIWebSearchProvider({'model': model_search})
+                    provider = OpenAIWebSearchProvider({'model': model_search})
 
                     # Run synchronous search in thread pool with timeout protection
                     loop = asyncio.get_event_loop()

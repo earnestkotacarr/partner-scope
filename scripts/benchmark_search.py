@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Benchmark Script for Search V2 Optimization
+Benchmark Script for Search Optimization
 
 ============================================================================
 USAGE
@@ -23,7 +23,7 @@ WORKFLOW
 ============================================================================
 
 1. Run this script to get baseline scores
-2. Modify src/providers/openai_web_search_v2.py
+2. Modify src/providers/openai_web_search.py
 3. Run this script again to measure improvement
 4. Repeat until scores are consistently high
 
@@ -47,7 +47,7 @@ sys.path.insert(0, str(project_root))
 from dotenv import load_dotenv
 load_dotenv()
 
-from src.providers import OpenAIWebSearchProviderV2
+from src.providers import OpenAIWebSearchProvider
 from src.chat.evaluation_assistant import EvaluationChatAssistant
 
 
@@ -150,12 +150,12 @@ HOLDOUT_SCENARIOS = [
 
 def run_search(scenario: Dict, model: str = 'gpt-4.1') -> tuple[List[Dict], Dict]:
     """
-    Run V2 search on a scenario.
+    Run search on a scenario.
 
     Returns:
         (candidates, usage_info)
     """
-    provider = OpenAIWebSearchProviderV2({'model': model})
+    provider = OpenAIWebSearchProvider({'model': model})
 
     startup_context = {
         'startup_name': scenario['startup_name'],
@@ -293,7 +293,7 @@ def run_benchmark(
     total_cost = 0
 
     print("\n" + "=" * 70)
-    print("SEARCH V2 BENCHMARK")
+    print("PARTNERSCOPE SEARCH BENCHMARK")
     print("=" * 70)
     print(f"Model: {model}")
     print(f"Scenarios: {len(scenarios)}")
@@ -305,7 +305,7 @@ def run_benchmark(
         print(f"    Need: {scenario['partner_needs'][:60]}...")
 
         # Run search
-        print(f"    Running V2 search...", end=" ", flush=True)
+        print(f"    Running search...", end=" ", flush=True)
         try:
             candidates, usage = run_search(scenario, model)
             search_cost = usage.get('costs', {}).get('total', 0)
@@ -387,7 +387,7 @@ def run_benchmark(
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Benchmark Search V2 against evaluation criteria',
+        description='Benchmark PartnerScope search against evaluation criteria',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__
     )
