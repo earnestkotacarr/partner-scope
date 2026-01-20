@@ -73,4 +73,4 @@ This turns PartnerScope into a tool that reflects Corundum's decade of expertise
 
 ---
 
-*PartnerScope — Partner discovery at the speed of innovation.* | *UTokyo Research, 2026*
+*PartnerScope — From months of research to minutes of conversation.* | *UTokyo Research, 2026*
