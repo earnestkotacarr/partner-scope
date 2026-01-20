@@ -22,49 +22,36 @@ Corundum Corp. has spent a decade building expertise in open innovation and vent
 | Refinement | Re-do research | Instant iteration (2 min) |
 | **Total** | **100-200 hours** | **Under 1 hour** |
 
-**1. Discovery Chat** — AI-guided conversation extracts partner type, must-haves, success criteria, red flags. Can be consultant-led or client self-service (send link before meeting).
+**1. Discovery Chat** — AI extracts partner type, must-haves, success criteria, red flags. Consultant-led or client self-service.
 
-**2. Search** — Searches databases and web simultaneously, finds obvious and non-obvious partners.
+**2. Search** — Databases and web simultaneously; finds obvious and non-obvious partners.
 
 **3. Evaluate** — 20 candidates scored on configurable dimensions (weights adjustable).
 
-**4. Refine** — Narrow specifications as results come in. Adjust weights, exclude candidates, run additional searches—build on what you've learned instead of starting over.
+**4. Refine** — Narrow specifications as results come in. Adjust weights, exclude candidates, run additional searches.
 
 ---
 
 ## For Consultants
 
-**"What if the AI misses something?"**
-You review everything before it goes to the client. The AI generates candidates; you apply judgment.
+**"What if the AI misses something?"** — You review everything before it goes to the client.
 
-**"Can I customize it?"**
-Yes. Evaluation dimensions and weights are adjustable per client type.
+**"Can I customize it?"** — Yes. Evaluation dimensions and weights are adjustable per client type.
 
-**"What about confidentiality?"**
-Client information stays within the session. No data is used to train AI models.
+**"What about confidentiality?"** — Client information stays within the session. No data trains AI models.
 
-**"Will this make my work less valuable?"**
-The opposite. Less time gathering data, more time on strategic advice and relationship building.
+**"Will this make my work less valuable?"** — The opposite. Less data gathering, more strategic advice.
 
 ---
 
-## Quality Control
+## Quality Control & Deliverables
 
 Your gut feel doesn't go away—it gets applied where it matters:
-
 - **Review** requirements before searching
 - **Customize** evaluation criteria and weights
 - **Compare** against other tools (Gemini, OpenAI Deep Research)
-- **Refine** based on your judgment and industry knowledge
 
----
-
-## What Clients Receive
-
-- Company profiles with fit rationale
-- Multi-dimensional scores with confidence levels
-- Strengths, concerns, and recommended next steps
-- Transparent, explainable methodology
+**Clients receive:** Company profiles with fit rationale, multi-dimensional scores, strengths/concerns, and transparent methodology.
 
 ---
 
@@ -80,6 +67,4 @@ This turns PartnerScope into a tool that reflects Corundum's decade of expertise
 
 ---
 
-*PartnerScope — Partner discovery at the speed of innovation.*
-
-*UTokyo Research, 2026*
+*PartnerScope — Partner discovery at the speed of innovation.* | *UTokyo Research, 2026*
