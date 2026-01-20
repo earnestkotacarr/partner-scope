@@ -1,4 +1,4 @@
-# PartnerScope for Corundum Corp.
+<h1 style="text-align: center;">PartnerScope for Corundum Corp.</h1>
 
 **Reducing Partner Discovery from Weeks to Minutes**
 

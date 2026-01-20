@@ -1,4 +1,4 @@
-<h1 align="center">PartnerScope</h1>
+<h1 style="text-align: center;">PartnerScope</h1>
 
 **Intelligent Partner Discovery for Startups**
 

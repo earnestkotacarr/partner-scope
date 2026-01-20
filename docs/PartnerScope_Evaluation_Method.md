@@ -1,4 +1,4 @@
-<h1 align="center">Dynamic Partner Evaluation Framework</h1>
+<h1 style="text-align: center;">Dynamic Partner Evaluation Framework</h1>
 
 **A Conversational, User-Driven Approach to Multi-Dimensional Partner Assessment**
 

@@ -1,4 +1,4 @@
-# PartnerScope for Corundum Corp.
+<h1 style="text-align: center;">PartnerScope for Corundum Corp.</h1>
 
 **パートナー探索を数週間から数分へ**
 
