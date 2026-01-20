@@ -144,8 +144,8 @@ As results come in, you learn more about what fits. Refinement lets you iterate 
 | **Adjust weights** | "Prioritize geographic coverage" | Recalculates scores, re-ranks instantly |
 | **Exclude candidates** | "Remove TechPartner, they're a competitor" | Filters out, remaining candidates re-rank |
 | **Change criteria** | "Add regulatory experience as a dimension" | New evaluation dimension applied |
-| **Dig deeper** | "Tell me more about their weaknesses" | Detailed analysis of specific candidates |
-| **Re-research** | "Find more partners in the APAC region" | Additional targeted search, results merged |
+| **Re-research** | "Find more APAC partners" | Additional targeted search, results merged |
+| **Dig deeper** | "Tell me about their weaknesses" | Detailed analysis of specific candidates |
 
 Traditional research is linear: search once, deliver, start over if priorities change. PartnerScope is iterative—refine specifications, re-search specific areas, and build on what you've learned.
 
