@@ -63,6 +63,23 @@ The self-service option means clients can do the intake on their own time, and y
 
 ---
 
+## Refinement: Responding to Client Feedback
+
+Client priorities shift. Traditional research means starting over. With PartnerScope, you iterate instantly.
+
+**What you can adjust:**
+
+| Action | Example |
+|:-------|:--------|
+| **Adjust weights** | Client says "APAC presence matters more than we thought" → increase weight, rankings update in seconds |
+| **Exclude candidates** | "We've worked with them before" or "they're a competitor" → remove, remaining candidates re-rank |
+| **Change criteria** | Add "regulatory experience" as a new dimension mid-engagement |
+| **Compare externally** | Client questions your methodology → show Gemini or OpenAI results side-by-side |
+
+This turns what used to be a multi-day re-research cycle into a live conversation with the client.
+
+---
+
 ## The Full Workflow
 
 **1. Discovery** — Guided chat extracts structured requirements
