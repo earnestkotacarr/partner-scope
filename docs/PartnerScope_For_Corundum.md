@@ -14,7 +14,7 @@ Searching databases, reviewing websites, evaluating fit based on experience and 
 
 **Current baseline:** 100-200 hours per customer (avg: 150) at ¥10,000/hour = **¥1,500,000**
 
-**With PartnerScope:** Under 1 hour = **~¥10,000 + ¥200 API**
+**With PartnerScope:** Under 1 hour consultant time + **$1-2 API costs**
 
 ---
 
