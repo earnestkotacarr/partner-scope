@@ -38,11 +38,9 @@ This partner matching work is valuable but time-intensive—searching databases,
 
 ---
 
-## For Consultants
+## Consultant Q&A
 
 **"What if the AI misses something?"** — You review everything before it goes to the client.
-
-**"Can I customize it?"** — Yes. Evaluation dimensions and weights are adjustable per client type.
 
 **"What about confidentiality?"** — Client information stays within the session. No data trains AI models.
 
