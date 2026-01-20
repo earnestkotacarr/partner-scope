@@ -6,122 +6,56 @@
 
 ## The Bottleneck
 
-Corundum Corp. has spent a decade building expertise in open innovation and venture building. Your team excels at turning early-stage technologies into real businesses through strategic partnerships.
+Corundum Corp. has spent a decade building expertise in open innovation and venture building. But partner discovery remains a bottleneck—searching databases, reviewing websites, evaluating fit based on experience and gut feel, and often re-doing work when priorities shift.
 
-But partner discovery remains a bottleneck:
-
-> *"Corundum Corp. has a customer (e.g. startup) with a business idea, and needs to assist them with finding business partners such as investors, technology providers, or manufacturers. How can they do this in the best way?"*
-
-**Current baseline:**
-
-| Per Customer | |
-|:-------------|:------------|
-| Hours spent | 100-200 (avg: 150) |
-| Hourly cost | ¥10,000 |
-| **Total cost** | **¥1,500,000** |
-
-This is searching databases, reviewing websites, evaluating fit based on experience and gut feel, iterating on client feedback, and often re-doing work when priorities shift—valuable work, but time-intensive and hard to scale.
+**Current baseline:** 100-200 hours per customer (avg: 150) at ¥10,000/hour = **¥1,500,000**
 
 ---
 
-## What Changes with PartnerScope
+## The Workflow
 
 | Stage | Today | With PartnerScope |
 |:------|:------|:------------------|
-| Requirements gathering | Manual interviews, note-taking | AI-guided conversation (10 min) |
-| Partner research | Database + web searches | Multi-source AI search (5 min) |
-| Candidate evaluation | Spreadsheets, gut feel | Structured multi-dimensional scoring (10 min) |
-| Refinement cycles | Re-do research | Instant re-ranking (2 min) |
+| Requirements | Manual interviews | AI-guided conversation (10 min) |
+| Research | Database + web searches | Multi-source AI search (5 min) |
+| Evaluation | Spreadsheets, gut feel | Multi-dimensional scoring (10 min) |
+| Refinement | Re-do research | Instant iteration (2 min) |
 | **Total** | **100-200 hours** | **Under 1 hour** |
 
-**Cost impact:**
+**1. Discovery Chat** — AI-guided conversation extracts partner type, must-haves, success criteria, red flags. Can be consultant-led or client self-service (send link before meeting).
 
-| | Hours | Cost |
-|:--|------:|-----:|
-| Manual process | 150 | ¥1,500,000 |
-| With PartnerScope | <1 | ~¥10,000 + ¥200 API |
+**2. Search** — Searches databases and web simultaneously, finds obvious and non-obvious partners.
 
----
+**3. Evaluate** — 20 candidates scored on configurable dimensions (weights adjustable).
 
-## The Discovery Chat
-
-One of the most time-consuming parts of partner search is understanding what the client actually needs. The Discovery Chat handles this through guided conversation.
-
-**How it works:**
-- AI coach asks strategic questions about the client's business
-- Extracts partner type, must-have requirements, success criteria, red flags
-- Outputs structured brief ready for search
-
-**Two ways to use it:**
-
-| Option | How | When |
-|:-------|:----|:-----|
-| **Consultant-led** | Run the chat during client meeting | Standard workflow |
-| **Client self-service** | Send chat link to client before meeting | Client arrives prepared, meeting starts with structured brief |
-
-The self-service option means clients can do the intake on their own time, and your first meeting starts with actionable requirements instead of discovery questions.
+**4. Refine** — Narrow specifications as results come in. Adjust weights, exclude candidates, run additional searches—build on what you've learned instead of starting over.
 
 ---
 
-## Refinement: Iterate as You Learn
+## For Consultants
 
-As results come in, you learn more about what fits. PartnerScope lets you narrow down specifications and dig deeper without starting over.
+**"What if the AI misses something?"**
+You review everything before it goes to the client. The AI generates candidates; you apply judgment.
 
-**What you can do:**
-
-| Action | What Happens |
-|:-------|:-------------|
-| **Adjust weights** | Increase importance of certain criteria as patterns emerge—rankings update instantly |
-| **Exclude candidates** | Remove companies that don't fit—remaining candidates re-rank automatically |
-| **Change criteria** | Add or remove evaluation dimensions as requirements become clearer |
-| **Re-research** | Run additional targeted searches to fill gaps or explore new directions |
-| **Compare externally** | Validate results against Gemini or OpenAI Deep Research |
-
-Traditional research is linear: search once, deliver results, start over if priorities change. PartnerScope is iterative: refine specifications, re-search specific areas, and build on what you've learned.
-
----
-
-## The Full Workflow
-
-**1. Discovery** — Guided chat extracts structured requirements
-
-**2. Search** — AI searches databases and web simultaneously, finds obvious and non-obvious partners
-
-**3. Evaluate** — 20 candidates scored on market fit, technical synergy, strategic alignment (weights adjustable)
-
-**4. Refine** — Exclude candidates, adjust priorities, dig deeper—no re-searching needed
-
----
-
-## For Consultants: Common Questions
-
-**"What if the AI misses something important?"**
-You review everything before it goes to the client. The AI generates candidates; you apply judgment. Think of it as a research assistant that works fast, not a replacement for your expertise.
-
-**"Can I customize it for different client types?"**
-Yes. Evaluation dimensions and weights are adjustable. A hardware startup looking for manufacturers gets different criteria than a SaaS company looking for channel partners.
-
-**"How do I explain this to clients?"**
-The methodology is transparent—clients see the evaluation criteria and scores. Many clients appreciate the structured approach; it shows rigor.
+**"Can I customize it?"**
+Yes. Evaluation dimensions and weights are adjustable per client type.
 
 **"What about confidentiality?"**
-Client information stays within the session. No client data is used to train AI models. Search queries go to external APIs but contain only the partner requirements, not sensitive client details.
+Client information stays within the session. No data is used to train AI models.
 
 **"Will this make my work less valuable?"**
-The opposite. You spend less time on data gathering and more time on strategic advice, relationship building, and deal facilitation—where your expertise matters most.
+The opposite. Less time gathering data, more time on strategic advice and relationship building.
 
 ---
 
 ## Quality Control
 
-Your expertise stays central—but now it's applied to curated candidates instead of raw research:
+Your gut feel doesn't go away—it gets applied where it matters:
 
 - **Review** requirements before searching
 - **Customize** evaluation criteria and weights
 - **Compare** against other tools (Gemini, OpenAI Deep Research)
 - **Refine** based on your judgment and industry knowledge
-
-The gut feel doesn't go away—it gets applied where it matters most: evaluating fit, not gathering data.
 
 ---
 
@@ -129,31 +63,24 @@ The gut feel doesn't go away—it gets applied where it matters most: evaluating
 
 - Company profiles with fit rationale
 - Multi-dimensional scores with confidence levels
-- Strengths, concerns, next steps
+- Strengths, concerns, and recommended next steps
 - Transparent, explainable methodology
-
----
-
-## Next Steps
-
-1. Pick an upcoming client engagement
-2. Run PartnerScope alongside normal process
-3. Compare results and time spent
 
 ---
 
 ## Future: Integration with Corundum Data
 
-PartnerScope becomes more powerful when connected to your existing knowledge:
-
 | Data Source | What It Enables |
 |:------------|:----------------|
-| Past partnerships | "Companies similar to ones that worked before" |
+| Past partnerships | Prioritize companies similar to past successes |
 | Client history | Avoid recommending past clients as partners |
-| Internal network | Surface warm introductions through existing relationships |
-| Deal outcomes | Learn which partner types succeed for which client types |
+| Internal network | Surface warm introductions |
 
-This turns PartnerScope from a general tool into one that reflects Corundum's decade of expertise and relationships.
+This turns PartnerScope into a tool that reflects Corundum's decade of expertise.
+
+---
+
+**Next Steps:** Pick an upcoming engagement. Run PartnerScope alongside your normal process. Compare results.
 
 ---
 
