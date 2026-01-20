@@ -48,14 +48,23 @@ This partner matching work is valuable but time-intensive—searching databases,
 
 ---
 
-## Quality Control & Deliverables
+## Quality Control
 
 Your gut feel doesn't go away—it gets applied where it matters:
 - **Review** requirements before searching
 - **Customize** evaluation criteria and weights
 - **Compare** against other tools (Gemini, OpenAI Deep Research)
+- **Final judgment** based on industry knowledge
 
-**Clients receive:** Company profiles with fit rationale, multi-dimensional scores, strengths/concerns, and transparent methodology.
+---
+
+## Deliverables
+
+Clients receive:
+- Company profiles with fit rationale
+- Multi-dimensional scores with confidence levels
+- Strengths, concerns, and recommended actions
+- Transparent evaluation methodology
 
 ---
 

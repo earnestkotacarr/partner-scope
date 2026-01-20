@@ -175,13 +175,13 @@ This provides objective validation that your partner search is producing high-qu
 
 Choose the right balance for your situation:
 
-| Mode | Quality | Speed | Cost | Best For |
-|------|---------|-------|------|----------|
-| **Quality** | Highest | ~20-30 min | ~$0.32/search | Final selection, high-stakes decisions |
-| **Balanced** | Good | ~20 sec | ~$0.18/search | Day-to-day use (recommended) |
-| **Fast** | Basic | ~5 sec | ~$0.05/search | Quick exploration, brainstorming |
+| Mode | Quality | Speed | Best For |
+|------|---------|-------|----------|
+| **Quality** | Highest | Slower | Final selection, high-stakes decisions |
+| **Balanced** | Good | Moderate | Day-to-day use (recommended) |
+| **Fast** | Basic | Fastest | Quick exploration, brainstorming |
 
-Select your mode before running a search. All modes use the same methodology—the difference is in the AI model powering each stage.
+Select your mode before running a search. All modes use the same 5-phase methodology—the difference is in the AI model powering each stage. See Cost Transparency below for typical costs.
 
 ---
 

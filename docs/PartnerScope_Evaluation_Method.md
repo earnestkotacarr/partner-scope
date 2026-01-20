@@ -389,4 +389,4 @@ System: TechBridge Ltd weaknesses:
 
 *Document Version: 1.0*
 *Last Updated: January 2026*
-*PartnerScope by UTokyo Research*
+*PartnerScope — From months of research to minutes of conversation.* | *UTokyo Research, 2026*
