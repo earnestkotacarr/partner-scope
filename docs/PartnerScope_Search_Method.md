@@ -352,6 +352,31 @@ Partners are evaluated using PartnerScope's dynamic evaluation framework, inform
 
 ---
 
+## Refinement: Iterate Without Re-Searching
+
+After evaluation, consultants can refine results instantly—no need to run another expensive search.
+
+**What you can adjust:**
+
+| Action | How It Works |
+|--------|--------------|
+| **Adjust weights** | Increase importance of market access, decrease strategic alignment—rankings update instantly |
+| **Exclude candidates** | Remove companies that don't fit (e.g., competitors, past clients)—remaining candidates re-rank |
+| **Change criteria** | Add or remove evaluation dimensions based on client feedback |
+| **Compare externally** | Run Gemini or OpenAI Deep Research on same query, compare results side-by-side |
+
+**Why this matters:**
+
+Client feedback often shifts priorities mid-engagement. Traditional approaches require re-doing research from scratch. With PartnerScope:
+
+- Client says "we need more focus on APAC presence" → adjust weights, see new rankings in seconds
+- Client says "exclude anyone we've worked with before" → remove candidates, rankings update
+- Client questions methodology → show them external research comparison
+
+This turns a multi-day iteration cycle into a conversation.
+
+---
+
 ## Key Innovations
 
 ### 1. Multi-Phase Query Refinement
