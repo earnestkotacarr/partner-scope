@@ -4,11 +4,13 @@
 
 ---
 
+Corundum Corp. is more than an investor. As an international innovation group, Corundum brings together researchers, investors, and innovators to create synergies between science, technology, and business. A critical part of this work is helping portfolio startups find the right partners—whether for market distribution, prototyping and testing, technology integration, or manufacturing.
+
 ## The Bottleneck
 
 > *"Corundum Corp. has a customer (e.g. startup) with a business idea, and needs to assist them with finding business partners such as investors, technology providers, or manufacturers. How can they do this in the best way?"*
 
-Corundum Corp. has spent a decade building expertise in open innovation and venture building. But partner discovery remains a bottleneck—searching databases, reviewing websites, evaluating fit based on experience and gut feel, and often re-doing work when priorities shift.
+This partner matching work is valuable but time-intensive—searching databases, reviewing websites, evaluating fit based on experience and gut feel, and often re-doing research when priorities shift.
 
 **Current baseline:** 100-200 hours per customer (avg: 150) at ¥10,000/hour = **¥1,500,000**
 
