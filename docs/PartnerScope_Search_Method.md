@@ -1,4 +1,4 @@
-# PartnerScope: Deep Research Partner Search
+<h1 align="center">Deep Research Partner Search</h1>
 
 **A 5-Phase Intelligent Search Architecture for Strategic Partner Discovery**
 

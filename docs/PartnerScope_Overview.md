@@ -1,4 +1,4 @@
-# PartnerScope
+<h1 align="center">PartnerScope</h1>
 
 **Intelligent Partner Discovery for Startups**
 
