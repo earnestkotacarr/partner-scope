@@ -68,6 +68,18 @@ Your gut feel doesn't go away—it gets applied where it matters:
 
 ---
 
+## Future: Integration with Corundum Data
+
+| Data Source | What It Enables |
+|:------------|:----------------|
+| Past partnerships | Prioritize companies similar to past successes |
+| Client history | Avoid recommending past clients as partners |
+| Internal network | Surface warm introductions |
+
+This turns PartnerScope into a tool that reflects Corundum's decade of expertise.
+
+---
+
 *PartnerScope — Partner discovery at the speed of innovation.*
 
 *UTokyo Research, 2026*
