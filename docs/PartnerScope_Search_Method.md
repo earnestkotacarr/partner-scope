@@ -326,7 +326,7 @@ Each candidate includes:
 
 ## Performance Benchmarks
 
-Partners are evaluated using the PartnerMAS framework across 6 dimensions: Strategic Alignment, Resource Complementarity, Market Access, Operational Compatibility, Risk Assessment, and Value Creation Potential.
+Partners are evaluated using PartnerScope's dynamic evaluation framework, which adapts criteria and weights based on startup context and partnership needs.
 
 | Metric | PartnerScope | Gemini Deep Research | OpenAI Deep Research |
 |--------|:------------:|:--------------------:|:--------------------:|
