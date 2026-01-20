@@ -4,7 +4,22 @@
 
 ---
 
-## Executive Summary
+## End-to-End Workflow
+
+Search is one component of the complete PartnerScope pipeline:
+
+| Stage | What Happens |
+|-------|--------------|
+| **1. Discovery Chat** | AI-guided conversation extracts structured requirements: partner type, must-haves, success criteria, red flags |
+| **2. Search** | 5-phase deep research finds 50-60 candidates from databases and web *(this document)* |
+| **3. Evaluation** | Dynamic framework scores candidates on strategic fit, adapting criteria to startup context |
+| **4. Refinement** | Adjust weights, exclude candidates, re-rank instantly—no re-searching needed |
+
+Users can also **compare results** against external tools (Gemini Deep Research, OpenAI Deep Research) to validate quality.
+
+---
+
+## Search Overview
 
 PartnerScope employs a multi-phase deep research methodology to identify high-quality strategic partners for startups. Unlike simple keyword searches, our approach combines iterative query refinement, need decomposition, and an innovative batch-scoring system inspired by Recursive Language Models (arXiv:2512.24601).
 
